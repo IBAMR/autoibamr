@@ -1,0 +1,25 @@
+# openSUSE 15
+#
+# This build script assumes that you have several packages already
+# installed via openSUSE's zypper using the following commands:
+#
+# > su -c 'zypper -n install -t pattern devel_basis devel_C_C++'
+#
+# > su -c 'zypper -n install \
+#          python gcc gcc-c++ gcc-fortran subversion git cmake \
+#          binutils-gold mpich-devel blas-devel lapack-devel'
+#
+# optional packages:
+# Modules doxygen graphviz graphviz-devel devel_qt4 splint
+#
+# Then reboot and run candi again.
+#
+# You need to specify the compilers, use the mpi-selector tool, or
+# source the mpi implementation before running candi using
+#
+# . /usr/lib64/mpi/gcc/openmpi3/bin/mpivars.sh
+##
+
+#
+# Define the additional packages for this platform.
+#PACKAGES="once:cmake ${PACKAGES}"

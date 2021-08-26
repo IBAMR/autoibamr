@@ -1,0 +1,31 @@
+#MAJORVER=1.10
+#MINORVER=5
+#CHECKSUM=e115eeb66e944fa7814482415dd21cc4
+
+MAJORVER=1.10
+MINORVER=7
+CHECKSUM=006ed785942f4ed9a6f31556d0ef8ba5
+
+VERSION=${MAJORVER}.${MINORVER}
+NAME=hdf5-${VERSION}
+SOURCE=http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-${MAJORVER}/${NAME}/src/
+PACKING=.tar.gz
+BUILDCHAIN=autotools
+
+CONFOPTS="--enable-shared --enable-parallel"
+
+INSTALL_PATH=${INSTALL_PATH}/${NAME}
+
+package_specific_register () {
+    export HDF5_DIR=${INSTALL_PATH}
+}
+
+package_specific_conf () {
+    # Generate configuration file
+    CONFIG_FILE=${CONFIGURATION_PATH}/${NAME}
+    rm -f $CONFIG_FILE
+    echo "
+export HDF5_DIR=${INSTALL_PATH}
+" >> $CONFIG_FILE
+}
+
