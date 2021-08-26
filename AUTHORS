@@ -1,3 +1,12 @@
+autoibamr is based on candi, which is in turn based on dorsal. We
+copied and pasted commit a481ab2d295350229a31311d2dfeb04a0c11dc5e
+on August 26, 2021.
+
+The primary contributors to autoibamr are
+
+    David Wells <drwells@email.unc.edu>
+    Bryn Barker <brynbarker@email.unc.edu>
+
 ===================================================================
 candi (compile&install) for deal.II
 
