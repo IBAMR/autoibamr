@@ -1,0 +1,34 @@
+VERSION=1.2.8
+NAME=zlib-${VERSION}
+SOURCE=http://zlib.net/
+PACKING=.tar.gz
+CHECKSUM=44d667c142d7cda120332623eab69f40
+BUILDCHAIN=custom
+
+INSTALL_PATH=${INSTALL_PATH}/${NAME}
+
+package_specific_build () {
+    cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* .
+    ./configure --prefix=${INSTALL_PATH}
+    quit_if_fail "zlib configure failed"
+    
+    make install
+    quit_if_fail "zlib make install failed"
+}
+
+package_specific_register () {
+    export ZLIB_DIR=${INSTALL_PATH}
+    export ZLIB_INCLUDE=${INSTALL_PATH}/include
+    export ZLIB_LIBPATH=${INSTALL_PATH}/lib
+}
+
+package_specific_conf () {
+    # Generate configuration file
+    CONFIG_FILE=${CONFIGURATION_PATH}/${NAME}
+    rm -f $CONFIG_FILE
+    echo "
+export ZLIB_DIR=${INSTALL_PATH}
+export ZLIB_INCLUDE=${INSTALL_PATH}/include
+export ZLIB_LIBPATH=${INSTALL_PATH}/lib
+" >> $CONFIG_FILE
+}
