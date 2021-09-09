@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 set -a
 
-#  Copyright (C) 2013-2017 by Uwe Koecher, Bruno Turcksin, Timo Heister,       #
+#  Copyright (C) 2013-2021 by David Wells, Bryn Barker,                        #
 #  the candi authors AND by the DORSAL Authors, cf. AUTHORS file for details.  #
 #                                                                              #
-#  This file is part of CANDI.                                                 #
+#  This file is part of autoibamr.                                             #
 #                                                                              #
-#  CANDI is free software: you can redistribute it and/or modify               #
+#  autoibamr is free software: you can redistribute it and/or modify           #
 #  it under the terms of the GNU Lesser General Public License as              #
 #  published by the Free Software Foundation, either                           #
 #  version 3 of the License, or (at your option) any later version.            #
 #                                                                              #
-#  CANDI is distributed in the hope that it will be useful,                    #
+#  autoibamr is distributed in the hope that it will be useful,                #
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of              #
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
 #  GNU Lesser General Public License for more details.                         #
 #                                                                              #
 #  You should have received a copy of the GNU Lesser General Public License    #
-#  along with CANDI.  If not, see <http://www.gnu.org/licenses/>.              #
+#  along with autoibamr.  If not, see <http://www.gnu.org/licenses/>.          #
 
-#  REMARK: CANDI (Compile & Install) is a majorly tweaked and extended         #
-#          software based on DORSAL.                                           #
+#  REMARK: autoibamr is a majorly tweaked and extended software based on       #
+#          candi, which is based on DORSAL.                                    #
 #  The origin is DORSAL (also licensed under the LGPL):                        #
 #          https://bitbucket.org/fenics-project/dorsal/src                     #
 #          master c667be2 2013-11-27                                           #
@@ -39,7 +39,7 @@ TIC_GLOBAL="$(${DATE_CMD} +%s)"
 
 ################################################################################
 # Parse command line input parameters
-PREFIX=~/dealii-candi
+PREFIX=~/autoibamr
 JOBS=1
 CMD_PACKAGES=""
 USER_INTERACTION=ON
@@ -48,25 +48,25 @@ while [ -n "$1" ]; do
     param="$1"
     case $param in
 
-	-h|--help)
-	    echo "candi (Compile & Install)"
-	    echo ""
-	    echo "Usage: $0 [options]"
-	    echo "Options:"
-	    echo "  -p <path>, --prefix=<path>  set a different prefix path (default $PREFIX)"
-	    echo "  -j <N>, -j<N>, --jobs=<N>   compile with N processes in parallel (default ${JOBS})"
-	    echo "  --platform=<platform>       force usage of a particular platform file"
-	    echo "  --packages=\"pkg1 pkg2\"      install the given list of packages instead of the default set in candi.cfg"
-	    echo "  -y, --yes, --assume-yes     automatic yes to prompts"
-	    echo ""
-	    echo "The configuration including the choice of packages to install is stored in candi.cfg, see README.md for more information."
-	    exit 0
-	;;
+        -h|--help)
+            echo "autoibamr"
+            echo ""
+            echo "Usage: $0 [options]"
+            echo "Options:"
+            echo "  -p <path>, --prefix=<path>  set a different prefix path (default $PREFIX)"
+            echo "  -j <N>, -j<N>, --jobs=<N>   compile with N processes in parallel (default ${JOBS})"
+            echo "  --platform=<platform>       force usage of a particular platform file"
+            echo "  --packages=\"pkg1 pkg2\"      install the given list of packages instead of the default set in autoibamr.cfg"
+            echo "  -y, --yes, --assume-yes     automatic yes to prompts"
+            echo ""
+            echo "The configuration including the choice of packages to install is stored in autoibamr.cfg, see README.md for more information."
+            exit 0
+        ;;
 
         #####################################
         # Prefix path
         -p)
-	    shift
+            shift
             PREFIX="${1}"
         ;;
         -p=*|--prefix=*)
@@ -86,10 +86,10 @@ while [ -n "$1" ]; do
         ;;
 
         # Make styled processes with or without space
-	-j)
-	    shift
+        -j)
+            shift
             JOBS="${1}"
-	;;
+        ;;
 
         -j*)
             JOBS="${param#*j}"
@@ -107,9 +107,9 @@ while [ -n "$1" ]; do
             USER_INTERACTION=OFF
         ;;
 
-	*)
-	    echo "invalid command line option <$param>. See -h for more information."
-	    exit 1
+        *)
+            echo "invalid command line option <$param>. See -h for more information."
+            exit 1
     esac
     shift
 done
@@ -150,7 +150,7 @@ if [ -z "${DOWNLOADERS}" ]; then
 fi
 
 ################################################################################
-# Colours for progress and error reporting
+# Colors for progress and error reporting
 BAD="\033[1;31m"
 GOOD="\033[1;32m"
 WARN="\033[1;35m"
@@ -158,7 +158,7 @@ INFO="\033[1;34m"
 BOLD="\033[1m"
 
 ################################################################################
-# Define candi helper functions
+# Define autoibamr helper functions
 
 prettify_dir() {
    # Make a directory name more readable by replacing homedir with "~"
@@ -166,7 +166,7 @@ prettify_dir() {
 }
 
 cecho() {
-    # Display messages in a specified colour
+    # Display messages in a specified color
     COL=$1; shift
     echo -e "${COL}$@\033[0m"
 }
@@ -339,7 +339,7 @@ download_archive () {
         elif [ ${DOWNLOADER} = "wget" ]; then
             wget --no-check-certificate ${url} -O ${ARCHIVE_FILE} || continue
         else
-            cecho ${BAD} "candi: Unknown downloader: ${DOWNLOADER}"
+            cecho ${BAD} "autoibamr: Unknown downloader: ${DOWNLOADER}"
             exit 1
         fi
 
@@ -368,7 +368,7 @@ package_fetch () {
     if [ ${PACKING} = ".tar.bz2" ] || [ ${PACKING} = ".tar.gz" ] || [ ${PACKING} = ".tbz2" ] || [ ${PACKING} = ".tgz" ] || [ ${PACKING} = ".tar.xz" ] || [ ${PACKING} = ".zip" ]; then
         cd ${DOWNLOAD_PATH}
         download_archive ${NAME}${PACKING}
-        quit_if_fail "candi: download_archive ${NAME}${PACKING} failed"
+        quit_if_fail "autoibamr: download_archive ${NAME}${PACKING} failed"
 
     elif [ ${PACKING} = "git" ]; then
         # Go into the unpack dir
@@ -377,13 +377,13 @@ package_fetch () {
         # Clone the git repository if not existing locally
         if [ ! -d ${EXTRACTSTO} ]; then
             git clone ${SOURCE}${NAME} ${EXTRACTSTO}
-            quit_if_fail "candi: git clone ${SOURCE}${NAME} ${EXTRACTSTO} failed"
+            quit_if_fail "autoibamr: git clone ${SOURCE}${NAME} ${EXTRACTSTO} failed"
         fi
 
         # Checkout the desired version
         cd ${EXTRACTSTO}
         git checkout ${VERSION} --force
-        quit_if_fail "candi: git checkout ${VERSION} --force failed"
+        quit_if_fail "autoibamr: git checkout ${VERSION} --force failed"
 
         # Switch to the tmp dir
         cd ..
@@ -459,10 +459,10 @@ package_unpack() {
 
     # Apply patches with git cherry-pick of commits given by ${CHERRYPICKCOMMITS}
     if [ ${PACKING} = "git" ] && [ ! -z "${CHERRYPICKCOMMITS}" ]; then
-        cecho ${INFO} "candi: git cherry-pick -X theirs ${CHERRYPICKCOMMITS}"
+        cecho ${INFO} "autoibamr: git cherry-pick -X theirs ${CHERRYPICKCOMMITS}"
         cd ${UNPACK_PATH}/${EXTRACTSTO}
         git cherry-pick -X theirs ${CHERRYPICKCOMMITS}
-        quit_if_fail "candi: git cherry-pick -X theirs ${CHERRYPICKCOMMITS} failed"
+        quit_if_fail "autoibamr: git cherry-pick -X theirs ${CHERRYPICKCOMMITS} failed"
     fi
 
     # Apply patches
@@ -507,72 +507,72 @@ package_build() {
 
     # Use the appropriate build system to compile and install the
     # package
-    for cmd_file in candi_configure candi_build; do
+    for cmd_file in autoibamr_configure autoibamr_build; do
         echo "#!/usr/bin/env bash" >${cmd_file}
         chmod a+x ${cmd_file}
 
         # Write variables to files so that they can be run stand-alone
         declare -x| grep -v "!::"| grep -v "ProgramFiles(x86)" >>${cmd_file}
 
-        # From this point in candi_*, errors are fatal
+        # From this point in autoibamr_*, errors are fatal
         echo "set -e" >>${cmd_file}
     done
 
     if [ ${BUILDCHAIN} = "autotools" ]; then
         if [ -f ${UNPACK_PATH}/${EXTRACTSTO}/configure ]; then
-            echo ${UNPACK_PATH}/${EXTRACTSTO}/configure ${CONFOPTS} --prefix=${INSTALL_PATH} >>candi_configure
+            echo ${UNPACK_PATH}/${EXTRACTSTO}/configure ${CONFOPTS} --prefix=${INSTALL_PATH} >>autoibamr_configure
         fi
 
         for target in "${TARGETS[@]}"; do
-            echo make ${MAKEOPTS} -j ${JOBS} $target >>candi_build
+            echo make ${MAKEOPTS} -j ${JOBS} $target >>autoibamr_build
         done
 
     elif [ ${BUILDCHAIN} = "cmake" ]; then
         rm -f ${BUILDDDIR}/CMakeCache.txt
         rm -rf ${BUILDDIR}/CMakeFiles
-        echo cmake ${CONFOPTS} -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} ${UNPACK_PATH}/${EXTRACTSTO} >>candi_configure
+        echo cmake ${CONFOPTS} -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} ${UNPACK_PATH}/${EXTRACTSTO} >>autoibamr_configure
         for target in "${TARGETS[@]}"; do
-            echo make ${MAKEOPTS} -j ${JOBS} $target >>candi_build
+            echo make ${MAKEOPTS} -j ${JOBS} $target >>autoibamr_build
         done
 
     elif [ ${BUILDCHAIN} = "python" ]; then
-        echo cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* . >>candi_configure
-        echo ${PYTHON_INTERPRETER} setup.py install --prefix=${INSTALL_PATH} >>candi_build
+        echo cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* . >>autoibamr_configure
+        echo ${PYTHON_INTERPRETER} setup.py install --prefix=${INSTALL_PATH} >>autoibamr_build
 
     elif [ ${BUILDCHAIN} = "scons" ]; then
-        echo cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* . >>candi_configure
+        echo cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* . >>autoibamr_configure
         for target in "${TARGETS[@]}"; do
-            echo scons -j ${JOBS} ${CONFOPTS} prefix=${INSTALL_PATH} $target >>candi_build
+            echo scons -j ${JOBS} ${CONFOPTS} prefix=${INSTALL_PATH} $target >>autoibamr_build
         done
 
     elif [ ${BUILDCHAIN} = "custom" ]; then
         # Write the function definition to file
-        declare -f package_specific_build >>candi_build
-        echo package_specific_build >>candi_build
+        declare -f package_specific_build >>autoibamr_build
+        echo package_specific_build >>autoibamr_build
 
     elif [ ${BUILDCHAIN} = "ignore" ]; then
         cecho ${INFO} "Info: ${PACKAGE} has forced BUILDCHAIN=${BUILDCHAIN}."
 
     else
-        cecho ${BAD} "candi: internal error: BUILDCHAIN=${BUILDCHAIN} for ${PACKAGE} unknown."
+        cecho ${BAD} "autoibamr: internal error: BUILDCHAIN=${BUILDCHAIN} for ${PACKAGE} unknown."
         exit 1
     fi
-    echo "touch candi_successful_build" >> candi_build
+    echo "touch autoibamr_successful_build" >> autoibamr_build
 
     # Run the generated build scripts
     if [ ${BASH_VERSINFO} -ge 3 ]; then
         set -o pipefail
-        ./candi_configure 2>&1 | tee candi_configure.log
+        ./autoibamr_configure 2>&1 | tee autoibamr_configure.log
     else
-        ./candi_configure
+        ./autoibamr_configure
     fi
     quit_if_fail "There was a problem configuring ${PACKAGE} ${VERSION}."
 
     if [ ${BASH_VERSINFO} -ge 3 ]; then
         set -o pipefail
-        ./candi_build 2>&1 | tee candi_build.log
+        ./autoibamr_build 2>&1 | tee autoibamr_build.log
     else
-        ./candi_build
+        ./autoibamr_build
     fi
     quit_if_fail "There was a problem building ${PACKAGE} ${VERSION}."
 
@@ -678,21 +678,21 @@ guess_architecture() {
 }
 
 ################################################################################
-### candi script
+### autoibamr script
 ################################################################################
 
 cls
 echo "*******************************************************************************"
-cecho ${GOOD} "This is candi (compile and install)"
+cecho ${GOOD} "This is autoibamr (compile and install)"
 echo
 
-# Keep the current work directory of candi.sh
+# Keep the current work directory of autoibamr.sh
 # WARNING: You should NEVER override this variable!
 export ORIG_DIR=`pwd`
 
 ################################################################################
-# Read configuration variables from candi.cfg
-source candi.cfg
+# Read configuration variables from autoibamr.cfg
+source autoibamr.cfg
 
 # For changes specific to your local setup or for debugging, use local.cfg
 if [ -f local.cfg ]; then
@@ -700,7 +700,7 @@ if [ -f local.cfg ]; then
 fi
 
 # If any variables are missing, set them to defaults
-default PROJECT=deal.II-toolchain
+default PROJECT=IBAMR-toolchain
 
 default DOWNLOAD_PATH=${PREFIX_PATH}/tmp/src
 default UNPACK_PATH=${PREFIX_PATH}/tmp/unpack
@@ -723,16 +723,16 @@ if [ -d ${PROJECT} ]; then
     if [ -d ${PROJECT}/platforms -a -d ${PROJECT}/packages ]; then
         cecho ${INFO} "Project: ${PROJECT}: Found configuration."
     else
-        cecho ${BAD} "Please contact the authors, if you have not changed candi!"
-        cecho ${INFO} "candi: Internal error:"
+        cecho ${BAD} "Please contact the authors, if you have not changed autoibamr!"
+        cecho ${INFO} "autoibamr: Internal error:"
         cecho ${INFO} "No subdirectories 'platforms' and 'packages' in ${PROJECT}."
         exit 1
     fi
 else
-    cecho ${BAD} "Please contact the authors, if you have not changed candi!"
-    cecho ${INFO} "candi: Internal error:"
+    cecho ${BAD} "Please contact the authors, if you have not changed autoibamr!"
+    cecho ${INFO} "autoibamr: Internal error:"
     cecho ${INFO} "Error: No project configuration directory found for project ${PROJECT}."
-    echo "Please check if you have specified right project name in candi.cfg"
+    echo "Please check if you have specified right project name in autoibamr.cfg"
     echo "Please check if you have directory called ${PROJECT}"
     echo "with subdirectories ${PROJECT}/platforms and ${PROJECT}/packages"
     exit 1
@@ -763,7 +763,7 @@ if [ -z "${GIVEN_PLATFORM}" ]; then
     else
         cecho ${BAD} "Error: Your operating system could not be automatically recognised."
         echo "You may force a (similar) platform directly by:"
-        echo "./candi.sh --platform=${PROJECT}/platforms/ {supported|contributed|deprecated} / <FORCED>.platform"
+        echo "./autoibamr.sh --platform=${PROJECT}/platforms/ {supported|contributed|deprecated} / <FORCED>.platform"
         exit 1
     fi
 
@@ -798,7 +798,7 @@ cecho ${INFO} "Operating System Type detected as: ${PLATFORM_OSTYPE}"
 if [ -z "${PLATFORM_OSTYPE}" ]; then
     # check if PLATFORM_OSTYPE is set and not empty failed
     cecho ${BAD} "Error: (internal) could not set PLATFORM_OSTYPE"
-	exit 1
+        exit 1
 fi
 
 # Guess dynamic shared library file extension -> LDSUFFIX
@@ -817,13 +817,13 @@ cecho ${INFO} "Dynamic shared library file extension detected as: *.${LDSUFFIX}"
 if [ -z "${LDSUFFIX}" ]; then
     # check if PLATFORM_OSTYPE is set and not empty failed
     cecho ${BAD} "Error: (internal) could not set LDSUFFIX"
-	exit 1
+        exit 1
 fi
 
 # Source PLATFORM variables if set up correctly
 if [ -z ${PLATFORM} ]; then
-    cecho ${BAD} "Please contact the authors, if you have not changed candi!"
-    cecho ${INFO} "candi: Internal error, no PLATFORM variable available."
+    cecho ${BAD} "Please contact the authors, if you have not changed autoibamr!"
+    cecho ${INFO} "autoibamr: Internal error, no PLATFORM variable available."
     exit 1
 else
     # Load PLATFORM variables
@@ -859,7 +859,7 @@ fi
 # Output configuration details
 cls
 echo "*******************************************************************************"
-cecho ${GOOD} "candi tries now to download, configure, build and install:"
+cecho ${GOOD} "autoibamr tries now to download, configure, build and install:"
 echo
 cecho ${GOOD} "Project:  ${PROJECT}"
 cecho ${GOOD} "Platform: ${PLATFORM}"
@@ -871,12 +871,12 @@ if [ ${DEVELOPER_MODE} = "OFF" ]; then
     cecho ${INFO} "Unpacking files to:       $(prettify_dir ${UNPACK_PATH})"
 elif [ ${DEVELOPER_MODE} = "ON" ]; then
     cecho ${BAD} "Warning: You are using the DEVELOPER_MODE"
-    cecho ${INFO} "Note: You need to have run candi with the same settings without this mode before!"
-    cecho ${BAD} "For packages not in the build mode={load|skip|once}, candi now use"
+    cecho ${INFO} "Note: You need to have run autoibamr with the same settings without this mode before!"
+    cecho ${BAD} "For packages not in the build mode={load|skip|once}, autoibamr now use"
     cecho ${BAD} "source files from: $(prettify_dir ${UNPACK_PATH})"
     echo
 else
-    cecho ${BAD} "candi: bad variable: DEVELOPER_MODE={ON|OFF}; (your specified option is = ${DEVELOPER_MODE})"
+    cecho ${BAD} "autoibamr: bad variable: DEVELOPER_MODE={ON|OFF}; (your specified option is = ${DEVELOPER_MODE})"
     exit 1
 fi
 
@@ -994,7 +994,7 @@ fi
 # Output configuration details
 cls
 echo "*******************************************************************************"
-cecho ${GOOD} "candi tries now to download, configure, build and install:"
+cecho ${GOOD} "autoibamr tries now to download, configure, build and install:"
 echo
 cecho ${GOOD} "Project:  ${PROJECT}"
 cecho ${GOOD} "Platform: ${PLATFORM}"
@@ -1064,7 +1064,7 @@ for PACKAGE in ${PACKAGES[@]}; do
     # Start timer
     TIC="$(${DATE_CMD} +%s)"
 
-    # Return to the original CANDI directory
+    # Return to the original autoibamr directory
     cd ${ORIG_DIR}
 
     # Skip building this package if the user requests it
@@ -1136,7 +1136,7 @@ for PACKAGE in ${PACKAGES[@]}; do
 
     # Check if the package can be set to SKIP:
     default BUILDDIR=${BUILD_PATH}/${NAME}
-    if [ ${SKIP} = maybe ] && [ ! -f ${BUILDDIR}/candi_successful_build ]; then
+    if [ ${SKIP} = maybe ] && [ ! -f ${BUILDDIR}/autoibamr_successful_build ]; then
         SKIP=false
     fi
 
