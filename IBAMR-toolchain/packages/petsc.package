@@ -82,23 +82,6 @@ if [ ! -z "${PARMETIS_DIR}" ]; then
 	--with-metis-dir=${PARMETIS_DIR}"
 fi
 
-if [ ! -z "${SCALAPACK_DIR}" ]; then
-    cecho ${INFO} "PETSc: configuration with SCALAPACK"
-    CONFOPTS="\
-        ${CONFOPTS} \
-        --with-scalapack-dir=${SCALAPACK_DIR}"
-else
-    CONFOPTS="${CONFOPTS} --download-scalapack=1"
-fi
-
-if [ ! -z "${MUMPS_DIR}" ]; then
-    cecho ${INFO} "PETSc: configuration with MUMPS"
-    CONFOPTS="${CONFOPTS} \
-        --with-mumps-dir=${MUMPS_DIR}"
-else
-    CONFOPTS="${CONFOPTS} --download-mumps=1"
-fi
-
 #########################################################################
 
 package_specific_setup () {
