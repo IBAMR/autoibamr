@@ -41,7 +41,6 @@ TIC_GLOBAL="$(${DATE_CMD} +%s)"
 # Parse command line input parameters
 PREFIX=~/autoibamr
 JOBS=1
-CMD_PACKAGES=""
 USER_INTERACTION=ON
 
 while [ -n "$1" ]; do
@@ -56,7 +55,6 @@ while [ -n "$1" ]; do
             echo "  -p <path>, --prefix=<path>  set a different prefix path (default $PREFIX)"
             echo "  -j <N>, -j<N>, --jobs=<N>   compile with N processes in parallel (default ${JOBS})"
             echo "  --platform=<platform>       force usage of a particular platform file"
-            echo "  --packages=\"pkg1 pkg2\"      install the given list of packages instead of the default set in autoibamr.cfg"
             echo "  -y, --yes, --assume-yes     automatic yes to prompts"
             echo ""
             echo "The configuration including the choice of packages to install is stored in autoibamr.cfg, see README.md for more information."
@@ -71,12 +69,6 @@ while [ -n "$1" ]; do
         ;;
         -p=*|--prefix=*)
             PREFIX="${param#*=}"
-        ;;
-
-        #####################################
-        # overwrite package list
-        --packages=*)
-            CMD_PACKAGES="${param#*=}"
         ;;
 
         #####################################
@@ -711,11 +703,19 @@ default CONFIGURATION_PATH=${INSTALL_PATH}/configuration
 default CLEAN_BUILD=OFF
 default DEVELOPER_MODE=OFF
 
+# TODO - we can probably remove this
 default PACKAGES_OFF=""
 
-if [ -n "$CMD_PACKAGES" ]; then
-    PACKAGES=$CMD_PACKAGES
+# all packages are mandatory except silo and libmesh
+PACKAGES="boost cmake git hdf5 muparser numdiff parmetis petsc zlib"
+if [ ${BUILD_SILO} = "ON"]; then
+    PACKAGES="${PACKAGES} silo"
 fi
+if [ ${BUILD_LIBMESH} = "ON"]; then
+    PACKAGES="${PACKAGES} libmesh"
+fi
+
+PACKAGES="${PACKAGES} ibamr"
 
 ################################################################################
 # Check if project was specified correctly
