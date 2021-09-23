@@ -163,14 +163,6 @@ cecho() {
     echo -e "${COL}$@\033[0m"
 }
 
-cls() {
-    if [ ${USER_INTERACTION} = ON ]; then
-        # clear screen
-        COL=$1; shift
-        echo -e "${COL}$@\033c"
-    fi
-}
-
 default () {
     # Export a variable, if it is not already set
     VAR="${1%%=*}"
@@ -860,7 +852,6 @@ fi
 
 ################################################################################
 # Output configuration details
-cls
 echo "*******************************************************************************"
 cecho ${GOOD} "autoibamr tries now to download, configure, build and install:"
 echo
@@ -995,7 +986,6 @@ fi
 
 ################################################################################
 # Output configuration details
-cls
 echo "*******************************************************************************"
 cecho ${GOOD} "autoibamr tries now to download, configure, build and install:"
 echo
