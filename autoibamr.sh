@@ -147,7 +147,6 @@ BAD="\033[1;31m"
 GOOD="\033[1;32m"
 WARN="\033[1;35m"
 INFO="\033[1;34m"
-BOLD="\033[1m"
 
 ################################################################################
 # Define autoibamr helper functions
@@ -389,16 +388,6 @@ package_fetch () {
         else
             cd ${NAME}
             svn up
-            cd ..
-        fi
-    elif [ ${PACKING} = "bzr" ]; then
-        cd ${UNPACK_PATH}
-        # Suitably branch or update bzr repositories
-        if [ ! -d ${NAME} ]; then
-            bzr branch ${SOURCE}${NAME}
-        else
-            cd ${NAME}
-            bzr pull
             cd ..
         fi
     fi
