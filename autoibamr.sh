@@ -163,14 +163,6 @@ cecho() {
     echo -e "${COL}$@\033[0m"
 }
 
-cls() {
-    if [ ${USER_INTERACTION} = ON ]; then
-        # clear screen
-        COL=$1; shift
-        echo -e "${COL}$@\033c"
-    fi
-}
-
 default () {
     # Export a variable, if it is not already set
     VAR="${1%%=*}"
@@ -638,12 +630,16 @@ guess_platform() {
         elif [ "${OS_NAME}" == "openSUSE Leap" ]; then
             echo opensuse15
 
-        elif [ "${PRETTY_NAME}" == "Arch Linux" ]; then
+        elif [ "${OS_PRETTY_NAME}" == "Arch Linux" ]; then
             echo arch
 
-        elif [ "${PRETTY_NAME}" == "Manjaro Linux" ]; then
+        elif [ "${OS_PRETTY_NAME}" == "Manjaro Linux" ]; then
             echo arch
+        else
+            echo unknown
         fi
+    else
+        echo unknown
     fi
 }
 
@@ -652,10 +648,10 @@ guess_ostype() {
     if [ -f /usr/bin/cygwin1.dll ]; then
         echo cygwin
 
-    elif [ -x /usr/bin/sw_vers ]; then
+    elif [ -f /usr/bin/sw_vers ]; then
         echo macos
 
-    elif [ -x /etc/os-release ]; then
+    elif [ -f /etc/os-release ]; then
         echo linux
     fi
 }
@@ -673,9 +669,8 @@ guess_architecture() {
 ### autoibamr script
 ################################################################################
 
-cls
 echo "*******************************************************************************"
-cecho ${GOOD} "This is autoibamr (compile and install)"
+cecho ${GOOD} "This is autoibamr - automatically compile and install ibamr"
 echo
 
 # Keep the current work directory of autoibamr.sh
@@ -708,10 +703,10 @@ default PACKAGES_OFF=""
 
 # all packages are mandatory except silo and libmesh
 PACKAGES="boost cmake git hdf5 muparser numdiff parmetis petsc zlib"
-if [ ${BUILD_SILO} = "ON"]; then
+if [ ${BUILD_SILO} = "ON" ]; then
     PACKAGES="${PACKAGES} silo"
 fi
-if [ ${BUILD_LIBMESH} = "ON"]; then
+if [ ${BUILD_LIBMESH} = "ON" ]; then
     PACKAGES="${PACKAGES} libmesh"
 fi
 
@@ -857,7 +852,6 @@ fi
 
 ################################################################################
 # Output configuration details
-cls
 echo "*******************************************************************************"
 cecho ${GOOD} "autoibamr tries now to download, configure, build and install:"
 echo
@@ -992,7 +986,6 @@ fi
 
 ################################################################################
 # Output configuration details
-cls
 echo "*******************************************************************************"
 cecho ${GOOD} "autoibamr tries now to download, configure, build and install:"
 echo
