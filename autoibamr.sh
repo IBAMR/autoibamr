@@ -113,7 +113,7 @@ PREFIX_PATH=${PREFIX/#~\//$HOME\/}
 unset PREFIX
 
 RE='^[0-9]+$'
-if [[ ! "${JOBS}" =~ ${RE} || ${JOBS}<1 ]] ; then
+if [[ ! "${JOBS}" =~ ${RE} || ${JOBS} -lt 1 ]] ; then
   echo "ERROR: invalid number of build processes '${JOBS}'"
   exit 1
 fi
@@ -160,7 +160,7 @@ prettify_dir() {
 cecho() {
     # Display messages in a specified color
     COL=$1; shift
-    echo -e "${COL}$@\033[0m"
+    echo -e "${COL}$*\033[0m"
 }
 
 default () {
@@ -277,11 +277,11 @@ download_archive () {
     ARCHIVE_FILE=$1
 
     # Prepend MIRROR to SOURCE (to prefer) mirror source download
-    if [ ! -z "${MIRROR}" ]; then
+    if [ -n "${MIRROR}" ]; then
         SOURCE="${MIRROR} ${SOURCE}"
     fi
 
-    for DOWNLOADER in ${DOWNLOADERS[@]}; do
+    for DOWNLOADER in ${DOWNLOADERS}; do
     for source in ${SOURCE}; do
         # verify_archive:
         # * Skip loop if the ARCHIVE_FILE is already downloaded
@@ -602,7 +602,7 @@ guess_platform() {
             esac
         fi
 
-    elif [ ! -z "${CRAYOS_VERSION}" ]; then
+    elif [ -n "${CRAYOS_VERSION}" ]; then
         echo cray
 
     elif [ -f /etc/os-release ]; then
@@ -908,7 +908,7 @@ cecho ${INFO} "Compiler Variables:"
 echo
 
 # CC test
-if [ ! -n "${CC}" ]; then
+if [ -z "${CC}" ]; then
     if builtin command -v mpicc > /dev/null; then
         cecho ${WARN} "CC  variable not set, but default mpicc  found."
         export CC=mpicc
@@ -922,7 +922,7 @@ else
 fi
 
 # CXX test
-if [ ! -n "${CXX}" ]; then
+if [ -z "${CXX}" ]; then
     if builtin command -v mpicxx > /dev/null; then
         cecho ${WARN} "CXX variable not set, but default mpicxx found."
         export CXX=mpicxx
@@ -936,7 +936,7 @@ else
 fi
 
 # FC test
-if [ ! -n "${FC}" ]; then
+if [ -z "${FC}" ]; then
     if builtin command -v mpif90 > /dev/null; then
         cecho ${WARN} "FC  variable not set, but default mpif90 found."
         export FC=mpif90
@@ -950,7 +950,7 @@ else
 fi
 
 # FF test
-if [ ! -n "${FF}" ]; then
+if [ -z "${FF}" ]; then
     if builtin command -v mpif77 > /dev/null; then
         cecho ${WARN} "FF  variable not set, but default mpif77 found."
         export FF=mpif77
@@ -1150,13 +1150,13 @@ for PACKAGE in ${PACKAGES[@]}; do
         # Clean src after install
         if [ ${INSTANT_CLEAN_SRC_AFTER_INSTALL} = ON ]; then
             if [ -f ${DOWNLOAD_PATH}/${NAME}${PACKING} ]; then
-                rm -f ${DOWNLOAD_PATH}/${NAME}${PACKING}
+                rm -f ${DOWNLOAD_PATH:?}/${NAME}${PACKING}
             fi
         fi
 
         # Clean unpack directory after install
         if [ ${INSTANT_CLEAN_UNPACK_AFTER_INSTALL} = ON ]; then
-            rm -rf ${UNPACK_PATH}/${EXTRACTSTO}
+            rm -rf ${UNPACK_PATH:?}/${EXTRACTSTO}
         fi
     else
         if [ ! -z "${LOAD}" ]; then
