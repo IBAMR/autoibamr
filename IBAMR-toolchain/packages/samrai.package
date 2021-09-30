@@ -1,0 +1,94 @@
+VERSION=2.4.4
+CHECKSUM=69711b574f9a39429248c6718b974318
+
+NAME=${VERSION}
+PACKING=.tar.gz
+SOURCE=https://github.com/LLNL/SAMRAI/archive/refs/tags/
+EXTRACTSTO=samrai-${VERSION}
+BUILDCHAIN=custom
+INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
+
+#########################################################################
+
+CONFOPTS="
+  --without-petsc \
+  --without-hypre \
+  --without-blaslapack \
+  --without-cubes \
+  --without-eleven \
+  --without-kinsol \
+  --without-sundials \
+  --without-x \
+  --with-doxygen \
+  --with-dot \
+  --enable-debug \
+  --disable-opt \
+  --enable-implicit-template-instantiation \
+  --disable-deprecated
+"
+
+if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
+    CONFOPTS="${CONFOPTS} \
+      COPTFLAGS='-O3 -march=native -mtune=native' \
+      CXXOPTFLAGS='-O3 -march=native -mtune=native' \
+      FOPTFLAGS='-O3 -march=native -mtune=native'"
+fi
+
+
+if [ ! -z "${CC}" ]; then
+    CONFOPTS="${CONFOPTS} --with-CC=${CC}"
+fi
+
+if [ ! -z "${CXX}" ]; then
+    CONFOPTS="${CONFOPTS} --with-CXX=${CXX}"
+fi
+
+if [ ! -z "${FC}" ]; then
+    CONFOPTS="${CONFOPTS} --with-FC=${FC}"
+fi
+
+if [ ! -z "${F77}" ]; then
+    CONFOPTS="${CONFOPTS} --with-F77=${F77}"
+fi
+
+if [ ! -z "${F90}" ]; then
+    CONFOPTS="${CONFOPTS} --with-F90=${F90}"
+fi
+
+if [ ! -z "${HDF5}" ]; then
+    CONFOPTS="${CONFOPTS} --with-hdf5=${HDF5}"
+fi
+
+if [ ! -z "${SILO_DIR}" ]; then
+    cecho ${INFO} "samrai: configuration with silo=${SILO_DIR}"
+    CONFOPTS="${CONFOPTS} --with-silo=${SILO_DIR}"
+else
+
+#########################################################################
+
+package_specific_setup () {
+    cd ${BUILDDIR}
+    cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* .
+
+    # make sure no other invalid PETSC_DIR is set:
+    unset SAMRAI_DIR
+    
+    ./configure --prefix=${INSTALL_PATH} ${CONFOPTS}
+    quit_if_fail "samrai ./configure failed"
+    
+    make all install
+    quit_if_fail "samrai make all install failed"
+}
+
+package_specific_register () {
+    export SAMRAI_DIR=${INSTALL_PATH}
+}
+
+package_specific_conf () {
+    # Generate configuration file
+    CONFIG_FILE=${CONFIGURATION_PATH}/${EXTRACTSTO}
+    rm -f $CONFIG_FILE
+    echo "
+export SAMRAI_DIR=${INSTALL_PATH}
+" >> $CONFIG_FILE
+}
