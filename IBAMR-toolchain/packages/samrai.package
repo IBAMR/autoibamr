@@ -66,6 +66,14 @@ else
 
 #########################################################################
 
+package_specific_patch () {
+    if [ "$VERSION" = "2.4.4" ]; then
+        cd ${UNPACK_PATH}/${EXTRACTSTO}
+        cecho ${WARN} "applying patch for building SAMRAI"
+        patch -p1 < ${ORIG_DIR}/${PROJECT}/patches/samrai-2.4.4-build.patch || true
+    fi
+}
+
 package_specific_setup () {
     cd ${BUILDDIR}
     cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* .
