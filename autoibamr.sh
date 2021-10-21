@@ -891,6 +891,8 @@ fi
 # Compiler variables check
 # Firstly test, if compiler variables are set, and if not try to set the
 # default mpi-compiler suite finally test, if compiler variables are useful.
+#
+# In all cases, CMake needs absolute paths to compilers, so expand them out
 
 echo "--------------------------------------------------------------------------------"
 cecho ${INFO} "Compiler Variables:"
@@ -906,6 +908,7 @@ fi
 
 if [ -n "${CC}" ]; then
     cecho ${INFO} "CC  = $(which ${CC})"
+    export CC=$(which ${CC})
 else
     cecho ${BAD} "CC  variable not set. Please set it with \$export CC  = <(MPI) C compiler>"
 fi
@@ -920,6 +923,7 @@ fi
 
 if [ -n "${CXX}" ]; then
     cecho ${INFO} "CXX = $(which ${CXX})"
+    export CXX=$(which ${CXX})
 else
     cecho ${BAD} "CXX variable not set. Please set it with \$export CXX = <(MPI) C++ compiler>"
 fi
