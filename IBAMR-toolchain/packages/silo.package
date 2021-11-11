@@ -1,0 +1,44 @@
+VERSION=4.10.2-bsd
+NAME=silo-${VERSION}
+SOURCE=https://wci.llnl.gov/sites/wci/files/2021-01/
+PACKING=.tgz
+CHECKSUM=4b901dfc1eb4656e83419a6fde15a2f6c6a31df84edfad7f1dc296e01b20140e
+BUILDCHAIN=autotools
+
+INSTALL_PATH=${INSTALL_PATH}/${NAME}
+
+package_specific_build () {
+    cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* .
+    # TODO - error-out if ZLIB_INCLUDE contains a comma. Silo cannot handle
+    # that.
+    #
+    # Silo cannot be configured with shared libraries when python is not
+    # present, so it must be done statically.
+    ./configure                                             \
+            --prefix=${INSTALL_PATH}                        \
+            --enable-optimization                           \
+            --enable-silex                                  \
+            --enable-install-lite-headers                   \
+            --with-hdf5=${HDF5_DIR}/include,${HDF5_DIR}/lib \
+            --with-zlib=${ZLIB_INCLUDE},${ZLIB_LIBPATH}     \
+            CFLAGS="$CFLAGS -O2 -fPIC"                      \
+            CXXFLAGS="$CCFLAGS -O2 -fPIC"                   \
+            FFLAGS="$FFLAGS -fallow-argument-mismatch -O2 -fPIC"
+    quit_if_fail "silo configure failed"
+
+    make -j${JOBS} install
+    quit_if_fail "silo make install failed"
+}
+
+package_specific_register () {
+    export SILO_DIR=${INSTALL_PATH}
+}
+
+package_specific_conf () {
+    # Generate configuration file
+    CONFIG_FILE=${CONFIGURATION_PATH}/${NAME}
+    rm -f $CONFIG_FILE
+    echo "
+export SILO_DIR=${INSTALL_PATH}
+" >> $CONFIG_FILE
+}
