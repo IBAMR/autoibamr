@@ -11,6 +11,8 @@ INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
 #########################################################################
 
 CONFOPTS="
+  --with-F77=${FC} \
+  --with-hdf5=${HDF5_DIR} \
   --without-petsc \
   --without-hypre \
   --without-blaslapack \
@@ -62,7 +64,7 @@ fi
 if [ ! -z "${SILO_DIR}" ]; then
     cecho ${INFO} "samrai: configuration with silo=${SILO_DIR}"
     CONFOPTS="${CONFOPTS} --with-silo=${SILO_DIR}"
-else
+fi
 
 #########################################################################
 
@@ -74,18 +76,18 @@ package_specific_patch () {
     fi
 }
 
-package_specific_setup () {
+package_specific_build () {
     cd ${BUILDDIR}
     cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* .
 
-    # make sure no other invalid PETSC_DIR is set:
-    unset SAMRAI_DIR
-    
     ./configure --prefix=${INSTALL_PATH} ${CONFOPTS}
     quit_if_fail "samrai ./configure failed"
     
-    make all install
-    quit_if_fail "samrai make all install failed"
+    make -j${JOBS}
+    quit_if_fail "samrai make failed"
+
+    make install
+    quit_if_fail "samrai make install failed"
 }
 
 package_specific_register () {
