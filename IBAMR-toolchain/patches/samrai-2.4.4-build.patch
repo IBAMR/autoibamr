@@ -1,0 +1,2880 @@
+From 7e03ac4a9f768986122804f07480335f6eba9a0c Mon Sep 17 00:00:00 2001
+From: David Wells <drwells@email.unc.edu>
+Date: Tue, 31 Jul 2018 17:15:37 -0400
+Subject: [PATCH] Collect necessary IBAMR patches.
+
+---
+ config/SAMRAI_config.h.in                          |  10 +-
+ examples/ConvDiff/ConvDiff.C                       |   2 +
+ examples/dataops/node_hierops.C                    |   8 +-
+ examples/memory/main.C                             |   6 +-
+ include/BoundaryLookupTable.C                      |   2 +-
+ include/BoxList.C                                  |  26 +--
+ include/BoxList.I                                  |   4 +-
+ include/CartesianGridGeometry.C                    | 164 ++++++++---------
+ include/EmptyAlgorithmX.C                          |   6 +
+ include/EmptyAppUtilsX.C                           |   6 +
+ include/EmptyGeometryX.C                           |   6 +
+ include/EmptyHierarchyX.C                          |   6 +
+ include/EmptyMathOpsX.C                            |   6 +
+ include/EmptyMeshX.C                               |   6 +
+ include/EmptyPatchDataX.C                          |   6 +
+ include/EmptySolversX.C                            |   6 +
+ include/EmptyTransferX.C                           |   6 +
+ include/FACPreconditioner.C                        |   4 +
+ include/GriddingAlgorithm.C                        |   6 +-
+ include/HierarchyDataOpsReal.h                     |   7 +
+ include/IndexData.I                                |  14 ++
+ include/PatchLevel.C                               |  12 +-
+ include/PatchLevel.h                               |  10 +-
+ include/RefineSchedule.C                           |  59 ++++--
+ include/RefineSchedule.h                           |  20 +-
+ include/SideVariable.C                             |   2 +-
+ include/StandardTagAndInitialize.C                 |   2 +-
+ include/VariableFillPattern.C                      |  26 +++
+ include/VariableFillPattern.h                      |  41 +++++
+ include/VisItDataWriter.C                          |   4 +-
+ source/algorithm/templates/EmptyAlgorithmX.C       |   6 +
+ source/apputils/plotting/VisItDataWriter.C         |   4 +-
+ source/apputils/templates/EmptyAppUtilsX.C         |   6 +
+ .../cartesian/grid_geom/CartesianGridGeometry.C    | 164 ++++++++---------
+ source/geometry/templates/EmptyGeometryX.C         |   6 +
+ source/hierarchy/boxes/BoxList.C                   |  26 +--
+ source/hierarchy/boxes/BoxList.I                   |   4 +-
+ source/hierarchy/patches/BoundaryLookupTable.C     |   2 +-
+ source/hierarchy/patches/PatchLevel.C              |  12 +-
+ source/hierarchy/patches/PatchLevel.h              |  10 +-
+ source/hierarchy/templates/EmptyHierarchyX.C       |   6 +
+ source/mathops/hierarchy/HierarchyDataOpsReal.h    |   7 +
+ source/mathops/templates/EmptyMathOpsX.C           |   6 +
+ source/mesh/gridding/GriddingAlgorithm.C           |   6 +-
+ source/mesh/gridding/StandardTagAndInitialize.C    |   2 +-
+ source/mesh/templates/EmptyMeshX.C                 |   6 +
+ source/patchdata/index/IndexData.I                 |  14 ++
+ source/patchdata/side/SideVariable.C               |   2 +-
+ source/patchdata/templates/EmptyPatchDataX.C       |   6 +
+ source/solvers/FAC/FACPreconditioner.C             |   4 +
+ source/solvers/templates/EmptySolversX.C           |   6 +
+ source/toolbox/memory/MemoryUtilities.C            |   3 +-
+ source/toolbox/restartdb/HDFDatabase.C             |  13 +-
+ source/toolbox/restartdb/SiloDatabase.C            | 203 ++++++++++-----------
+ .../templates/special/stl-FundamentalTypes.C       |   4 +-
+ .../transfer/datamovers/standard/RefineSchedule.C  |  59 ++++--
+ .../transfer/datamovers/standard/RefineSchedule.h  |  20 +-
+ source/transfer/operators/VariableFillPattern.C    |  26 +++
+ source/transfer/operators/VariableFillPattern.h    |  41 +++++
+ source/transfer/templates/EmptyTransferX.C         |   6 +
+ 60 files changed, 793 insertions(+), 370 deletions(-)
+
+diff --git a/config/SAMRAI_config.h.in b/config/SAMRAI_config.h.in
+index 90be02a..b8209b7 100644
+--- a/config/SAMRAI_config.h.in
++++ b/config/SAMRAI_config.h.in
+@@ -313,19 +313,19 @@
+ #undef OSTRSTREAM_TYPE_IS_BROKEN
+ 
+ /* Define to the address where bug reports for this package should be sent. */
+-#undef PACKAGE_BUGREPORT
++/* #undef PACKAGE_BUGREPORT */
+ 
+ /* Define to the full name of this package. */
+-#undef PACKAGE_NAME
++/* #undef PACKAGE_NAME */
+ 
+ /* Define to the full name and version of this package. */
+-#undef PACKAGE_STRING
++/* #undef PACKAGE_STRING */
+ 
+ /* Define to the one symbol short name of this package. */
+-#undef PACKAGE_TARNAME
++/* #undef PACKAGE_TARNAME */
+ 
+ /* Define to the version of this package. */
+-#undef PACKAGE_VERSION
++/* #undef PACKAGE_VERSION */
+ 
+ /* Define if restrict is not properly supported */
+ #undef RESTRICT_IS_BROKEN
+diff --git a/examples/ConvDiff/ConvDiff.C b/examples/ConvDiff/ConvDiff.C
+index 981aca0..888ef16 100644
+--- a/examples/ConvDiff/ConvDiff.C
++++ b/examples/ConvDiff/ConvDiff.C
+@@ -1298,6 +1298,8 @@ void ConvDiff::checkBoundaryData(int btype,
+            << "     " << num_bad_values << " bad VAL values found for\n"
+            << "     boundary type " << btype << " at location " << bloc << endl;
+       }
++#else
++      NULL_USE(num_bad_values);
+ #endif
+ 
+    }
+diff --git a/examples/dataops/node_hierops.C b/examples/dataops/node_hierops.C
+index 0355177..2bf69d6 100644
+--- a/examples/dataops/node_hierops.C
++++ b/examples/dataops/node_hierops.C
+@@ -83,10 +83,10 @@ int main( int argc, char *argv[] ) {
+ 
+       hier::BoxArray<2> coarse_domain(2);
+       hier::BoxArray<2> fine_domain(2);
+-      coarse_domain(0) = coarse0;
+-      coarse_domain(1) = coarse1;
+-      fine_domain(0) = fine0;
+-      fine_domain(1) = fine1;
++      coarse_domain[0] = coarse0;
++      coarse_domain[1] = coarse1;
++      fine_domain[0] = fine0;
++      fine_domain[1] = fine1;
+ 
+       tbox::Pointer<geom::CartesianGridGeometry<2> > geometry = 
+ 	 new geom::CartesianGridGeometry<2>("CartesianGeometry", lo, hi, coarse_domain);
+diff --git a/examples/memory/main.C b/examples/memory/main.C
+index 6018db9..b7d1f6e 100644
+--- a/examples/memory/main.C
++++ b/examples/memory/main.C
+@@ -31,7 +31,7 @@ int main( int argc, char *argv[] )
+ //   TAU_PROFILE_SET_NODE(tbox::SAMRAI_MPI::getRank());
+ #endif
+ 
+-   tbox::pout << "\n\nAllocating memory in 1MB chunks until we run out...\n" << endl;
++   tbox::pout << "\n\nAllocating memory in 1MB chunks until we run out...\n" << std::endl;
+ 
+    for (int chunk = 1; chunk < MAX_TEST; chunk++) {
+       
+@@ -39,7 +39,7 @@ int main( int argc, char *argv[] )
+  
+       double* array = new double[chunk*doubles_in_one_mb];
+       if (!array) {
+-         tbox::pout << "\nRan out of memory!!" << endl;
++         tbox::pout << "\nRan out of memory!!" << std::endl;
+          break;
+       }
+ 
+@@ -53,7 +53,7 @@ int main( int argc, char *argv[] )
+          
+       tbox::pout << "Successfully allocated " << chunk << "MB chunk (" 
+            << doubles_in_one_mb*chunk << " doubles)"
+-           << endl;
++           << std::endl;
+ 
+       tbox::MemoryUtilities::printMemoryInfo(tbox::pout);
+       tbox::MemoryUtilities::recordMemoryInfo();
+diff --git a/include/BoundaryLookupTable.C b/include/BoundaryLookupTable.C
+index 49a502f..396e74e 100644
+--- a/include/BoundaryLookupTable.C
++++ b/include/BoundaryLookupTable.C
+@@ -51,7 +51,7 @@ template<int DIM>  BoundaryLookupTable<DIM>::BoundaryLookupTable()
+       s_lookup_table_instance = NULL;
+    }
+    if(s_registered_callback == false) {
+-      s_lookup_table_instance = false;
++      s_lookup_table_instance = NULL;
+    }
+ 
+    if (d_table[0].isNull()) {
+diff --git a/include/BoxList.C b/include/BoxList.C
+index 3bb6e02..1695831 100644
+--- a/include/BoxList.C
++++ b/include/BoxList.C
+@@ -39,13 +39,13 @@ namespace SAMRAI {
+ template<int DIM>  BoxList<DIM>::BoxList(const Box<DIM>& box)
+ :  tbox::List< Box<DIM> >()
+ {
+-   addItem(box);
++   this ->addItem(box);
+ }
+ 
+ template<int DIM>  BoxList<DIM>::BoxList(const BoxList<DIM>& list)
+ :  tbox::List< Box<DIM> >()
+ {
+-   copyItems(list);
++   this ->copyItems(list);
+ }
+       
+ template<int DIM>  BoxList<DIM>::BoxList(const BoxArray<DIM>& array)
+@@ -53,7 +53,7 @@ template<int DIM>  BoxList<DIM>::BoxList(const BoxArray<DIM>& array)
+ {
+    const int n = array.getNumberOfBoxes();
+    for (int i = 0; i < n; i++) {
+-      appendItem(array[i]);
++      this ->appendItem(array[i]);
+    }
+ }
+ 
+@@ -61,7 +61,7 @@ template<int DIM> BoxList<DIM>& BoxList<DIM>::operator=(const BoxList<DIM>& list
+ {
+    if (this != &list) {
+       this -> clearItems();
+-      copyItems(list);
++      this ->copyItems(list);
+    }
+    return(*this);
+ }
+@@ -145,10 +145,10 @@ template<int DIM> void BoxList<DIM>::simplifyBoxes()
+          // Otherwise, burst tryMe and andMe and put on noncanonical
+ 
+             if (!combineDaPuppies) {
+-               appendItem(tryMe);
++               this ->appendItem(tryMe);
+             } else {
+                Box<DIM> andMe = l();
+-               removeItem(l);
++               this ->removeItem(l);
+                const Index<DIM>& bl = tryMe.lower();
+                const Index<DIM>& bh = tryMe.upper();
+                Index<DIM> il = andMe.lower();
+@@ -199,13 +199,13 @@ template<int DIM> void BoxList<DIM>::burstBoxes(const Box<DIM>& bursty,
+       if (bursth(d) > solidh(d)) {
+          Index<DIM> newl = burstl;
+          newl(d) = solidh(d) + 1;
+-         appendItem(Box<DIM>(newl, bursth));
++         this ->appendItem(Box<DIM>(newl, bursth));
+          bursth(d) = solidh(d);
+       }
+       if (burstl(d) < solidl(d)) {
+          Index<DIM> newh = bursth;
+          newh(d) = solidl(d) - 1;
+-         appendItem(Box<DIM>(burstl, newh));
++         this ->appendItem(Box<DIM>(burstl, newh));
+          burstl(d) = solidl(d);
+       }
+    }
+@@ -231,7 +231,7 @@ template<int DIM> void BoxList<DIM>::removeIntersections(const Box<DIM>& takeawa
+          fragments.burstBoxes(tryme, takeaway, DIM);
+       }
+    }
+-   catenateItems(fragments);
++   this ->catenateItems(fragments);
+ }
+ 
+ template<int DIM> void BoxList<DIM>::removeIntersections(const Box<DIM>& box,
+@@ -251,7 +251,7 @@ template<int DIM> void BoxList<DIM>::removeIntersections(const Box<DIM>& box,
+    if (!(box * takeaway).empty()) {
+       BoxList<DIM>::burstBoxes(box, takeaway, DIM);
+    } else {
+-      appendItem(box);
++      this ->appendItem(box);
+    }
+ 
+ }
+@@ -284,7 +284,7 @@ template<int DIM> void BoxList<DIM>::intersectBoxes(const Box<DIM>& box)
+          intersection.appendItem(overlap);
+       }
+    }
+-   catenateItems(intersection);
++   this ->catenateItems(intersection);
+ }
+ 
+ template<int DIM> void BoxList<DIM>::intersectBoxes(const BoxList<DIM>& boxes)
+@@ -300,7 +300,7 @@ template<int DIM> void BoxList<DIM>::intersectBoxes(const BoxList<DIM>& boxes)
+          }
+       }
+    }
+-   catenateItems(intersection);
++   this ->catenateItems(intersection);
+ }
+ 
+ /*
+@@ -334,7 +334,7 @@ template<int DIM> void BoxList<DIM>::coalesceBoxes()
+ 
+          if ( tb2().coalesceWith(tb()) ) {
+             found_match = true;
+-            removeItem(tb);
++            this ->removeItem(tb);
+          }
+ 
+          tb2++;
+diff --git a/include/BoxList.I b/include/BoxList.I
+index e751158..b9fe76c 100644
+--- a/include/BoxList.I
++++ b/include/BoxList.I
+@@ -30,14 +30,14 @@ template<int DIM> inline
+ void BoxList<DIM>::unionBoxes(const Box<DIM>& box)
+ {
+    if (!box.empty()) {
+-      appendItem(box);
++      this->appendItem(box);
+    }
+ }
+ 
+ template<int DIM> inline
+ void BoxList<DIM>::unionBoxes(const BoxList<DIM>& boxes)
+ {
+-   copyItems(boxes);
++   this->copyItems(boxes);
+ }
+ 
+ template<int DIM> inline
+diff --git a/include/CartesianGridGeometry.C b/include/CartesianGridGeometry.C
+index 5bf05f5..21627ca 100644
+--- a/include/CartesianGridGeometry.C
++++ b/include/CartesianGridGeometry.C
+@@ -349,7 +349,7 @@ template<int DIM> void CartesianGridGeometry<DIM>::setGeometryData(
+       d_x_up[id] = x_up[id];
+    }
+ 
+-   setPhysicalDomain(domain);
++   this->setPhysicalDomain(domain);
+ 
+    hier::Box<DIM> bigbox;
+    for (int k =0 ; k < this -> getPhysicalDomain().getNumberOfBoxes(); k++)
+@@ -380,32 +380,32 @@ template<int DIM> void CartesianGridGeometry<DIM>::makeStandardOperators()
+     * Standard spatial coarsening operators.
+     */
+ 
+-   addSpatialCoarsenOperator(new CartesianCellComplexWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianEdgeComplexWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianFaceComplexWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new pdat::NodeComplexInjection<DIM>());
+-   addSpatialCoarsenOperator(new CartesianOuterfaceComplexWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianSideComplexWeightedAverage<DIM>());
+-
+-   addSpatialRefineOperator(new pdat::CellComplexConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianCellComplexLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::EdgeComplexConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::FaceComplexConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianNodeComplexLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::OuterfaceComplexConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::SideComplexConstantRefine<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianCellComplexWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianEdgeComplexWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianFaceComplexWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new pdat::NodeComplexInjection<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianOuterfaceComplexWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianSideComplexWeightedAverage<DIM>());
++
++   this->addSpatialRefineOperator(new pdat::CellComplexConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianCellComplexLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::EdgeComplexConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::FaceComplexConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianNodeComplexLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::OuterfaceComplexConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::SideComplexConstantRefine<DIM>());
+ 
+    /*
+     * Standard linear time interpolation operators.
+     */
+ 
+-   addTimeInterpolateOperator(new pdat::CellComplexLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::EdgeComplexLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::FaceComplexLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::NodeComplexLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::OuterfaceComplexLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::OutersideComplexLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::SideComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::CellComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::EdgeComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::FaceComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::NodeComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::OuterfaceComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::OutersideComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::SideComplexLinearTimeInterpolateOp<DIM>());
+ #endif
+ 
+ #ifdef HAVE_FLOAT
+@@ -413,85 +413,85 @@ template<int DIM> void CartesianGridGeometry<DIM>::makeStandardOperators()
+     * Standard spatial coarsening operators.
+     */
+ 
+-   addSpatialCoarsenOperator(new CartesianCellFloatWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianEdgeFloatWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianFaceFloatWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new pdat::NodeFloatInjection<DIM>());
+-   addSpatialCoarsenOperator(new CartesianOuterfaceFloatWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianSideFloatWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianCellFloatWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianEdgeFloatWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianFaceFloatWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new pdat::NodeFloatInjection<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianOuterfaceFloatWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianSideFloatWeightedAverage<DIM>());
+ 
+    /*
+     * Standard spatial refining operators.
+     */
+ 
+-   addSpatialRefineOperator(new CartesianCellFloatConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianEdgeFloatConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::EdgeFloatConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::CellFloatConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianCellFloatLinearRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianFaceFloatConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianNodeFloatLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::FaceFloatConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::OuterfaceFloatConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::OuterfaceIntegerConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianSideFloatConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::SideFloatConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianCellFloatConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianEdgeFloatConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::EdgeFloatConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::CellFloatConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianCellFloatLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianFaceFloatConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianNodeFloatLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::FaceFloatConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::OuterfaceFloatConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::OuterfaceIntegerConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianSideFloatConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::SideFloatConstantRefine<DIM>());
+ 
+    /*
+     * Standard linear time interpolation operators.
+     */
+ 
+-   addTimeInterpolateOperator(new pdat::CellFloatLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::EdgeFloatLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::FaceFloatLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::NodeFloatLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::OuterfaceFloatLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::OutersideFloatLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::SideFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::CellFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::EdgeFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::FaceFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::NodeFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::OuterfaceFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::OutersideFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::SideFloatLinearTimeInterpolateOp<DIM>());
+ #endif
+ 
+    /*
+     * Standard spatial coarsening operators.
+     */
+-   addSpatialCoarsenOperator(new CartesianCellDoubleWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianEdgeDoubleWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianFaceDoubleWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new pdat::NodeDoubleInjection<DIM>());
+-   addSpatialCoarsenOperator(new pdat::NodeIntegerInjection<DIM>());
+-   addSpatialCoarsenOperator(new CartesianOuterfaceDoubleWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new pdat::OuternodeDoubleConstantCoarsen<DIM>());
+-   addSpatialCoarsenOperator(new CartesianOutersideDoubleWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianSideDoubleWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianCellDoubleWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianEdgeDoubleWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianFaceDoubleWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new pdat::NodeDoubleInjection<DIM>());
++   this->addSpatialCoarsenOperator(new pdat::NodeIntegerInjection<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianOuterfaceDoubleWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new pdat::OuternodeDoubleConstantCoarsen<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianOutersideDoubleWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianSideDoubleWeightedAverage<DIM>());
+ 
+    /*
+     * Standard spatial refining operators.
+     */
+-   addSpatialRefineOperator(new CartesianCellDoubleConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::CellDoubleConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianCellDoubleLinearRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianEdgeDoubleConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::EdgeDoubleConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::EdgeIntegerConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::CellIntegerConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianFaceDoubleConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::FaceDoubleConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::FaceIntegerConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianNodeDoubleLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::OuterfaceDoubleConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianSideDoubleConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::SideDoubleConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::SideIntegerConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianCellDoubleConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::CellDoubleConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianCellDoubleLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianEdgeDoubleConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::EdgeDoubleConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::EdgeIntegerConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::CellIntegerConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianFaceDoubleConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::FaceDoubleConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::FaceIntegerConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianNodeDoubleLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::OuterfaceDoubleConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianSideDoubleConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::SideDoubleConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::SideIntegerConstantRefine<DIM>());
+ 
+    /*
+     * Standard linear time interpolation operators.
+     */
+-   addTimeInterpolateOperator(new pdat::CellDoubleLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::EdgeDoubleLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::FaceDoubleLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::NodeDoubleLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::OuterfaceDoubleLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::OutersideDoubleLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::SideDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::CellDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::EdgeDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::FaceDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::NodeDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::OuterfaceDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::OutersideDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::SideDoubleLinearTimeInterpolateOp<DIM>());
+ 
+ }
+ 
+@@ -628,7 +628,7 @@ template<int DIM> void CartesianGridGeometry<DIM>::putToDatabase(
+    db->putDoubleArray("d_x_lo", d_x_lo, DIM);
+    db->putDoubleArray("d_x_up", d_x_up, DIM);
+ 
+-   hier::IntVector<DIM> level0_shift = getPeriodicShift(hier::IntVector<DIM>(1));
++   hier::IntVector<DIM> level0_shift = this->getPeriodicShift(hier::IntVector<DIM>(1));
+    int* temp_shift = level0_shift;
+    db->putIntegerArray("d_periodic_shift", temp_shift, DIM);
+ 
+@@ -710,7 +710,7 @@ template<int DIM> void CartesianGridGeometry<DIM>::getFromInput(
+ 
+       setGeometryData(x_lo, x_up, domain);
+ 
+-      initializePeriodicShift(per_bc);
++      this->initializePeriodicShift(per_bc);
+ 
+    }
+ }
+@@ -752,12 +752,12 @@ template<int DIM> void CartesianGridGeometry<DIM>::getFromRestart()
+    db->getDoubleArray("d_x_lo", x_lo, DIM);
+    db->getDoubleArray("d_x_up", x_up, DIM);
+ 
+-   setGeometryData(x_lo, x_up, domain);
++   this->setGeometryData(x_lo, x_up, domain);
+ 
+    hier::IntVector<DIM> periodic_shift;
+    int* temp_shift = periodic_shift;
+    db->getIntegerArray("d_periodic_shift", temp_shift, DIM);
+-   initializePeriodicShift(periodic_shift);
++   this->initializePeriodicShift(periodic_shift);
+ 
+    d_using_original_locations = db->getBool("d_using_original_locations");
+ }
+diff --git a/include/EmptyAlgorithmX.C b/include/EmptyAlgorithmX.C
+index 9b9795d..98e1e1a 100644
+--- a/include/EmptyAlgorithmX.C
++++ b/include/EmptyAlgorithmX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace algs {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/include/EmptyAppUtilsX.C b/include/EmptyAppUtilsX.C
+index 93fd14d..995382a 100644
+--- a/include/EmptyAppUtilsX.C
++++ b/include/EmptyAppUtilsX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace appu {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/include/EmptyGeometryX.C b/include/EmptyGeometryX.C
+index 9165e43..601487c 100644
+--- a/include/EmptyGeometryX.C
++++ b/include/EmptyGeometryX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace geom {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/include/EmptyHierarchyX.C b/include/EmptyHierarchyX.C
+index d8f8a22..85b1857 100644
+--- a/include/EmptyHierarchyX.C
++++ b/include/EmptyHierarchyX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace hier {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/include/EmptyMathOpsX.C b/include/EmptyMathOpsX.C
+index 4d14944..40a8801 100644
+--- a/include/EmptyMathOpsX.C
++++ b/include/EmptyMathOpsX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace math {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/include/EmptyMeshX.C b/include/EmptyMeshX.C
+index f9f513c..d065dff 100644
+--- a/include/EmptyMeshX.C
++++ b/include/EmptyMeshX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace mesh {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/include/EmptyPatchDataX.C b/include/EmptyPatchDataX.C
+index d696aee..5d9f665 100644
+--- a/include/EmptyPatchDataX.C
++++ b/include/EmptyPatchDataX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace pdat {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/include/EmptySolversX.C b/include/EmptySolversX.C
+index c0abd23..9190fe7 100644
+--- a/include/EmptySolversX.C
++++ b/include/EmptySolversX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace solv {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/include/EmptyTransferX.C b/include/EmptyTransferX.C
+index 955f3fb..fed18f1 100644
+--- a/include/EmptyTransferX.C
++++ b/include/EmptyTransferX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace xfer {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/include/FACPreconditioner.C b/include/FACPreconditioner.C
+index af374cd..5843f17 100644
+--- a/include/FACPreconditioner.C
++++ b/include/FACPreconditioner.C
+@@ -152,18 +152,22 @@ template<int DIM> void FACPreconditioner<DIM>::deallocateSolverState( )
+       d_patch_hierarchy.setNull();
+ 
+       if ( d_error_vector ) {
++         d_error_vector->resetLevels(d_error_vector->getCoarsestLevelNumber(), std::min(d_error_vector->getFinestLevelNumber(),d_error_vector->getPatchHierarchy()->getFinestLevelNumber()));
+          d_error_vector->freeVectorComponents();
+          d_error_vector.setNull();
+       }
+       if ( d_tmp_error ) {
++         d_tmp_error->resetLevels(d_tmp_error->getCoarsestLevelNumber(), std::min(d_tmp_error->getFinestLevelNumber(),d_tmp_error->getPatchHierarchy()->getFinestLevelNumber()));
+          d_tmp_error->freeVectorComponents();
+          d_tmp_error.setNull();
+       }
+       if ( d_residual_vector ) {
++         d_residual_vector->resetLevels(d_residual_vector->getCoarsestLevelNumber(), std::min(d_residual_vector->getFinestLevelNumber(),d_residual_vector->getPatchHierarchy()->getFinestLevelNumber()));
+          d_residual_vector->freeVectorComponents();
+          d_residual_vector.setNull();
+       }
+       if ( d_tmp_residual ) {
++         d_tmp_residual->resetLevels(d_tmp_residual->getCoarsestLevelNumber(), std::min(d_tmp_residual->getFinestLevelNumber(),d_tmp_residual->getPatchHierarchy()->getFinestLevelNumber()));
+          d_tmp_residual->freeVectorComponents();
+          d_tmp_residual.setNull();
+       }
+diff --git a/include/GriddingAlgorithm.C b/include/GriddingAlgorithm.C
+index 18cc32f..792d323 100644
+--- a/include/GriddingAlgorithm.C
++++ b/include/GriddingAlgorithm.C
+@@ -1215,6 +1215,10 @@ template<int DIM> void GriddingAlgorithm<DIM>::regridFinerLevel(
+          hierarchy->makeNewPatchLevel(fine_level_number, ratio,
+                                       fine_boxes, mapping);
+ 
++         if (d_check_overlapping_patches != 'i') {
++            checkOverlappingPatches( hierarchy->getPatchLevel(fine_level_number) );
++         }
++
+          // "false" argument": const bool initial_time = false;
+          d_tag_init_strategy->initializeLevelData(hierarchy,
+                                                   fine_level_number,
+@@ -2624,7 +2628,7 @@ template<int DIM> void GriddingAlgorithm<DIM>::getFromInput(
+    }
+ 
+    d_check_overlapping_patches =
+-      db->getCharWithDefault( "check_overplapping_patches",
++      db->getCharWithDefault( "check_overlapping_patches",
+                               d_check_overlapping_patches );
+    if ( d_check_overlapping_patches != 'i' &&
+         d_check_overlapping_patches != 'w' &&
+diff --git a/include/HierarchyDataOpsReal.h b/include/HierarchyDataOpsReal.h
+index 6b62f1b..ed48d0b 100644
+--- a/include/HierarchyDataOpsReal.h
++++ b/include/HierarchyDataOpsReal.h
+@@ -330,6 +330,13 @@ public:
+ 		    bool local_only=false) const = 0;
+ 
+    /**
++    * Return the integral of the function represented by the data array.
++    * The return value is the sum \f$\sum_i ( data_i * vol_i )\f$.
++    */
++   virtual TYPE integral(const int data_id,
++                         const int vol_id) const = 0;
++
++   /**
+     * Return 1 if \f$\|data2_i\| > 0\f$ and \f$data1_i * data2_i \leq 0\f$, for
+     * any \f$i\f$ in the set of patch data indices, where \f$cvol_i > 0\f$.  Otherwise,
+     * return 0.  If the control volume is undefined (vol_id < 0), all values
+diff --git a/include/IndexData.I b/include/IndexData.I
+index 572a46e..e914729 100644
+--- a/include/IndexData.I
++++ b/include/IndexData.I
+@@ -119,6 +119,20 @@ const TYPE& IndexIterator<DIM,TYPE,BOX_GEOMETRY>::operator()() const
+ 
+ template<int DIM, class TYPE, class BOX_GEOMETRY>
+ inline
++TYPE& IndexIterator<DIM,TYPE,BOX_GEOMETRY>::getItem()
++{
++   return(*d_node->d_item);
++}
++
++template<int DIM, class TYPE, class BOX_GEOMETRY>
++inline
++const hier::Index<DIM>& IndexIterator<DIM,TYPE,BOX_GEOMETRY>::getIndex() const
++{
++    return(d_node->d_index);
++}
++
++template<int DIM, class TYPE, class BOX_GEOMETRY>
++inline
+ IndexIterator<DIM,TYPE,BOX_GEOMETRY>::operator bool() const
+ {
+    return(d_node ? true : false);
+diff --git a/include/PatchLevel.C b/include/PatchLevel.C
+index 15150cb..42f781a 100644
+--- a/include/PatchLevel.C
++++ b/include/PatchLevel.C
+@@ -27,7 +27,15 @@
+ namespace SAMRAI {
+     namespace hier {
+ 
+-static tbox::Pointer<tbox::Timer> t_level_constructor;
++/*
++*************************************************************************
++*                                                                       *
++* Initialization for static data members.                               *
++*                                                                       *
++*************************************************************************
++*/
++template<int DIM> tbox::Pointer<tbox::Timer>
++   PatchLevel<DIM>::t_level_constructor;
+ 
+ /*
+  *************************************************************************
+@@ -1007,8 +1015,8 @@ template<int DIM> void PatchLevel<DIM>::initializeTimers()
+    if ( t_level_constructor.isNull() ) {
+       t_level_constructor = tbox::TimerManager::getManager() ->
+          getTimer("mesh::PatchLevel::level_constructor");
+-   }
+    tbox::ShutdownRegistry::registerShutdownRoutine(freeTimers, 254);
++   }
+ }
+ 
+ 
+diff --git a/include/PatchLevel.h b/include/PatchLevel.h
+index d5d651b..edfc304 100644
+--- a/include/PatchLevel.h
++++ b/include/PatchLevel.h
+@@ -479,7 +479,10 @@ private:
+     */
+    void setPatchTouchesBoundaryArrays();
+ 
+-   void initializeTimers();
++   /*!
++    * Allocate static timers.
++    */
++   static void initializeTimers();
+ 
+    /*!
+     * Free static timers.
+@@ -565,6 +568,11 @@ private:
+     * Manages communications in clustering algorithms
+     */
+    tbox::Pointer< BinaryTree<DIM> > d_binary_tree;
++
++   /*
++    * Timer objects for performance measurement.
++    */
++   static tbox::Pointer<tbox::Timer> t_level_constructor;
+ };
+ 
+ /**
+diff --git a/include/RefineSchedule.C b/include/RefineSchedule.C
+index d4e6a90..d19fb4a 100644
+--- a/include/RefineSchedule.C
++++ b/include/RefineSchedule.C
+@@ -41,18 +41,6 @@ namespace SAMRAI {
+ #define BIG_GHOST_CELL_WIDTH  (10)
+ 
+ 
+-/*!
+- * Timer objects for performance measurement.
+- */
+-static tbox::Pointer<tbox::Timer> t_fill_data;
+-static tbox::Pointer<tbox::Timer> t_recursive_fill;
+-static tbox::Pointer<tbox::Timer> t_refine_scratch_data;
+-static tbox::Pointer<tbox::Timer> t_gen_sched_n_squared;
+-static tbox::Pointer<tbox::Timer> t_gen_sched_box_graph;
+-static tbox::Pointer<tbox::Timer> t_gen_sched_box_tree; 
+-static tbox::Pointer<tbox::Timer> t_gen_comm_sched;
+-static tbox::Pointer<tbox::Timer> t_finish_sched_const;
+-
+ /*
+ *************************************************************************
+ *                                                                       *
+@@ -67,6 +55,22 @@ template<int DIM> const hier::IntVector<DIM>
+    RefineSchedule<DIM>::s_constant_one_intvector = hier::IntVector<DIM>(1);
+ template<int DIM> std::string
+    RefineSchedule<DIM>::s_schedule_generation_method = "BOX_TREE";
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_fill_data;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_recursive_fill;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_refine_scratch_data;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_gen_sched_n_squared;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_gen_sched_box_graph;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_gen_sched_box_tree;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_gen_comm_sched;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_finish_sched_const;
+ 
+ /*
+  * ************************************************************************
+@@ -810,6 +814,19 @@ template<int DIM> void RefineSchedule<DIM>::fillData(
+    d_transaction_factory->setRefineItems(d_refine_items, d_number_refine_items);
+ 
+    /*
++    * Set the destination level number for the variable fill pattern
++    * objects.
++    */
++   const int num_equiv_classes =
++      d_refine_classes->getNumberOfEquivalenceClasses();
++   for (int nc = 0; nc < num_equiv_classes; nc++) {
++      const typename xfer::RefineClasses<DIM>::Data& rep_item =
++         d_refine_classes->getClassRepresentative(nc);
++      rep_item.d_var_fill_pattern->setTargetPatchLevelNumber(
++         d_dst_level->getLevelNumber());
++   }
++
++   /*
+     * Check whether scratch data needs to be allocated on the destination
+     * level.  Keep track of those allocated components so that they may be
+     * deallocated later.
+@@ -841,6 +858,16 @@ template<int DIM> void RefineSchedule<DIM>::fillData(
+    d_dst_level->deallocatePatchData(allocate_vector);
+ 
+    /*
++    * Reset the destination level number for the variable fill pattern
++    * objects.
++    */
++   for (int nc = 0; nc < num_equiv_classes; nc++) {
++      const typename xfer::RefineClasses<DIM>::Data& rep_item =
++         d_refine_classes->getClassRepresentative(nc);
++      rep_item.d_var_fill_pattern->setTargetPatchLevelNumber(-1);
++   }
++
++   /*
+     * Unset the refine items for all transactions.  These items are
+     * shared by all transaction objects in the communication schedule.
+     */
+@@ -1887,12 +1914,14 @@ template<int DIM> void RefineSchedule<DIM>::constructScheduleTransactions(
+             hier::Box<DIM> src_mask( hier::Box<DIM>::shift( test_mask,-shift) );
+ 
+             tbox::Pointer< hier::BoxOverlap<DIM> > overlap =
+-               rep_item.d_var_fill_pattern->calculateOverlap(
++               rep_item.d_var_fill_pattern->calculateOverlapOnLevel(
+                   *dst_pdf->getBoxGeometry(dst_box),
+                   *src_pdf->getBoxGeometry(src_box),
+                   dst_box,
+                   src_mask,
+-                  true, shift);
++                  true, shift,
++                  dst_level->getLevelNumber(),
++                  src_level->getLevelNumber());
+ /*	    tbox::Pointer< hier::BoxOverlap<DIM> > overlap =
+ 	       dst_pdf->getBoxGeometry(dst_box)
+ 		      ->calculateOverlap(
+@@ -2230,6 +2259,8 @@ template<int DIM> void RefineSchedule<DIM>::printClassData(std::ostream& stream)
+ 
+ /*
+ ***********************************************************************
++Allocate static timers and register freeTimers with the shutdown
++registry.
+ ***********************************************************************
+ */
+ template<int DIM>
+diff --git a/include/RefineSchedule.h b/include/RefineSchedule.h
+index ed4ecb0..0293731 100644
+--- a/include/RefineSchedule.h
++++ b/include/RefineSchedule.h
+@@ -542,15 +542,17 @@ private:
+     */
+    void initialCheckRefineClassItems() const;
+ 
+-   void initializeTimers();
+-
+-
+    /*!
+     * @brief Set up things for the entire class.
+     */
+    void firstConstructorTasks();
+ 
+    /*!
++    * Allocate static timers.
++    */
++   static void initializeTimers();
++
++   /*!
+     * Free static timers.
+     *
+     * To be called by shutdown registry to make sure
+@@ -723,7 +725,17 @@ private:
+    int d_max_fill_boxes;
+    hier::BoxArray<DIM> d_src_masks;
+ 
+-
++   /*!
++    * Timer objects for performance measurement.
++    */
++   static tbox::Pointer<tbox::Timer> t_fill_data;
++   static tbox::Pointer<tbox::Timer> t_recursive_fill;
++   static tbox::Pointer<tbox::Timer> t_refine_scratch_data;
++   static tbox::Pointer<tbox::Timer> t_gen_sched_n_squared;
++   static tbox::Pointer<tbox::Timer> t_gen_sched_box_graph;
++   static tbox::Pointer<tbox::Timer> t_gen_sched_box_tree;
++   static tbox::Pointer<tbox::Timer> t_gen_comm_sched;
++   static tbox::Pointer<tbox::Timer> t_finish_sched_const;
+ };
+ 
+ }
+diff --git a/include/SideVariable.C b/include/SideVariable.C
+index 190dfd9..c92215c 100644
+--- a/include/SideVariable.C
++++ b/include/SideVariable.C
+@@ -54,7 +54,7 @@ SideVariable<DIM,TYPE>::SideVariable(
+       for (int id = 0; id < DIM; id++) {
+          d_directions(id) = ( (direction == id) ? 1 : 0 );  
+       }  
+-      setPatchDataFactory(new SideDataFactory<DIM,TYPE>(
++      this->setPatchDataFactory(new SideDataFactory<DIM,TYPE>(
+                              depth,
+                              hier::IntVector<DIM>(0),
+                              fine_boundary_represents_var,
+diff --git a/include/StandardTagAndInitialize.C b/include/StandardTagAndInitialize.C
+index 66d7b1d..34b0824 100644
+--- a/include/StandardTagAndInitialize.C
++++ b/include/StandardTagAndInitialize.C
+@@ -287,7 +287,7 @@ template<int DIM> void StandardTagAndInitialize<DIM>::tagCellsForRefinement(
+    if (d_use_refine_boxes) {
+ 
+       hier::BoxArray<DIM> refine_boxes;
+-      getUserSuppliedRefineBoxes(refine_boxes, level_number, regrid_time); 
++      this->getUserSuppliedRefineBoxes(refine_boxes, level_number, regrid_time); 
+ 
+       tbox::Pointer< hier::PatchLevel<DIM> > level = 
+          hierarchy->getPatchLevel(level_number);
+diff --git a/include/VariableFillPattern.C b/include/VariableFillPattern.C
+index cd00635..16caf7c 100644
+--- a/include/VariableFillPattern.C
++++ b/include/VariableFillPattern.C
+@@ -39,7 +39,33 @@ VariableFillPattern<DIM>::~VariableFillPattern()
+ {
+ }
+ 
++template<int DIM>
++tbox::Pointer< hier::BoxOverlap<DIM> >
++VariableFillPattern<DIM>::calculateOverlapOnLevel(const hier::BoxGeometry<DIM>& dst_geometry,
++                                                  const hier::BoxGeometry<DIM>& src_geometry,
++                                                  const hier::Box<DIM>& dst_patch_box,
++                                                  const hier::Box<DIM>& src_mask,
++                                                  const bool overwrite_interior,
++                                                  const hier::IntVector<DIM>& src_offset,
++                                                  const int dst_level_num,
++                                                  const int src_level_num) const
++{
++   NULL_USE(dst_level_num);
++   NULL_USE(src_level_num);
++   return calculateOverlap(dst_geometry,
++                           src_geometry,
++                           dst_patch_box,
++                           src_mask,
++                           overwrite_interior,
++                           src_offset);
++}
+ 
++template<int DIM>
++void VariableFillPattern<DIM>::setTargetPatchLevelNumber(const int level_num)
++{
++   NULL_USE(level_num);
++   return;
++}
+ 
+ }
+ }
+diff --git a/include/VariableFillPattern.h b/include/VariableFillPattern.h
+index 35c8377..9100093 100644
+--- a/include/VariableFillPattern.h
++++ b/include/VariableFillPattern.h
+@@ -68,6 +68,47 @@ public:
+                     const hier::IntVector<DIM>& src_offset) const = 0;
+ 
+    /*!
++    * This virtual method provides an interface to calculate overlaps between
++    * the destination and source geometries on a specified level of the patch
++    * hierarchy.
++    *
++    * @note A default implementation is provided that simply calls the pure
++    * virtual method calculateOverlap() for implementations that are level
++    * independent.
++    *
++    * @param dst_geometry    geometry object for destination box
++    * @param src_geometry    geometry object for source box
++    * @param dst_patch_box   box for the destination patch
++    * @param src_mask        the source mask, the box resulting from shifting
++    *                        the source box
++    * @param overwrite_interior  controls whether or not to include the
++    *                            destination box interior in the overlap
++    * @param src_offset      the offset between source and destination
++    *                        index space.  src + src_offset = dst
++    * @param dst_level_num   the level of the patch hierarchy on which the
++    *                        dst boxes are located
++    * @param src_level_num   the level of the patch hierarchy on which the
++    *                        src boxes are located
++    *
++    * @return                Pointer to the calculated overlap object
++    */
++   virtual tbox::Pointer< hier::BoxOverlap<DIM> >
++   calculateOverlapOnLevel(const hier::BoxGeometry<DIM>& dst_geometry,
++                           const hier::BoxGeometry<DIM>& src_geometry,
++                           const hier::Box<DIM>& dst_patch_box,
++                           const hier::Box<DIM>& src_mask,
++                           const bool overwrite_interior,
++                           const hier::IntVector<DIM>& src_offset,
++                           const int dst_level_num,
++                           const int src_level_num) const;
++
++   /*!
++    * Set the target patch level number for the variable fill pattern.  The
++    * default implementation is empty.
++    */
++   virtual void setTargetPatchLevelNumber(const int level_num);
++
++   /*!
+     * Return the maximum ghost width of the boundary stencil.  The default
+     * implementation throws an error.
+     */
+diff --git a/include/VisItDataWriter.C b/include/VisItDataWriter.C
+index edf7d77..b050436 100644
+--- a/include/VisItDataWriter.C
++++ b/include/VisItDataWriter.C
+@@ -4481,7 +4481,7 @@ template<int DIM> void VisItDataWriter<DIM>::HDFputIntegerArray2D(
+ #endif
+    herr_t errf;
+    if ((nelements0 > 0) && (nelements1 > 0)) {
+-      hsize_t dim[] = {nelements0, nelements1};
++      hsize_t dim[] = {static_cast<hsize_t>(nelements0), static_cast<hsize_t>(nelements1)};
+       hid_t space = H5Screate_simple(2, dim, NULL);
+ #ifdef DEBUG_CHECK_ASSERTIONS
+       TBOX_ASSERT(space >= 0);
+@@ -4555,7 +4555,7 @@ template<int DIM> void VisItDataWriter<DIM>::HDFputDoubleArray2D(
+ #endif
+    herr_t errf;
+    if ((nelements0 > 0) && (nelements1 > 0)) {
+-      hsize_t dim[] = {nelements0, nelements1};
++      hsize_t dim[] = {static_cast<hsize_t>(nelements0), static_cast<hsize_t>(nelements1)};
+       hid_t space = H5Screate_simple(2, dim, NULL);
+ #ifdef DEBUG_CHECK_ASSERTIONS
+       TBOX_ASSERT(space >= 0);
+diff --git a/source/algorithm/templates/EmptyAlgorithmX.C b/source/algorithm/templates/EmptyAlgorithmX.C
+index 9b9795d..98e1e1a 100644
+--- a/source/algorithm/templates/EmptyAlgorithmX.C
++++ b/source/algorithm/templates/EmptyAlgorithmX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace algs {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/source/apputils/plotting/VisItDataWriter.C b/source/apputils/plotting/VisItDataWriter.C
+index edf7d77..b050436 100644
+--- a/source/apputils/plotting/VisItDataWriter.C
++++ b/source/apputils/plotting/VisItDataWriter.C
+@@ -4481,7 +4481,7 @@ template<int DIM> void VisItDataWriter<DIM>::HDFputIntegerArray2D(
+ #endif
+    herr_t errf;
+    if ((nelements0 > 0) && (nelements1 > 0)) {
+-      hsize_t dim[] = {nelements0, nelements1};
++      hsize_t dim[] = {static_cast<hsize_t>(nelements0), static_cast<hsize_t>(nelements1)};
+       hid_t space = H5Screate_simple(2, dim, NULL);
+ #ifdef DEBUG_CHECK_ASSERTIONS
+       TBOX_ASSERT(space >= 0);
+@@ -4555,7 +4555,7 @@ template<int DIM> void VisItDataWriter<DIM>::HDFputDoubleArray2D(
+ #endif
+    herr_t errf;
+    if ((nelements0 > 0) && (nelements1 > 0)) {
+-      hsize_t dim[] = {nelements0, nelements1};
++      hsize_t dim[] = {static_cast<hsize_t>(nelements0), static_cast<hsize_t>(nelements1)};
+       hid_t space = H5Screate_simple(2, dim, NULL);
+ #ifdef DEBUG_CHECK_ASSERTIONS
+       TBOX_ASSERT(space >= 0);
+diff --git a/source/apputils/templates/EmptyAppUtilsX.C b/source/apputils/templates/EmptyAppUtilsX.C
+index 93fd14d..995382a 100644
+--- a/source/apputils/templates/EmptyAppUtilsX.C
++++ b/source/apputils/templates/EmptyAppUtilsX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace appu {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/source/geometry/cartesian/grid_geom/CartesianGridGeometry.C b/source/geometry/cartesian/grid_geom/CartesianGridGeometry.C
+index 5bf05f5..21627ca 100644
+--- a/source/geometry/cartesian/grid_geom/CartesianGridGeometry.C
++++ b/source/geometry/cartesian/grid_geom/CartesianGridGeometry.C
+@@ -349,7 +349,7 @@ template<int DIM> void CartesianGridGeometry<DIM>::setGeometryData(
+       d_x_up[id] = x_up[id];
+    }
+ 
+-   setPhysicalDomain(domain);
++   this->setPhysicalDomain(domain);
+ 
+    hier::Box<DIM> bigbox;
+    for (int k =0 ; k < this -> getPhysicalDomain().getNumberOfBoxes(); k++)
+@@ -380,32 +380,32 @@ template<int DIM> void CartesianGridGeometry<DIM>::makeStandardOperators()
+     * Standard spatial coarsening operators.
+     */
+ 
+-   addSpatialCoarsenOperator(new CartesianCellComplexWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianEdgeComplexWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianFaceComplexWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new pdat::NodeComplexInjection<DIM>());
+-   addSpatialCoarsenOperator(new CartesianOuterfaceComplexWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianSideComplexWeightedAverage<DIM>());
+-
+-   addSpatialRefineOperator(new pdat::CellComplexConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianCellComplexLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::EdgeComplexConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::FaceComplexConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianNodeComplexLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::OuterfaceComplexConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::SideComplexConstantRefine<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianCellComplexWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianEdgeComplexWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianFaceComplexWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new pdat::NodeComplexInjection<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianOuterfaceComplexWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianSideComplexWeightedAverage<DIM>());
++
++   this->addSpatialRefineOperator(new pdat::CellComplexConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianCellComplexLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::EdgeComplexConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::FaceComplexConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianNodeComplexLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::OuterfaceComplexConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::SideComplexConstantRefine<DIM>());
+ 
+    /*
+     * Standard linear time interpolation operators.
+     */
+ 
+-   addTimeInterpolateOperator(new pdat::CellComplexLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::EdgeComplexLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::FaceComplexLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::NodeComplexLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::OuterfaceComplexLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::OutersideComplexLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::SideComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::CellComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::EdgeComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::FaceComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::NodeComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::OuterfaceComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::OutersideComplexLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::SideComplexLinearTimeInterpolateOp<DIM>());
+ #endif
+ 
+ #ifdef HAVE_FLOAT
+@@ -413,85 +413,85 @@ template<int DIM> void CartesianGridGeometry<DIM>::makeStandardOperators()
+     * Standard spatial coarsening operators.
+     */
+ 
+-   addSpatialCoarsenOperator(new CartesianCellFloatWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianEdgeFloatWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianFaceFloatWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new pdat::NodeFloatInjection<DIM>());
+-   addSpatialCoarsenOperator(new CartesianOuterfaceFloatWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianSideFloatWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianCellFloatWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianEdgeFloatWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianFaceFloatWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new pdat::NodeFloatInjection<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianOuterfaceFloatWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianSideFloatWeightedAverage<DIM>());
+ 
+    /*
+     * Standard spatial refining operators.
+     */
+ 
+-   addSpatialRefineOperator(new CartesianCellFloatConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianEdgeFloatConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::EdgeFloatConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::CellFloatConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianCellFloatLinearRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianFaceFloatConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianNodeFloatLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::FaceFloatConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::OuterfaceFloatConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::OuterfaceIntegerConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianSideFloatConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::SideFloatConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianCellFloatConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianEdgeFloatConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::EdgeFloatConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::CellFloatConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianCellFloatLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianFaceFloatConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianNodeFloatLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::FaceFloatConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::OuterfaceFloatConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::OuterfaceIntegerConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianSideFloatConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::SideFloatConstantRefine<DIM>());
+ 
+    /*
+     * Standard linear time interpolation operators.
+     */
+ 
+-   addTimeInterpolateOperator(new pdat::CellFloatLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::EdgeFloatLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::FaceFloatLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::NodeFloatLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::OuterfaceFloatLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::OutersideFloatLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::SideFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::CellFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::EdgeFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::FaceFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::NodeFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::OuterfaceFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::OutersideFloatLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::SideFloatLinearTimeInterpolateOp<DIM>());
+ #endif
+ 
+    /*
+     * Standard spatial coarsening operators.
+     */
+-   addSpatialCoarsenOperator(new CartesianCellDoubleWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianEdgeDoubleWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianFaceDoubleWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new pdat::NodeDoubleInjection<DIM>());
+-   addSpatialCoarsenOperator(new pdat::NodeIntegerInjection<DIM>());
+-   addSpatialCoarsenOperator(new CartesianOuterfaceDoubleWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new pdat::OuternodeDoubleConstantCoarsen<DIM>());
+-   addSpatialCoarsenOperator(new CartesianOutersideDoubleWeightedAverage<DIM>());
+-   addSpatialCoarsenOperator(new CartesianSideDoubleWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianCellDoubleWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianEdgeDoubleWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianFaceDoubleWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new pdat::NodeDoubleInjection<DIM>());
++   this->addSpatialCoarsenOperator(new pdat::NodeIntegerInjection<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianOuterfaceDoubleWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new pdat::OuternodeDoubleConstantCoarsen<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianOutersideDoubleWeightedAverage<DIM>());
++   this->addSpatialCoarsenOperator(new CartesianSideDoubleWeightedAverage<DIM>());
+ 
+    /*
+     * Standard spatial refining operators.
+     */
+-   addSpatialRefineOperator(new CartesianCellDoubleConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::CellDoubleConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianCellDoubleLinearRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianEdgeDoubleConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::EdgeDoubleConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::EdgeIntegerConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::CellIntegerConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianFaceDoubleConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::FaceDoubleConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::FaceIntegerConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianNodeDoubleLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::OuterfaceDoubleConstantRefine<DIM>());
+-   addSpatialRefineOperator(new CartesianSideDoubleConservativeLinearRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::SideDoubleConstantRefine<DIM>());
+-   addSpatialRefineOperator(new pdat::SideIntegerConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianCellDoubleConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::CellDoubleConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianCellDoubleLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianEdgeDoubleConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::EdgeDoubleConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::EdgeIntegerConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::CellIntegerConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianFaceDoubleConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::FaceDoubleConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::FaceIntegerConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianNodeDoubleLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::OuterfaceDoubleConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new CartesianSideDoubleConservativeLinearRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::SideDoubleConstantRefine<DIM>());
++   this->addSpatialRefineOperator(new pdat::SideIntegerConstantRefine<DIM>());
+ 
+    /*
+     * Standard linear time interpolation operators.
+     */
+-   addTimeInterpolateOperator(new pdat::CellDoubleLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::EdgeDoubleLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::FaceDoubleLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::NodeDoubleLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::OuterfaceDoubleLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::OutersideDoubleLinearTimeInterpolateOp<DIM>());
+-   addTimeInterpolateOperator(new pdat::SideDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::CellDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::EdgeDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::FaceDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::NodeDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::OuterfaceDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::OutersideDoubleLinearTimeInterpolateOp<DIM>());
++   this->addTimeInterpolateOperator(new pdat::SideDoubleLinearTimeInterpolateOp<DIM>());
+ 
+ }
+ 
+@@ -628,7 +628,7 @@ template<int DIM> void CartesianGridGeometry<DIM>::putToDatabase(
+    db->putDoubleArray("d_x_lo", d_x_lo, DIM);
+    db->putDoubleArray("d_x_up", d_x_up, DIM);
+ 
+-   hier::IntVector<DIM> level0_shift = getPeriodicShift(hier::IntVector<DIM>(1));
++   hier::IntVector<DIM> level0_shift = this->getPeriodicShift(hier::IntVector<DIM>(1));
+    int* temp_shift = level0_shift;
+    db->putIntegerArray("d_periodic_shift", temp_shift, DIM);
+ 
+@@ -710,7 +710,7 @@ template<int DIM> void CartesianGridGeometry<DIM>::getFromInput(
+ 
+       setGeometryData(x_lo, x_up, domain);
+ 
+-      initializePeriodicShift(per_bc);
++      this->initializePeriodicShift(per_bc);
+ 
+    }
+ }
+@@ -752,12 +752,12 @@ template<int DIM> void CartesianGridGeometry<DIM>::getFromRestart()
+    db->getDoubleArray("d_x_lo", x_lo, DIM);
+    db->getDoubleArray("d_x_up", x_up, DIM);
+ 
+-   setGeometryData(x_lo, x_up, domain);
++   this->setGeometryData(x_lo, x_up, domain);
+ 
+    hier::IntVector<DIM> periodic_shift;
+    int* temp_shift = periodic_shift;
+    db->getIntegerArray("d_periodic_shift", temp_shift, DIM);
+-   initializePeriodicShift(periodic_shift);
++   this->initializePeriodicShift(periodic_shift);
+ 
+    d_using_original_locations = db->getBool("d_using_original_locations");
+ }
+diff --git a/source/geometry/templates/EmptyGeometryX.C b/source/geometry/templates/EmptyGeometryX.C
+index 9165e43..601487c 100644
+--- a/source/geometry/templates/EmptyGeometryX.C
++++ b/source/geometry/templates/EmptyGeometryX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace geom {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/source/hierarchy/boxes/BoxList.C b/source/hierarchy/boxes/BoxList.C
+index 3bb6e02..1695831 100644
+--- a/source/hierarchy/boxes/BoxList.C
++++ b/source/hierarchy/boxes/BoxList.C
+@@ -39,13 +39,13 @@ namespace SAMRAI {
+ template<int DIM>  BoxList<DIM>::BoxList(const Box<DIM>& box)
+ :  tbox::List< Box<DIM> >()
+ {
+-   addItem(box);
++   this ->addItem(box);
+ }
+ 
+ template<int DIM>  BoxList<DIM>::BoxList(const BoxList<DIM>& list)
+ :  tbox::List< Box<DIM> >()
+ {
+-   copyItems(list);
++   this ->copyItems(list);
+ }
+       
+ template<int DIM>  BoxList<DIM>::BoxList(const BoxArray<DIM>& array)
+@@ -53,7 +53,7 @@ template<int DIM>  BoxList<DIM>::BoxList(const BoxArray<DIM>& array)
+ {
+    const int n = array.getNumberOfBoxes();
+    for (int i = 0; i < n; i++) {
+-      appendItem(array[i]);
++      this ->appendItem(array[i]);
+    }
+ }
+ 
+@@ -61,7 +61,7 @@ template<int DIM> BoxList<DIM>& BoxList<DIM>::operator=(const BoxList<DIM>& list
+ {
+    if (this != &list) {
+       this -> clearItems();
+-      copyItems(list);
++      this ->copyItems(list);
+    }
+    return(*this);
+ }
+@@ -145,10 +145,10 @@ template<int DIM> void BoxList<DIM>::simplifyBoxes()
+          // Otherwise, burst tryMe and andMe and put on noncanonical
+ 
+             if (!combineDaPuppies) {
+-               appendItem(tryMe);
++               this ->appendItem(tryMe);
+             } else {
+                Box<DIM> andMe = l();
+-               removeItem(l);
++               this ->removeItem(l);
+                const Index<DIM>& bl = tryMe.lower();
+                const Index<DIM>& bh = tryMe.upper();
+                Index<DIM> il = andMe.lower();
+@@ -199,13 +199,13 @@ template<int DIM> void BoxList<DIM>::burstBoxes(const Box<DIM>& bursty,
+       if (bursth(d) > solidh(d)) {
+          Index<DIM> newl = burstl;
+          newl(d) = solidh(d) + 1;
+-         appendItem(Box<DIM>(newl, bursth));
++         this ->appendItem(Box<DIM>(newl, bursth));
+          bursth(d) = solidh(d);
+       }
+       if (burstl(d) < solidl(d)) {
+          Index<DIM> newh = bursth;
+          newh(d) = solidl(d) - 1;
+-         appendItem(Box<DIM>(burstl, newh));
++         this ->appendItem(Box<DIM>(burstl, newh));
+          burstl(d) = solidl(d);
+       }
+    }
+@@ -231,7 +231,7 @@ template<int DIM> void BoxList<DIM>::removeIntersections(const Box<DIM>& takeawa
+          fragments.burstBoxes(tryme, takeaway, DIM);
+       }
+    }
+-   catenateItems(fragments);
++   this ->catenateItems(fragments);
+ }
+ 
+ template<int DIM> void BoxList<DIM>::removeIntersections(const Box<DIM>& box,
+@@ -251,7 +251,7 @@ template<int DIM> void BoxList<DIM>::removeIntersections(const Box<DIM>& box,
+    if (!(box * takeaway).empty()) {
+       BoxList<DIM>::burstBoxes(box, takeaway, DIM);
+    } else {
+-      appendItem(box);
++      this ->appendItem(box);
+    }
+ 
+ }
+@@ -284,7 +284,7 @@ template<int DIM> void BoxList<DIM>::intersectBoxes(const Box<DIM>& box)
+          intersection.appendItem(overlap);
+       }
+    }
+-   catenateItems(intersection);
++   this ->catenateItems(intersection);
+ }
+ 
+ template<int DIM> void BoxList<DIM>::intersectBoxes(const BoxList<DIM>& boxes)
+@@ -300,7 +300,7 @@ template<int DIM> void BoxList<DIM>::intersectBoxes(const BoxList<DIM>& boxes)
+          }
+       }
+    }
+-   catenateItems(intersection);
++   this ->catenateItems(intersection);
+ }
+ 
+ /*
+@@ -334,7 +334,7 @@ template<int DIM> void BoxList<DIM>::coalesceBoxes()
+ 
+          if ( tb2().coalesceWith(tb()) ) {
+             found_match = true;
+-            removeItem(tb);
++            this ->removeItem(tb);
+          }
+ 
+          tb2++;
+diff --git a/source/hierarchy/boxes/BoxList.I b/source/hierarchy/boxes/BoxList.I
+index e751158..b9fe76c 100644
+--- a/source/hierarchy/boxes/BoxList.I
++++ b/source/hierarchy/boxes/BoxList.I
+@@ -30,14 +30,14 @@ template<int DIM> inline
+ void BoxList<DIM>::unionBoxes(const Box<DIM>& box)
+ {
+    if (!box.empty()) {
+-      appendItem(box);
++      this->appendItem(box);
+    }
+ }
+ 
+ template<int DIM> inline
+ void BoxList<DIM>::unionBoxes(const BoxList<DIM>& boxes)
+ {
+-   copyItems(boxes);
++   this->copyItems(boxes);
+ }
+ 
+ template<int DIM> inline
+diff --git a/source/hierarchy/patches/BoundaryLookupTable.C b/source/hierarchy/patches/BoundaryLookupTable.C
+index 49a502f..396e74e 100644
+--- a/source/hierarchy/patches/BoundaryLookupTable.C
++++ b/source/hierarchy/patches/BoundaryLookupTable.C
+@@ -51,7 +51,7 @@ template<int DIM>  BoundaryLookupTable<DIM>::BoundaryLookupTable()
+       s_lookup_table_instance = NULL;
+    }
+    if(s_registered_callback == false) {
+-      s_lookup_table_instance = false;
++      s_lookup_table_instance = NULL;
+    }
+ 
+    if (d_table[0].isNull()) {
+diff --git a/source/hierarchy/patches/PatchLevel.C b/source/hierarchy/patches/PatchLevel.C
+index 15150cb..42f781a 100644
+--- a/source/hierarchy/patches/PatchLevel.C
++++ b/source/hierarchy/patches/PatchLevel.C
+@@ -27,7 +27,15 @@
+ namespace SAMRAI {
+     namespace hier {
+ 
+-static tbox::Pointer<tbox::Timer> t_level_constructor;
++/*
++*************************************************************************
++*                                                                       *
++* Initialization for static data members.                               *
++*                                                                       *
++*************************************************************************
++*/
++template<int DIM> tbox::Pointer<tbox::Timer>
++   PatchLevel<DIM>::t_level_constructor;
+ 
+ /*
+  *************************************************************************
+@@ -1007,8 +1015,8 @@ template<int DIM> void PatchLevel<DIM>::initializeTimers()
+    if ( t_level_constructor.isNull() ) {
+       t_level_constructor = tbox::TimerManager::getManager() ->
+          getTimer("mesh::PatchLevel::level_constructor");
+-   }
+    tbox::ShutdownRegistry::registerShutdownRoutine(freeTimers, 254);
++   }
+ }
+ 
+ 
+diff --git a/source/hierarchy/patches/PatchLevel.h b/source/hierarchy/patches/PatchLevel.h
+index d5d651b..edfc304 100644
+--- a/source/hierarchy/patches/PatchLevel.h
++++ b/source/hierarchy/patches/PatchLevel.h
+@@ -479,7 +479,10 @@ private:
+     */
+    void setPatchTouchesBoundaryArrays();
+ 
+-   void initializeTimers();
++   /*!
++    * Allocate static timers.
++    */
++   static void initializeTimers();
+ 
+    /*!
+     * Free static timers.
+@@ -565,6 +568,11 @@ private:
+     * Manages communications in clustering algorithms
+     */
+    tbox::Pointer< BinaryTree<DIM> > d_binary_tree;
++
++   /*
++    * Timer objects for performance measurement.
++    */
++   static tbox::Pointer<tbox::Timer> t_level_constructor;
+ };
+ 
+ /**
+diff --git a/source/hierarchy/templates/EmptyHierarchyX.C b/source/hierarchy/templates/EmptyHierarchyX.C
+index d8f8a22..85b1857 100644
+--- a/source/hierarchy/templates/EmptyHierarchyX.C
++++ b/source/hierarchy/templates/EmptyHierarchyX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace hier {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/source/mathops/hierarchy/HierarchyDataOpsReal.h b/source/mathops/hierarchy/HierarchyDataOpsReal.h
+index 6b62f1b..ed48d0b 100644
+--- a/source/mathops/hierarchy/HierarchyDataOpsReal.h
++++ b/source/mathops/hierarchy/HierarchyDataOpsReal.h
+@@ -330,6 +330,13 @@ public:
+ 		    bool local_only=false) const = 0;
+ 
+    /**
++    * Return the integral of the function represented by the data array.
++    * The return value is the sum \f$\sum_i ( data_i * vol_i )\f$.
++    */
++   virtual TYPE integral(const int data_id,
++                         const int vol_id) const = 0;
++
++   /**
+     * Return 1 if \f$\|data2_i\| > 0\f$ and \f$data1_i * data2_i \leq 0\f$, for
+     * any \f$i\f$ in the set of patch data indices, where \f$cvol_i > 0\f$.  Otherwise,
+     * return 0.  If the control volume is undefined (vol_id < 0), all values
+diff --git a/source/mathops/templates/EmptyMathOpsX.C b/source/mathops/templates/EmptyMathOpsX.C
+index 4d14944..40a8801 100644
+--- a/source/mathops/templates/EmptyMathOpsX.C
++++ b/source/mathops/templates/EmptyMathOpsX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace math {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/source/mesh/gridding/GriddingAlgorithm.C b/source/mesh/gridding/GriddingAlgorithm.C
+index 18cc32f..792d323 100644
+--- a/source/mesh/gridding/GriddingAlgorithm.C
++++ b/source/mesh/gridding/GriddingAlgorithm.C
+@@ -1215,6 +1215,10 @@ template<int DIM> void GriddingAlgorithm<DIM>::regridFinerLevel(
+          hierarchy->makeNewPatchLevel(fine_level_number, ratio,
+                                       fine_boxes, mapping);
+ 
++         if (d_check_overlapping_patches != 'i') {
++            checkOverlappingPatches( hierarchy->getPatchLevel(fine_level_number) );
++         }
++
+          // "false" argument": const bool initial_time = false;
+          d_tag_init_strategy->initializeLevelData(hierarchy,
+                                                   fine_level_number,
+@@ -2624,7 +2628,7 @@ template<int DIM> void GriddingAlgorithm<DIM>::getFromInput(
+    }
+ 
+    d_check_overlapping_patches =
+-      db->getCharWithDefault( "check_overplapping_patches",
++      db->getCharWithDefault( "check_overlapping_patches",
+                               d_check_overlapping_patches );
+    if ( d_check_overlapping_patches != 'i' &&
+         d_check_overlapping_patches != 'w' &&
+diff --git a/source/mesh/gridding/StandardTagAndInitialize.C b/source/mesh/gridding/StandardTagAndInitialize.C
+index 66d7b1d..34b0824 100644
+--- a/source/mesh/gridding/StandardTagAndInitialize.C
++++ b/source/mesh/gridding/StandardTagAndInitialize.C
+@@ -287,7 +287,7 @@ template<int DIM> void StandardTagAndInitialize<DIM>::tagCellsForRefinement(
+    if (d_use_refine_boxes) {
+ 
+       hier::BoxArray<DIM> refine_boxes;
+-      getUserSuppliedRefineBoxes(refine_boxes, level_number, regrid_time); 
++      this->getUserSuppliedRefineBoxes(refine_boxes, level_number, regrid_time); 
+ 
+       tbox::Pointer< hier::PatchLevel<DIM> > level = 
+          hierarchy->getPatchLevel(level_number);
+diff --git a/source/mesh/templates/EmptyMeshX.C b/source/mesh/templates/EmptyMeshX.C
+index f9f513c..d065dff 100644
+--- a/source/mesh/templates/EmptyMeshX.C
++++ b/source/mesh/templates/EmptyMeshX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace mesh {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/source/patchdata/index/IndexData.I b/source/patchdata/index/IndexData.I
+index 572a46e..e914729 100644
+--- a/source/patchdata/index/IndexData.I
++++ b/source/patchdata/index/IndexData.I
+@@ -119,6 +119,20 @@ const TYPE& IndexIterator<DIM,TYPE,BOX_GEOMETRY>::operator()() const
+ 
+ template<int DIM, class TYPE, class BOX_GEOMETRY>
+ inline
++TYPE& IndexIterator<DIM,TYPE,BOX_GEOMETRY>::getItem()
++{
++   return(*d_node->d_item);
++}
++
++template<int DIM, class TYPE, class BOX_GEOMETRY>
++inline
++const hier::Index<DIM>& IndexIterator<DIM,TYPE,BOX_GEOMETRY>::getIndex() const
++{
++    return(d_node->d_index);
++}
++
++template<int DIM, class TYPE, class BOX_GEOMETRY>
++inline
+ IndexIterator<DIM,TYPE,BOX_GEOMETRY>::operator bool() const
+ {
+    return(d_node ? true : false);
+diff --git a/source/patchdata/side/SideVariable.C b/source/patchdata/side/SideVariable.C
+index 190dfd9..c92215c 100644
+--- a/source/patchdata/side/SideVariable.C
++++ b/source/patchdata/side/SideVariable.C
+@@ -54,7 +54,7 @@ SideVariable<DIM,TYPE>::SideVariable(
+       for (int id = 0; id < DIM; id++) {
+          d_directions(id) = ( (direction == id) ? 1 : 0 );  
+       }  
+-      setPatchDataFactory(new SideDataFactory<DIM,TYPE>(
++      this->setPatchDataFactory(new SideDataFactory<DIM,TYPE>(
+                              depth,
+                              hier::IntVector<DIM>(0),
+                              fine_boundary_represents_var,
+diff --git a/source/patchdata/templates/EmptyPatchDataX.C b/source/patchdata/templates/EmptyPatchDataX.C
+index d696aee..5d9f665 100644
+--- a/source/patchdata/templates/EmptyPatchDataX.C
++++ b/source/patchdata/templates/EmptyPatchDataX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace pdat {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/source/solvers/FAC/FACPreconditioner.C b/source/solvers/FAC/FACPreconditioner.C
+index af374cd..5843f17 100644
+--- a/source/solvers/FAC/FACPreconditioner.C
++++ b/source/solvers/FAC/FACPreconditioner.C
+@@ -152,18 +152,22 @@ template<int DIM> void FACPreconditioner<DIM>::deallocateSolverState( )
+       d_patch_hierarchy.setNull();
+ 
+       if ( d_error_vector ) {
++         d_error_vector->resetLevels(d_error_vector->getCoarsestLevelNumber(), std::min(d_error_vector->getFinestLevelNumber(),d_error_vector->getPatchHierarchy()->getFinestLevelNumber()));
+          d_error_vector->freeVectorComponents();
+          d_error_vector.setNull();
+       }
+       if ( d_tmp_error ) {
++         d_tmp_error->resetLevels(d_tmp_error->getCoarsestLevelNumber(), std::min(d_tmp_error->getFinestLevelNumber(),d_tmp_error->getPatchHierarchy()->getFinestLevelNumber()));
+          d_tmp_error->freeVectorComponents();
+          d_tmp_error.setNull();
+       }
+       if ( d_residual_vector ) {
++         d_residual_vector->resetLevels(d_residual_vector->getCoarsestLevelNumber(), std::min(d_residual_vector->getFinestLevelNumber(),d_residual_vector->getPatchHierarchy()->getFinestLevelNumber()));
+          d_residual_vector->freeVectorComponents();
+          d_residual_vector.setNull();
+       }
+       if ( d_tmp_residual ) {
++         d_tmp_residual->resetLevels(d_tmp_residual->getCoarsestLevelNumber(), std::min(d_tmp_residual->getFinestLevelNumber(),d_tmp_residual->getPatchHierarchy()->getFinestLevelNumber()));
+          d_tmp_residual->freeVectorComponents();
+          d_tmp_residual.setNull();
+       }
+diff --git a/source/solvers/templates/EmptySolversX.C b/source/solvers/templates/EmptySolversX.C
+index c0abd23..9190fe7 100644
+--- a/source/solvers/templates/EmptySolversX.C
++++ b/source/solvers/templates/EmptySolversX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace solv {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+diff --git a/source/toolbox/memory/MemoryUtilities.C b/source/toolbox/memory/MemoryUtilities.C
+index 6b8d185..c22f272 100644
+--- a/source/toolbox/memory/MemoryUtilities.C
++++ b/source/toolbox/memory/MemoryUtilities.C
+@@ -84,7 +84,8 @@ void MemoryUtilities::printMemoryInfo(std::ostream& os)
+       << number_allocated << " allocs, "
+       << reserved_mem/(1024.0*1024.0) << "MB reserved ("
+       << free_mem << " unused)" << std::endl;
+-
++#else
++   NULL_USE(os);
+ #endif
+ }
+ 
+diff --git a/source/toolbox/restartdb/HDFDatabase.C b/source/toolbox/restartdb/HDFDatabase.C
+index 057fdd5..fe28930 100644
+--- a/source/toolbox/restartdb/HDFDatabase.C
++++ b/source/toolbox/restartdb/HDFDatabase.C
+@@ -752,7 +752,7 @@ void HDFDatabase::putBoolArray(
+    herr_t errf;
+    if (nelements > 0) {
+ 
+-      hsize_t dim[1] = {nelements};
++      hsize_t dim[1] = {static_cast<hsize_t>(nelements)};
+       hid_t space = H5Screate_simple(1, dim, NULL);
+ #ifdef ASSERT_HDF5_RETURN_VALUES
+       TBOX_ASSERT( space >= 0 );
+@@ -1367,7 +1367,7 @@ void HDFDatabase::putComplexArray(
+       // Storage type
+       hid_t stype = createCompoundComplex('s');
+ 
+-      hsize_t dim[] = {nelements};
++      hsize_t dim[] = {static_cast<hsize_t>(nelements)};
+       space = H5Screate_simple(1, dim, NULL);
+ #ifdef ASSERT_HDF5_RETURN_VALUES
+       TBOX_ASSERT( space >= 0 );
+@@ -1579,7 +1579,7 @@ void HDFDatabase::putDoubleArray(
+    herr_t errf;
+    if (nelements > 0) {
+ 
+-      hsize_t dim[] = {nelements};
++      hsize_t dim[] = {static_cast<hsize_t>(nelements)};
+       hid_t space = H5Screate_simple(1, dim, NULL);
+ #ifdef ASSERT_HDF5_RETURN_VALUES
+       TBOX_ASSERT( space >= 0 );
+@@ -1745,7 +1745,7 @@ void HDFDatabase::putFloatArray(
+    herr_t errf;
+    if (nelements > 0) {
+ 
+-      hsize_t dim[] = {nelements};
++      hsize_t dim[] = {static_cast<hsize_t>(nelements)};
+       hid_t space = H5Screate_simple(1, dim, NULL);
+ #ifdef ASSERT_HDF5_RETURN_VALUES
+       TBOX_ASSERT( space >= 0 );
+@@ -1913,7 +1913,7 @@ void HDFDatabase::putIntegerArray(
+    herr_t errf;
+    if (nelements > 0) {
+ 
+-      hsize_t dim[] = {nelements};
++      hsize_t dim[] = {static_cast<hsize_t>(nelements)};
+       hid_t space = H5Screate_simple(1, dim, NULL);
+ #ifdef ASSERT_HDF5_RETURN_VALUES
+       TBOX_ASSERT(space >= 0);
+@@ -2111,7 +2111,7 @@ void HDFDatabase::putStringArray(
+       TBOX_ASSERT( errf >= 0 );
+ #endif
+ 
+-      hsize_t dim[] = {nelements};
++      hsize_t dim[] = {static_cast<hsize_t>(nelements)};
+       hid_t space = H5Screate_simple(1, dim, NULL);
+ #ifdef ASSERT_HDF5_RETURN_VALUES
+       TBOX_ASSERT( space >= 0 );
+@@ -2492,6 +2492,7 @@ void HDFDatabase::insertArray(
+ 
+ #if (H5_VERS_MAJOR>1) || ((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR > 6))
+    hid_t array = H5Tarray_create(member_id, ndims, dim);
++   NULL_USE(perm);
+ #else	
+    /*
+     * Note that perm is NOT used by HDF, see HDF documentation.
+diff --git a/source/toolbox/restartdb/SiloDatabase.C b/source/toolbox/restartdb/SiloDatabase.C
+index 35aefc5..89b4c2b 100644
+--- a/source/toolbox/restartdb/SiloDatabase.C
++++ b/source/toolbox/restartdb/SiloDatabase.C
+@@ -22,13 +22,13 @@
+  * Implementation notes.
+  *
+  * Silo can't have spaces in directory names.  SAMRAI key names are
+- * mangled to remove spaces from keynames when put into the Silo 
++ * mangled to remove spaces from keynames when put into the Silo
+  * database.
+  *
+  * Compound types in Silo have several listings in the directory
+  * structure.  Rather than unscramble the different entries the
+- * compound array types are stored in a subdirectory with that 
+- * key name and the actual compound type is a variable in 
++ * compound array types are stored in a subdirectory with that
++ * key name and the actual compound type is a variable in
+  * that subdirectory.
+  *
+  */
+@@ -45,12 +45,12 @@ std::string nameMangle(std::string name) {
+    std::string::size_type pos = 0;
+    std::string searchString(" ");
+    std::string replaceString("___");
+-   
++
+    while ( (pos = str.find(searchString, pos)) != std::string::npos ) {
+       str.replace( pos, searchString.size(), replaceString );
+       pos++;
+    }
+-   
++
+    return str;
+ }
+ 
+@@ -60,19 +60,19 @@ std::string nameDemangle(std::string name) {
+    std::string::size_type pos = 0;
+    std::string searchString("___ ");
+    std::string replaceString(" ");
+-   
++
+    while ( (pos = str.find(searchString, pos)) != std::string::npos ) {
+       str.replace( pos, searchString.size(), replaceString );
+       pos++;
+    }
+-   
++
+    return str;
+ }
+-      
++
+ /*
+- * Public Silo database constructor creates an empty database with the 
+- * specified name.  It sets the group_ID to a default value of -1.     
+- * This data is used by member functions to track parent databases.     
++ * Public Silo database constructor creates an empty database with the
++ * specified name.  It sets the group_ID to a default value of -1.
++ * This data is used by member functions to track parent databases.
+ */
+ SiloDatabase::SiloDatabase(const std::string& name) :
+    d_is_file(false),
+@@ -87,8 +87,8 @@ SiloDatabase::SiloDatabase(const std::string& name) :
+ }
+ 
+ /*
+- * Private Silo database constructor creates an empty database with the 
+- * specified name.  
++ * Private Silo database constructor creates an empty database with the
++ * specified name.
+  */
+ SiloDatabase::SiloDatabase(
+    const std::string& name,
+@@ -124,7 +124,7 @@ SiloDatabase::~SiloDatabase()
+ {
+    if (d_is_file) {
+       close();
+-   } 
++   }
+ }
+ 
+ /*
+@@ -142,12 +142,12 @@ bool SiloDatabase::create(const std::string& name) {
+ 
+    bool status = false;
+ 
+-   if(d_file) {	
++   if(d_file) {
+       close();
+    }
+ 
+    d_file = DBCreate(name.c_str(), DB_CLOBBER, DB_LOCAL, NULL, DB_PDB);
+-   
++
+    if (d_file == NULL) {
+ 
+       TBOX_ERROR("Unable to open Silo file " << name << "\n");
+@@ -178,12 +178,12 @@ bool SiloDatabase::open(const std::string& name) {
+ 
+    bool status = false;
+ 
+-   if(d_file) {	
++   if(d_file) {
+       close();
+    }
+ 
+    d_file = DBOpen(name.c_str(), DB_UNKNOWN, DB_READ);
+-   
++
+    if (d_file == NULL) {
+ 
+       TBOX_ERROR("Unable to open Silo file " << name << "\n");
+@@ -241,16 +241,16 @@ bool SiloDatabase::attachToFile(DBfile *file, const std::string &directory)
+       d_file = file;
+       d_directory = directory;
+ 
+-      std::string path = nameMangle(d_directory);      
++      std::string path = nameMangle(d_directory);
+       if(!DBInqVarType(d_file, path.c_str()) == DB_DIR) {
+ 	 int err = DBMkdir(d_file, path.c_str());
+ 	 if(err < 0) {
+ 	    TBOX_ERROR("SiloDatabase: MkDir failed " << d_directory << std::endl );
+ 	 }
+       }
+-      
+-   } else {      
+-      TBOX_ERROR("SiloDatabase: Invalid file supplied to attachToFile" 
++
++   } else {
++      TBOX_ERROR("SiloDatabase: Invalid file supplied to attachToFile"
+ 		 << std::endl);
+       status = false;
+    }
+@@ -314,7 +314,7 @@ Array<std::string> SiloDatabase::getAllKeys()
+       DBtoc *toc = DBGetToc(d_file);
+ 
+       tmp_keys.resizeArray(toc -> nvar + toc -> ndir);
+-     
++
+       for(int i = 0; i < toc -> nvar; i++) {
+ 	 tmp_keys[i] = toc -> var_names[i];
+       }
+@@ -327,7 +327,7 @@ Array<std::string> SiloDatabase::getAllKeys()
+    } else {
+       TBOX_ERROR("Not a database " << d_directory << std::endl );
+    }
+-   
++
+    return(tmp_keys);
+ }
+ 
+@@ -345,13 +345,13 @@ enum Database::DataType SiloDatabase::getArrayType(const std::string& key)
+ #endif
+ 
+    enum Database::DataType type = Database::SAMRAI_INVALID;
+-   
++
+    std::string path = d_directory + "/" + key;
+    path = nameMangle(path);
+ 
+    DBObjectType var_type = DBInqVarType(d_file, path.c_str());
+-   
+-   if( var_type == DB_VARIABLE) { 
++
++   if( var_type == DB_VARIABLE) {
+       int obj_type = DBGetVarType(d_file, path.c_str());
+ 
+       switch (obj_type) {
+@@ -372,8 +372,8 @@ enum Database::DataType SiloDatabase::getArrayType(const std::string& key)
+ 	    break;
+       }
+    } else if (var_type == DB_DIR) {
+-      
+-      // Note that some of the types are stored in subdirectories 
++
++      // Note that some of the types are stored in subdirectories
+       // so check to see if this dir is one of the compound array types.
+       std::string sub_path = path + COMPLEX_ARRAY_NAME;
+       if(DBInqVarExists(d_file, sub_path.c_str())) {
+@@ -382,21 +382,21 @@ enum Database::DataType SiloDatabase::getArrayType(const std::string& key)
+ 	 DBFreeCompoundarray(ca);
+       } else {
+ 	 sub_path = path + STRING_ARRAY_NAME;
+-	 if(DBInqVarExists(d_file, sub_path.c_str())) { 
++	 if(DBInqVarExists(d_file, sub_path.c_str())) {
+ 	    DBcompoundarray *ca = DBGetCompoundarray(d_file, sub_path.c_str());
+ 	    type = Database::SAMRAI_STRING;
+ 	    DBFreeCompoundarray(ca);
+ 	 } else {
+ 	    sub_path = path + DATABASE_BOX_NAME;
+-	    if(DBInqVarExists(d_file, sub_path.c_str())) { 
+-	       DBcompoundarray *ca = DBGetCompoundarray(d_file, 
++	    if(DBInqVarExists(d_file, sub_path.c_str())) {
++	       DBcompoundarray *ca = DBGetCompoundarray(d_file,
+ 							sub_path.c_str());
+ 	       type = Database::SAMRAI_BOX;
+ 	       DBFreeCompoundarray(ca);
+ 	    } else {
+ 	       type = Database::SAMRAI_DATABASE;
+ 	    }
+-	 } 
++	 }
+       }
+    } else {
+       // Unrecognized type return INVALID
+@@ -422,19 +422,19 @@ int SiloDatabase::getArraySize(const std::string& key)
+ #ifdef DEBUG_CHECK_ASSERTIONS
+    TBOX_ASSERT(!key.empty());
+ #endif
+-   
++
+    int array_size = 0;
+ 
+    std::string path = d_directory + "/" + key;
+    path = nameMangle(path);
+ 
+    DBObjectType var_type = DBInqVarType(d_file, path.c_str());
+-   
+-   if( var_type == DB_VARIABLE) { 
++
++   if( var_type == DB_VARIABLE) {
+       array_size = getSiloSimpleTypeLength(key);
+    } else if (var_type == DB_DIR) {
+-      
+-      // Note that some of the types are stored in subdirectories 
++
++      // Note that some of the types are stored in subdirectories
+       // so check to see if this dir is one of the compound array types.
+ 
+       std::string sub_path = path + COMPLEX_ARRAY_NAME;
+@@ -444,21 +444,21 @@ int SiloDatabase::getArraySize(const std::string& key)
+ 	 DBFreeCompoundarray(ca);
+       } else {
+ 	 sub_path = path + STRING_ARRAY_NAME;
+-	 if(DBInqVarExists(d_file, sub_path.c_str())) { 
++	 if(DBInqVarExists(d_file, sub_path.c_str())) {
+ 	    DBcompoundarray *ca = DBGetCompoundarray(d_file, sub_path.c_str());
+ 	    array_size = ca -> nelems;
+ 	    DBFreeCompoundarray(ca);
+ 	 } else {
+ 	    sub_path = path + DATABASE_BOX_NAME;
+-	    if(DBInqVarExists(d_file, sub_path.c_str())) { 
+-	       DBcompoundarray *ca = DBGetCompoundarray(d_file, 
++	    if(DBInqVarExists(d_file, sub_path.c_str())) {
++	       DBcompoundarray *ca = DBGetCompoundarray(d_file,
+ 							sub_path.c_str());
+ 	       array_size = ca -> elemlengths[0];
+ 	       DBFreeCompoundarray(ca);
+ 	    } else {
+ 	       // Directory or some other unrecognized structure return 0
+ 	    }
+-	 } 
++	 }
+       }
+    } else {
+       // Unrecognized type return 0
+@@ -493,7 +493,7 @@ bool SiloDatabase::isDatabase(const std::string& key)
+ *************************************************************************
+ */
+ 
+-Pointer<Database> 
++Pointer<Database>
+ SiloDatabase::putDatabase(const std::string& key)
+ {
+ #ifdef DEBUG_CHECK_ASSERTIONS
+@@ -520,7 +520,7 @@ SiloDatabase::putDatabase(const std::string& key)
+ ************************************************************************
+ */
+ 
+-Pointer<Database> 
++Pointer<Database>
+ SiloDatabase::getDatabase(const std::string& key)
+ {
+ #ifdef DEBUG_CHECK_ASSERTIONS
+@@ -566,8 +566,8 @@ bool SiloDatabase::isBool(const std::string& key)
+ */
+ 
+ void SiloDatabase::putBoolArray(
+-   const std::string& key, 
+-   const bool* const data, 
++   const std::string& key,
++   const bool* const data,
+    const int nelements)
+ {
+ #ifdef DEBUG_CHECK_ASSERTIONS
+@@ -577,7 +577,7 @@ void SiloDatabase::putBoolArray(
+ 
+    short temp_array[nelements];
+ 
+-   for(int i = 0; i < nelements; i++) { 	
++   for(int i = 0; i < nelements; i++) {
+       temp_array[i] = data[i];
+    }
+ 
+@@ -602,17 +602,17 @@ Array<bool> SiloDatabase::getBoolArray(const std::string& key)
+ #endif
+    if (!isBool(key)) {
+       TBOX_ERROR("SiloDatabase::getBoolArray() error in database "
+-		 << d_database_name << std::endl 
++		 << d_database_name << std::endl
+ 		 << "    Key = " << key << " is not a bool array." << std::endl);
+    }
+- 
++
+    Array<bool> boolArray(getSiloSimpleTypeLength(key));
+ 
+    short temp_array[getSiloSimpleTypeLength(key)];
+ 
+    getSiloSimpleType(key, temp_array);
+ 
+-   for(int i = 0; i < getSiloSimpleTypeLength(key); i++) { 	
++   for(int i = 0; i < getSiloSimpleTypeLength(key); i++) {
+       boolArray[i] = temp_array[i];
+    }
+ 
+@@ -646,12 +646,12 @@ bool SiloDatabase::isDatabaseBox(const std::string& key)
+       path += DATABASE_BOX_NAME;
+ 
+       DBcompoundarray *ca = DBGetCompoundarray(d_file, path.c_str());
+-      
++
+       if(ca != NULL) {
+ 	 if( ca -> datatype == DB_INT) {
+ 	    is_type = true;
+ 	 }
+-      } 
++      }
+ 
+       DBFreeCompoundarray(ca);
+    }
+@@ -668,7 +668,7 @@ bool SiloDatabase::isDatabaseBox(const std::string& key)
+ */
+ void SiloDatabase::putDatabaseBoxArray(
+    const std::string& key,
+-   const DatabaseBox* const data, 
++   const DatabaseBox* const data,
+    const int nelements)
+ {
+ #ifdef DEBUG_CHECK_ASSERTIONS
+@@ -684,7 +684,7 @@ void SiloDatabase::putDatabaseBoxArray(
+    elemnames[2] = "lo";
+ 
+    int size = 0;
+-   for(int i = 0; i < nelements; i++) {	
++   for(int i = 0; i < nelements; i++) {
+       size += data[i].d_data.d_dimension;
+    }
+ 
+@@ -712,13 +712,13 @@ void SiloDatabase::putDatabaseBoxArray(
+       TBOX_ERROR("SiloDatabase: MkDir failed " << d_directory << std::endl );
+    }
+ 
+-   
++
+    path = d_directory + "/" + key + DATABASE_BOX_NAME;
+    path = nameMangle(path);
+ 
+-   err = DBPutCompoundarray(d_file, path.c_str(), 
+-		      const_cast<char **>(elemnames), elemlengths, 
+-		      3, values.getPointer(), values.size(), 
++   err = DBPutCompoundarray(d_file, path.c_str(),
++		      const_cast<char **>(elemnames), elemlengths,
++		      3, values.getPointer(), values.size(),
+ 		      DB_INT, NULL);
+    if(err < 0) {
+       TBOX_ERROR("SiloDatabase: DBPutCompoundarray failed " << d_directory << std::endl );
+@@ -762,7 +762,7 @@ Array<DatabaseBox> SiloDatabase::getDatabaseBoxArray(const std::string& key)
+    }
+ 
+    DBFreeCompoundarray(ca);
+-   
++
+    return boxArray;
+ }
+ 
+@@ -792,7 +792,7 @@ bool SiloDatabase::isChar(const std::string& key)
+ 
+ void SiloDatabase::putCharArray(
+    const std::string& key,
+-   const char* const data, 
++   const char* const data,
+    const int nelements)
+ {
+ #ifdef DEBUG_CHECK_ASSERTIONS
+@@ -822,10 +822,10 @@ Array<char> SiloDatabase::getCharArray(const std::string& key)
+ 
+    if (!isChar(key)) {
+       TBOX_ERROR("SiloDatabase::getCharArray() error in database "
+-		 << d_database_name << std::endl 
++		 << d_database_name << std::endl
+ 		 << "    Key = " << key << " is not a char array." << std::endl);
+    }
+- 
++
+ 
+    Array<char> charArray(getSiloSimpleTypeLength(key));
+ 
+@@ -861,12 +861,12 @@ bool SiloDatabase::isComplex(const std::string& key)
+       path += COMPLEX_ARRAY_NAME;
+ 
+       DBcompoundarray *ca = DBGetCompoundarray(d_file, path.c_str());
+-      
++
+       if(ca != NULL) {
+ 	 if( ca -> datatype == DB_DOUBLE) {
+ 	    is_type = true;
+ 	 }
+-      } 
++      }
+ 
+       DBFreeCompoundarray(ca);
+    }
+@@ -919,9 +919,9 @@ void SiloDatabase::putComplexArray(
+    path = d_directory + "/" + key + COMPLEX_ARRAY_NAME;
+    path = nameMangle(path);
+ 
+-   err = DBPutCompoundarray(d_file, path.c_str(), 
+-		      const_cast<char **>(elemnames), elemlengths, 2, 
+-		      values.getPointer(), values.size(), 
++   err = DBPutCompoundarray(d_file, path.c_str(),
++		      const_cast<char **>(elemnames), elemlengths, 2,
++		      values.getPointer(), values.size(),
+ 		      DB_DOUBLE, NULL);
+    if(err < 0) {
+       TBOX_ERROR("SiloDatabase DBPutCompoundarray failed " << d_directory << std::endl );
+@@ -957,10 +957,9 @@ Array<dcomplex> SiloDatabase::getComplexArray(const std::string& key)
+ 
+    Array<dcomplex> complexArray(ca -> elemlengths[0]);
+ 
+-   for(int i = 0; i < ca -> elemlengths[0]; i++) {
+-      complexArray[i].real() = static_cast<double *>(ca -> values)[i];
+-      complexArray[i].imag() = 
+-	 static_cast<double *>(ca -> values)[i + ca -> elemlengths[0]];
++   for(int i = 0; i < ca->elemlengths[0]; i++) {
++     complexArray[i] = dcomplex(reinterpret_cast<double *>(ca->values)[i],
++                                reinterpret_cast<double *>(ca->values)[i + ca->elemlengths[0]]);
+    }
+ 
+    DBFreeCompoundarray(ca);
+@@ -1087,10 +1086,10 @@ Array<float> SiloDatabase::getFloatArray(const std::string& key)
+ #endif
+    if (!isFloat(key)) {
+       TBOX_ERROR("SiloDatabase::getFloatArray() error in database "
+-		 << d_database_name << std::endl 
++		 << d_database_name << std::endl
+ 		 << "    Key = " << key << " is not a float array." << std::endl);
+    }
+- 
++
+    Array<float> floatArray(getSiloSimpleTypeLength(key));
+ 
+    getSiloSimpleType(key, floatArray.getPointer());
+@@ -1124,15 +1123,15 @@ bool SiloDatabase::isInteger(const std::string& key)
+ */
+ 
+ void SiloDatabase::putIntegerArray(
+-   const std::string& key, 
+-   const int* const data, 
++   const std::string& key,
++   const int* const data,
+    const int nelements)
+ {
+ #ifdef DEBUG_CHECK_ASSERTIONS
+    TBOX_ASSERT(!key.empty());
+    TBOX_ASSERT(data != (int*)NULL);
+ #endif
+-   putSiloSimpleType(key, data, nelements, DB_INT);   
++   putSiloSimpleType(key, data, nelements, DB_INT);
+ }
+ 
+ /*
+@@ -1154,7 +1153,7 @@ Array<int> SiloDatabase::getIntegerArray(const std::string& key)
+ 
+    if (!isInteger(key)) {
+       TBOX_ERROR("SiloDatabase::getIntegerArray() error in database "
+-		 << d_database_name << std::endl 
++		 << d_database_name << std::endl
+ 		 << "    Key = " << key << " is not a integer array." << std::endl);
+    }
+ 
+@@ -1192,12 +1191,12 @@ bool SiloDatabase::isString(const std::string& key)
+       path += STRING_ARRAY_NAME;
+ 
+       DBcompoundarray *ca = DBGetCompoundarray(d_file, path.c_str());
+-      
++
+       if(ca != NULL) {
+ 	 if( ca -> datatype == DB_CHAR) {
+ 	    is_type = true;
+ 	 }
+-      } 
++      }
+ 
+       DBFreeCompoundarray(ca);
+    }
+@@ -1215,8 +1214,8 @@ bool SiloDatabase::isString(const std::string& key)
+ */
+ 
+ void SiloDatabase::putStringArray(
+-   const std::string& key, 
+-   const std::string* const data, 
++   const std::string& key,
++   const std::string* const data,
+    const int nelements)
+ {
+ #ifdef DEBUG_CHECK_ASSERTIONS
+@@ -1249,9 +1248,9 @@ void SiloDatabase::putStringArray(
+    path = d_directory + "/" + key + STRING_ARRAY_NAME;
+    path = nameMangle(path);
+ 
+-   DBPutCompoundarray(d_file, path.c_str(), 
+-		      const_cast<char **>(elemnames), elemlengths, 
+-		      nelements, const_cast<char *>(values.c_str()), values.size() + 1, 
++   DBPutCompoundarray(d_file, path.c_str(),
++		      const_cast<char **>(elemnames), elemlengths,
++		      nelements, const_cast<char *>(values.c_str()), values.size() + 1,
+ 		      DB_CHAR, NULL);
+    if(err < 0) {
+       TBOX_ERROR("SiloDatabase DBPutCompoundarray failed " << d_directory << std::endl );
+@@ -1279,7 +1278,7 @@ Array<std::string> SiloDatabase::getStringArray(const std::string& key)
+ 
+    if (!isString(key)) {
+       TBOX_ERROR("SiloDatabase::getStringArray() error in database "
+-		 << d_database_name << std::endl 
++		 << d_database_name << std::endl
+ 		 << "    Key = " << key << " is not a string array." << std::endl);
+    }
+ 
+@@ -1309,7 +1308,7 @@ Array<std::string> SiloDatabase::getStringArray(const std::string& key)
+ *                                                                       *
+ * Print contents of current database to the specified output stream.    *
+ * Note that contents of subdatabases will not be printed.  This must    *
+-* be done by iterating through all the subdatabases individually.       * 
++* be done by iterating through all the subdatabases individually.       *
+ *                                                                       *
+ *************************************************************************
+ */
+@@ -1320,10 +1319,10 @@ void SiloDatabase::printClassData(std::ostream& os)
+    Array<std::string>  keys = getAllKeys();
+ 
+    if (keys.getSize() == 0) {
+-      os << "Database named `"<< d_database_name 
++      os << "Database named `"<< d_database_name
+          << "' has zero keys..." << std::endl;
+    } else {
+-      os << "Printing contents of database named `" 
++      os << "Printing contents of database named `"
+          << d_database_name << "'..." << std::endl;
+    }
+ 
+@@ -1331,59 +1330,59 @@ void SiloDatabase::printClassData(std::ostream& os)
+       switch ( getArrayType(keys[i] ) ) {
+ 	 case Database::SAMRAI_INVALID: {
+ 	       os << "   Data entry `"<< keys[i] << "' is"
+-		  << " invalid" << std::endl;   
++		  << " invalid" << std::endl;
+ 	       break;
+ 	    }
+ 	    case Database::SAMRAI_DATABASE: {
+ 	       os << "   Data entry `"<< keys[i] << "' is"
+-		  << " a database" << std::endl;   
++		  << " a database" << std::endl;
+ 	       break;
+ 	    }
+ 	    case Database::SAMRAI_BOOL: {
+ 	       os << "   Data entry `"<< keys[i] << "' is"
+-		  << " a boolean array" << std::endl;   
++		  << " a boolean array" << std::endl;
+ 	       break;
+ 	    }
+ 	    case Database::SAMRAI_CHAR: {
+ 	       os << "   Data entry `"<< keys[i] << "' is"
+-		  << " a char array" << std::endl;   
++		  << " a char array" << std::endl;
+ 	       break;
+ 	    }
+ 	    case Database::SAMRAI_INT: {
+ 	       os << "   Data entry `"<< keys[i] << "' is"
+-		  << " a integer array" << std::endl;   
++		  << " a integer array" << std::endl;
+ 	       break;
+ 	    }
+ 	    case Database::SAMRAI_COMPLEX: {
+ 	       os << "   Data entry `"<< keys[i] << "' is"
+-		  << " a complex array" << std::endl;   
++		  << " a complex array" << std::endl;
+ 	       break;
+ 	    }
+ 	    case Database::SAMRAI_DOUBLE: {
+ 	       os << "   Data entry `"<< keys[i] << "' is"
+-		  << " a complex array" << std::endl;   
++		  << " a complex array" << std::endl;
+ 	       break;
+ 	    }
+ 	    case Database::SAMRAI_FLOAT: {
+ 	       os << "   Data entry `"<< keys[i] << "' is"
+-		  << " a float array" << std::endl;   
++		  << " a float array" << std::endl;
+ 	       break;
+ 	    }
+ 	    case Database::SAMRAI_STRING: {
+ 	       os << "   Data entry `"<< keys[i] << "' is"
+-		  << " a string array" << std::endl;   
++		  << " a string array" << std::endl;
+ 	       break;
+ 	    }
+ 	    case Database::SAMRAI_BOX: {
+ 	       os << "   Data entry `"<< keys[i] << "' is"
+-		  << " a datbase box array" << std::endl;   
++		  << " a datbase box array" << std::endl;
+ 	       break;
+ 	    }
+ 
+       }
+    }
+ 
+-   
++
+ }
+ 
+ 
+@@ -1414,7 +1413,7 @@ bool SiloDatabase::isSiloSimpleType(const std::string& key, const int simple_typ
+ 
+    bool is_type = false;
+ 
+-   // First check to see if it is a variable, if so then check to 
++   // First check to see if it is a variable, if so then check to
+    // see if it is the correct type of variable
+    if(isSiloType(key, DB_VARIABLE)) {
+       std::string path = d_directory + "/" + key;
+@@ -1446,7 +1445,7 @@ bool SiloDatabase::putSiloSimpleType(const std::string& key, const void *data, c
+       err = DBWrite(d_file, path.c_str(), const_cast<void *>(data), dims, 1, simple_type);
+       if(err < 0) {
+ 	 TBOX_ERROR("SiloDatabase DBWrite failed " << key << std::endl);
+-      } 
++      }
+ 
+    return err < 0;
+ }
+@@ -1466,7 +1465,7 @@ bool SiloDatabase::getSiloSimpleType(const std::string& key, void *data)
+    err = DBReadVar(d_file, path.c_str(), data);
+    if(err < 0) {
+       TBOX_ERROR("SiloDatabase DBRead failed " << key << std::endl);
+-   } 
++   }
+ 
+    return err < 0;
+ }
+diff --git a/source/toolbox/templates/special/stl-FundamentalTypes.C b/source/toolbox/templates/special/stl-FundamentalTypes.C
+index 8e37615..1d6b783 100644
+--- a/source/toolbox/templates/special/stl-FundamentalTypes.C
++++ b/source/toolbox/templates/special/stl-FundamentalTypes.C
+@@ -66,6 +66,8 @@
+  * functions and member functions must be instantiated individually.
+  */
+ 
++#if 0 // some of these don't make sense; get rid of it
++
+ 
+ template class std::set<int>;
+ 
+@@ -102,4 +104,4 @@ template void std::vector<double>::insert<const double *>(std::vector<double>::i
+ 
+ 
+ 
+-
++#endif
+diff --git a/source/transfer/datamovers/standard/RefineSchedule.C b/source/transfer/datamovers/standard/RefineSchedule.C
+index d4e6a90..d19fb4a 100644
+--- a/source/transfer/datamovers/standard/RefineSchedule.C
++++ b/source/transfer/datamovers/standard/RefineSchedule.C
+@@ -41,18 +41,6 @@ namespace SAMRAI {
+ #define BIG_GHOST_CELL_WIDTH  (10)
+ 
+ 
+-/*!
+- * Timer objects for performance measurement.
+- */
+-static tbox::Pointer<tbox::Timer> t_fill_data;
+-static tbox::Pointer<tbox::Timer> t_recursive_fill;
+-static tbox::Pointer<tbox::Timer> t_refine_scratch_data;
+-static tbox::Pointer<tbox::Timer> t_gen_sched_n_squared;
+-static tbox::Pointer<tbox::Timer> t_gen_sched_box_graph;
+-static tbox::Pointer<tbox::Timer> t_gen_sched_box_tree; 
+-static tbox::Pointer<tbox::Timer> t_gen_comm_sched;
+-static tbox::Pointer<tbox::Timer> t_finish_sched_const;
+-
+ /*
+ *************************************************************************
+ *                                                                       *
+@@ -67,6 +55,22 @@ template<int DIM> const hier::IntVector<DIM>
+    RefineSchedule<DIM>::s_constant_one_intvector = hier::IntVector<DIM>(1);
+ template<int DIM> std::string
+    RefineSchedule<DIM>::s_schedule_generation_method = "BOX_TREE";
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_fill_data;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_recursive_fill;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_refine_scratch_data;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_gen_sched_n_squared;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_gen_sched_box_graph;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_gen_sched_box_tree;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_gen_comm_sched;
++template<int DIM> tbox::Pointer<tbox::Timer>
++   RefineSchedule<DIM>::t_finish_sched_const;
+ 
+ /*
+  * ************************************************************************
+@@ -810,6 +814,19 @@ template<int DIM> void RefineSchedule<DIM>::fillData(
+    d_transaction_factory->setRefineItems(d_refine_items, d_number_refine_items);
+ 
+    /*
++    * Set the destination level number for the variable fill pattern
++    * objects.
++    */
++   const int num_equiv_classes =
++      d_refine_classes->getNumberOfEquivalenceClasses();
++   for (int nc = 0; nc < num_equiv_classes; nc++) {
++      const typename xfer::RefineClasses<DIM>::Data& rep_item =
++         d_refine_classes->getClassRepresentative(nc);
++      rep_item.d_var_fill_pattern->setTargetPatchLevelNumber(
++         d_dst_level->getLevelNumber());
++   }
++
++   /*
+     * Check whether scratch data needs to be allocated on the destination
+     * level.  Keep track of those allocated components so that they may be
+     * deallocated later.
+@@ -841,6 +858,16 @@ template<int DIM> void RefineSchedule<DIM>::fillData(
+    d_dst_level->deallocatePatchData(allocate_vector);
+ 
+    /*
++    * Reset the destination level number for the variable fill pattern
++    * objects.
++    */
++   for (int nc = 0; nc < num_equiv_classes; nc++) {
++      const typename xfer::RefineClasses<DIM>::Data& rep_item =
++         d_refine_classes->getClassRepresentative(nc);
++      rep_item.d_var_fill_pattern->setTargetPatchLevelNumber(-1);
++   }
++
++   /*
+     * Unset the refine items for all transactions.  These items are
+     * shared by all transaction objects in the communication schedule.
+     */
+@@ -1887,12 +1914,14 @@ template<int DIM> void RefineSchedule<DIM>::constructScheduleTransactions(
+             hier::Box<DIM> src_mask( hier::Box<DIM>::shift( test_mask,-shift) );
+ 
+             tbox::Pointer< hier::BoxOverlap<DIM> > overlap =
+-               rep_item.d_var_fill_pattern->calculateOverlap(
++               rep_item.d_var_fill_pattern->calculateOverlapOnLevel(
+                   *dst_pdf->getBoxGeometry(dst_box),
+                   *src_pdf->getBoxGeometry(src_box),
+                   dst_box,
+                   src_mask,
+-                  true, shift);
++                  true, shift,
++                  dst_level->getLevelNumber(),
++                  src_level->getLevelNumber());
+ /*	    tbox::Pointer< hier::BoxOverlap<DIM> > overlap =
+ 	       dst_pdf->getBoxGeometry(dst_box)
+ 		      ->calculateOverlap(
+@@ -2230,6 +2259,8 @@ template<int DIM> void RefineSchedule<DIM>::printClassData(std::ostream& stream)
+ 
+ /*
+ ***********************************************************************
++Allocate static timers and register freeTimers with the shutdown
++registry.
+ ***********************************************************************
+ */
+ template<int DIM>
+diff --git a/source/transfer/datamovers/standard/RefineSchedule.h b/source/transfer/datamovers/standard/RefineSchedule.h
+index ed4ecb0..0293731 100644
+--- a/source/transfer/datamovers/standard/RefineSchedule.h
++++ b/source/transfer/datamovers/standard/RefineSchedule.h
+@@ -542,15 +542,17 @@ private:
+     */
+    void initialCheckRefineClassItems() const;
+ 
+-   void initializeTimers();
+-
+-
+    /*!
+     * @brief Set up things for the entire class.
+     */
+    void firstConstructorTasks();
+ 
+    /*!
++    * Allocate static timers.
++    */
++   static void initializeTimers();
++
++   /*!
+     * Free static timers.
+     *
+     * To be called by shutdown registry to make sure
+@@ -723,7 +725,17 @@ private:
+    int d_max_fill_boxes;
+    hier::BoxArray<DIM> d_src_masks;
+ 
+-
++   /*!
++    * Timer objects for performance measurement.
++    */
++   static tbox::Pointer<tbox::Timer> t_fill_data;
++   static tbox::Pointer<tbox::Timer> t_recursive_fill;
++   static tbox::Pointer<tbox::Timer> t_refine_scratch_data;
++   static tbox::Pointer<tbox::Timer> t_gen_sched_n_squared;
++   static tbox::Pointer<tbox::Timer> t_gen_sched_box_graph;
++   static tbox::Pointer<tbox::Timer> t_gen_sched_box_tree;
++   static tbox::Pointer<tbox::Timer> t_gen_comm_sched;
++   static tbox::Pointer<tbox::Timer> t_finish_sched_const;
+ };
+ 
+ }
+diff --git a/source/transfer/operators/VariableFillPattern.C b/source/transfer/operators/VariableFillPattern.C
+index cd00635..16caf7c 100644
+--- a/source/transfer/operators/VariableFillPattern.C
++++ b/source/transfer/operators/VariableFillPattern.C
+@@ -39,7 +39,33 @@ VariableFillPattern<DIM>::~VariableFillPattern()
+ {
+ }
+ 
++template<int DIM>
++tbox::Pointer< hier::BoxOverlap<DIM> >
++VariableFillPattern<DIM>::calculateOverlapOnLevel(const hier::BoxGeometry<DIM>& dst_geometry,
++                                                  const hier::BoxGeometry<DIM>& src_geometry,
++                                                  const hier::Box<DIM>& dst_patch_box,
++                                                  const hier::Box<DIM>& src_mask,
++                                                  const bool overwrite_interior,
++                                                  const hier::IntVector<DIM>& src_offset,
++                                                  const int dst_level_num,
++                                                  const int src_level_num) const
++{
++   NULL_USE(dst_level_num);
++   NULL_USE(src_level_num);
++   return calculateOverlap(dst_geometry,
++                           src_geometry,
++                           dst_patch_box,
++                           src_mask,
++                           overwrite_interior,
++                           src_offset);
++}
+ 
++template<int DIM>
++void VariableFillPattern<DIM>::setTargetPatchLevelNumber(const int level_num)
++{
++   NULL_USE(level_num);
++   return;
++}
+ 
+ }
+ }
+diff --git a/source/transfer/operators/VariableFillPattern.h b/source/transfer/operators/VariableFillPattern.h
+index 35c8377..9100093 100644
+--- a/source/transfer/operators/VariableFillPattern.h
++++ b/source/transfer/operators/VariableFillPattern.h
+@@ -68,6 +68,47 @@ public:
+                     const hier::IntVector<DIM>& src_offset) const = 0;
+ 
+    /*!
++    * This virtual method provides an interface to calculate overlaps between
++    * the destination and source geometries on a specified level of the patch
++    * hierarchy.
++    *
++    * @note A default implementation is provided that simply calls the pure
++    * virtual method calculateOverlap() for implementations that are level
++    * independent.
++    *
++    * @param dst_geometry    geometry object for destination box
++    * @param src_geometry    geometry object for source box
++    * @param dst_patch_box   box for the destination patch
++    * @param src_mask        the source mask, the box resulting from shifting
++    *                        the source box
++    * @param overwrite_interior  controls whether or not to include the
++    *                            destination box interior in the overlap
++    * @param src_offset      the offset between source and destination
++    *                        index space.  src + src_offset = dst
++    * @param dst_level_num   the level of the patch hierarchy on which the
++    *                        dst boxes are located
++    * @param src_level_num   the level of the patch hierarchy on which the
++    *                        src boxes are located
++    *
++    * @return                Pointer to the calculated overlap object
++    */
++   virtual tbox::Pointer< hier::BoxOverlap<DIM> >
++   calculateOverlapOnLevel(const hier::BoxGeometry<DIM>& dst_geometry,
++                           const hier::BoxGeometry<DIM>& src_geometry,
++                           const hier::Box<DIM>& dst_patch_box,
++                           const hier::Box<DIM>& src_mask,
++                           const bool overwrite_interior,
++                           const hier::IntVector<DIM>& src_offset,
++                           const int dst_level_num,
++                           const int src_level_num) const;
++
++   /*!
++    * Set the target patch level number for the variable fill pattern.  The
++    * default implementation is empty.
++    */
++   virtual void setTargetPatchLevelNumber(const int level_num);
++
++   /*!
+     * Return the maximum ghost width of the boundary stencil.  The default
+     * implementation throws an error.
+     */
+diff --git a/source/transfer/templates/EmptyTransferX.C b/source/transfer/templates/EmptyTransferX.C
+index 955f3fb..fed18f1 100644
+--- a/source/transfer/templates/EmptyTransferX.C
++++ b/source/transfer/templates/EmptyTransferX.C
+@@ -14,6 +14,12 @@
+ namespace SAMRAI {
+    namespace xfer {
+       template<int DIM> class Empty {
++	 Empty() :
++	    something(0) 
++	 {
++	 }
++
++	 int something;
+       };
+ 
+       template class Empty< NDIM >;
+-- 
+2.7.4
+
