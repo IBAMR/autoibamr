@@ -4,7 +4,7 @@ CHECKSUM=69711b574f9a39429248c6718b974318
 NAME=${VERSION}
 PACKING=.tar.gz
 SOURCE=https://github.com/LLNL/SAMRAI/archive/refs/tags/
-EXTRACTSTO=samrai-${VERSION}
+EXTRACTSTO=SAMRAI-${VERSION}
 BUILDCHAIN=custom
 INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
 
@@ -36,31 +36,7 @@ if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
       FOPTFLAGS='-O3 -march=native -mtune=native'"
 fi
 
-
-if [ ! -z "${CC}" ]; then
-    CONFOPTS="${CONFOPTS} --with-CC=${CC}"
-fi
-
-if [ ! -z "${CXX}" ]; then
-    CONFOPTS="${CONFOPTS} --with-CXX=${CXX}"
-fi
-
-if [ ! -z "${FC}" ]; then
-    CONFOPTS="${CONFOPTS} --with-FC=${FC}"
-fi
-
-if [ ! -z "${F77}" ]; then
-    CONFOPTS="${CONFOPTS} --with-F77=${F77}"
-fi
-
-if [ ! -z "${F90}" ]; then
-    CONFOPTS="${CONFOPTS} --with-F90=${F90}"
-fi
-
-if [ ! -z "${HDF5}" ]; then
-    CONFOPTS="${CONFOPTS} --with-hdf5=${HDF5}"
-fi
-
+# SILO is still optional
 if [ ! -z "${SILO_DIR}" ]; then
     cecho ${INFO} "samrai: configuration with silo=${SILO_DIR}"
     CONFOPTS="${CONFOPTS} --with-silo=${SILO_DIR}"
@@ -71,8 +47,13 @@ fi
 package_specific_patch () {
     if [ "$VERSION" = "2.4.4" ]; then
         cd ${UNPACK_PATH}/${EXTRACTSTO}
+        quit_if_fail "cd failed"
         cecho ${WARN} "applying patch for building SAMRAI"
-        patch -p1 < ${ORIG_DIR}/${PROJECT}/patches/samrai-2.4.4-build.patch || true
+        patch -p1 < ${ORIG_DIR}/${PROJECT}/patches/samrai-2.4.4-build.patch
+        quit_if_fail "patch failed"
+    else
+        cecho ${ERROR} "unsupported version of SAMRAI"
+        exit 1
     fi
 }
 
