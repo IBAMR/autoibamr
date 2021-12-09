@@ -12,7 +12,7 @@ package_specific_build () {
     ./configure --prefix=${INSTALL_PATH}
     quit_if_fail "zlib configure failed"
     
-    make install
+    make -j${JOBS} install
     quit_if_fail "zlib make install failed"
 }
 

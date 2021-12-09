@@ -693,9 +693,9 @@ default DEVELOPER_MODE=OFF
 default PACKAGES_OFF=""
 
 # all packages are mandatory except silo and libmesh
-PACKAGES="boost cmake git hdf5 muparser numdiff parmetis petsc zlib"
+PACKAGES="boost cmake git hdf5 muparser numdiff parmetis petsc"
 if [ ${BUILD_SILO} = "ON" ]; then
-    PACKAGES="${PACKAGES} silo"
+    PACKAGES="${PACKAGES} zlib silo"
 fi
 if [ ${BUILD_LIBMESH} = "ON" ]; then
     PACKAGES="${PACKAGES} libmesh"

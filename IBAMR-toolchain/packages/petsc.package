@@ -27,6 +27,7 @@ CONFOPTS="
   --with-shared-libraries=1
   --with-mpi=1
   --with-x=0
+  --with-fortran-bindings=0
   --with-64-bit-indices=0
 "
 
@@ -79,7 +80,7 @@ if [ ! -z "${PARMETIS_DIR}" ]; then
     CONFOPTS="\
         ${CONFOPTS} \
         --with-parmetis-dir=${PARMETIS_DIR} \
-	--with-metis-dir=${PARMETIS_DIR}"
+        --with-metis-dir=${PARMETIS_DIR}"
 fi
 
 #########################################################################
