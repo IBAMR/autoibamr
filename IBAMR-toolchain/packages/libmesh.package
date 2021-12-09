@@ -1,0 +1,67 @@
+VERSION=1.7.0-rc3
+CHECKSUM=69e02bad319a3e6f09442cfeb1a898a765b2c4d8fc8a38d8b85ac378df4d35bd
+
+NAME=libmesh-${VERSION}
+SOURCE=https://github.com/libMesh/libmesh/releases/download/v${VERSION}/
+PACKING=.tar.gz
+
+EXTRACTSTO=libmesh-${VERSION}
+BUILDCHAIN=autotools
+
+INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
+
+#########################################################################
+
+CONFOPTS="
+  --with-methods=opt
+  --disable-boost
+  --disable-capnproto
+  --disable-cppunit
+  --disable-eigen
+  --disable-hdf5
+  --disable-laspack
+  --disable-metaphysicl
+  --disable-openmp
+  --disable-perflog
+  --disable-pthreads
+  --disable-reference-counting
+  --disable-slepc
+  --disable-strict-lgpl
+  --disable-tbb
+  --disable-trilinos
+  --enable-nanoflann
+  --enable-nanoflann-pointlocator
+  --enable-petsc-required
+  --enable-exodus=yes
+  --enable-unique-id
+  --with-metis=PETSc
+  --with-parmetis=PETSc
+"
+
+if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
+    CONFOPTS="${CONFOPTS} \
+      COPTFLAGS='-O3 -march=native -mtune=native' \
+      CXXOPTFLAGS='-O3 -march=native -mtune=native' \
+      FOPTFLAGS='-O3 -march=native -mtune=native'"
+fi
+
+#########################################################################
+
+package_specific_setup () {
+    cd ${BUILDDIR}
+    # avoid nonzero error codes from 'same file'
+    cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* . || true
+}
+
+package_specific_register () {
+    export LIBMESH_DIR=${INSTALL_PATH}
+}
+
+package_specific_conf () {
+    # Generate configuration file
+    CONFIG_FILE=${CONFIGURATION_PATH}/${EXTRACTSTO}
+    rm -f $CONFIG_FILE
+    echo "
+export LIBMESH_DIR=${INSTALL_PATH}
+" >> $CONFIG_FILE
+}
