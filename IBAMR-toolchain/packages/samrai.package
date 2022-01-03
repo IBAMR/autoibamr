@@ -29,11 +29,14 @@ CONFOPTS="
   --disable-deprecated
 "
 
+# We default to shared-object files in IBAMR so compile SAMRAI accordingly
+export CFLAGS=-fPIC
+export CXXFLAGS=-fPIC
+export FFLAGS=-fPIC
 if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
-    CONFOPTS="${CONFOPTS} \
-      COPTFLAGS='-O3 -march=native -mtune=native' \
-      CXXOPTFLAGS='-O3 -march=native -mtune=native' \
-      FOPTFLAGS='-O3 -march=native -mtune=native'"
+    export CFLAGS="${CFLAGS} -O3 -march=native"
+    export CXXFLAGS="${CXXFLAGS} -O3 -march=native"
+    export FFLAGS="${FFLAGS} -O3 -march=native"
 fi
 
 # SILO is still optional
