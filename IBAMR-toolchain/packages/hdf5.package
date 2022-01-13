@@ -1,15 +1,11 @@
-#MAJORVER=1.10
-#MINORVER=5
-#CHECKSUM=e115eeb66e944fa7814482415dd21cc4
-
-MAJORVER=1.10
-MINORVER=7
-CHECKSUM=006ed785942f4ed9a6f31556d0ef8ba5
+MAJORVER=1.12
+MINORVER=1
+CHECKSUM=aaf9f532b3eda83d3d3adc9f8b40a9b763152218fa45349c3bc77502ca1f8f1c
 
 VERSION=${MAJORVER}.${MINORVER}
 NAME=hdf5-${VERSION}
-SOURCE=http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-${MAJORVER}/${NAME}/src/
-PACKING=.tar.gz
+SOURCE=https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${MAJORVER}/hdf5-${MAJORVER}.${MINORVER}/src/
+PACKING=.tar.bz2
 BUILDCHAIN=autotools
 
 CONFOPTS="--enable-shared --enable-parallel"
