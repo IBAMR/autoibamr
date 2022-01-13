@@ -578,7 +578,10 @@ guess_platform() {
         local MACOS_PRODUCT_NAME=$(sw_vers -productName)
         local MACOS_VERSION=$(sw_vers -productVersion)
 
-        if [ "${MACOS_PRODUCT_NAME}" == "macOS" ]; then
+        if [ "${MACOS_PRODUCT_NAME}" == "Mac OS X" ]; then
+            echo macos
+
+        elif [ "${MACOS_PRODUCT_NAME}" == "macOS" ]; then
             echo macos
 
         else
