@@ -1018,19 +1018,14 @@ mkdir -p ${CONFIGURATION_PATH}
 
 # configuration script
 cat > ${CONFIGURATION_PATH}/enable.sh <<"EOF"
-#!/bin/bash
 # helper script to source all configuration files. Use
 #    source enable.sh
 # to load into your current shell.
 
 # find path of script:
-pushd . >/dev/null
-P="${BASH_SOURCE[0]:-${(%):-%x}}";
-P=`dirname ${P}`;
-P=`cd ${P};pwd`;
-popd >/dev/null
+P=$(dirname $(stat -f "$0"))
 
-for f in $P/*
+for f in $(find $P)
 do
   if [ "$f" != "$P/enable.sh" ] && [ -f "$f" ]
   then
