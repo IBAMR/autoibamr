@@ -1,5 +1,5 @@
-VERSION=1.7.0-rc3
-CHECKSUM=69e02bad319a3e6f09442cfeb1a898a765b2c4d8fc8a38d8b85ac378df4d35bd
+VERSION=1.6.2
+CHECKSUM=745874f2b19f9345aac1676ea11deba8ac7f18b3
 
 NAME=libmesh-${VERSION}
 SOURCE=https://github.com/libMesh/libmesh/releases/download/v${VERSION}/
@@ -29,8 +29,6 @@ CONFOPTS="
   --disable-strict-lgpl
   --disable-tbb
   --disable-trilinos
-  --enable-nanoflann
-  --enable-nanoflann-pointlocator
   --enable-petsc-required
   --enable-exodus=yes
   --enable-unique-id
@@ -40,9 +38,9 @@ CONFOPTS="
 
 if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
     CONFOPTS="${CONFOPTS} \
-      COPTFLAGS='-O3 -march=native -mtune=native' \
-      CXXOPTFLAGS='-O3 -march=native -mtune=native' \
-      FOPTFLAGS='-O3 -march=native -mtune=native'"
+      COPTFLAGS='-O3 -march=native' \
+      CXXOPTFLAGS='-O3 -march=native' \
+      FOPTFLAGS='-O3 -march=native'"
 fi
 
 #########################################################################
