@@ -28,12 +28,19 @@ CONFOPTS="
   --disable-slepc
   --disable-strict-lgpl
   --disable-tbb
+  --disable-tecio
   --disable-trilinos
-  --enable-petsc-required
+  --enable-curl=no
   --enable-exodus=yes
-  --enable-unique-id
+  --enable-glpk=no
+  --enable-nanoflann=no
+  --enable-qhull=no
+  --enable-tecplot=no
+  --enable-timestamps=no
+  --enable-petsc-required
   --with-metis=PETSc
   --with-parmetis=PETSc
+  --enable-unique-id
 "
 
 if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
