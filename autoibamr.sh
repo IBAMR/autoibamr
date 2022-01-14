@@ -505,7 +505,8 @@ package_build() {
         rm -rf ${BUILDDIR}/CMakeFiles
         echo cmake ${CONFOPTS} -DCMAKE_C_COMPILER="${CC}" \
              -DCMAKE_CXX_COMPILER="${CXX}" -DCMAKE_Fortran_COMPILER="${FC}" \
-             -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} ${UNPACK_PATH}/${EXTRACTSTO} >>autoibamr_configure
+             -DCMAKE_INSTALL_MESSAGE=LAZY -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} \
+             ${UNPACK_PATH}/${EXTRACTSTO} >>autoibamr_configure
         for target in "${TARGETS[@]}"; do
             echo make ${MAKEOPTS} -j ${JOBS} $target >>autoibamr_build
         done
@@ -696,7 +697,7 @@ default DEVELOPER_MODE=OFF
 default PACKAGES_OFF=""
 
 # all packages are mandatory except silo and libmesh
-PACKAGES="cmake hdf5 numdiff parmetis petsc"
+PACKAGES="cmake hdf5 numdiff parmetis petsc samrai"
 if [ ${BUILD_SILO} = "ON" ]; then
     PACKAGES="${PACKAGES} zlib silo"
 fi
@@ -1017,19 +1018,14 @@ mkdir -p ${CONFIGURATION_PATH}
 
 # configuration script
 cat > ${CONFIGURATION_PATH}/enable.sh <<"EOF"
-#!/bin/bash
 # helper script to source all configuration files. Use
 #    source enable.sh
 # to load into your current shell.
 
 # find path of script:
-pushd . >/dev/null
-P="${BASH_SOURCE[0]:-${(%):-%x}}";
-P=`dirname ${P}`;
-P=`cd ${P};pwd`;
-popd >/dev/null
+P=$(dirname $(stat -f "$0"))
 
-for f in $P/*
+for f in $(find $P)
 do
   if [ "$f" != "$P/enable.sh" ] && [ -f "$f" ]
   then

@@ -80,7 +80,7 @@ package_specific_register () {
 
 package_specific_conf () {
     # Generate configuration file
-    CONFIG_FILE=${CONFIGURATION_PATH}/${EXTRACTSTO}
+    CONFIG_FILE=${CONFIGURATION_PATH}/samrai-${VERSION}
     rm -f $CONFIG_FILE
     echo "
 export SAMRAI_DIR=${INSTALL_PATH}
