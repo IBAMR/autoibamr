@@ -33,24 +33,20 @@ Follow the instructions on the screen
   ./autoibamr.sh
 ```
 
-#### Install IBAMR on Ubuntu (16.04), 18.04, 20.xx:
+#### Install IBAMR on Ubuntu:
 ```bash
   ./autoibamr.sh
 ```
 
-#### Install IBAMR on macOS (experimental):
+#### Install IBAMR on macOS:
 ```bash
   ./autoibamr.sh
 ```
 
 #### Install IBAMR on a generic Linux system or cluster:
 ```bash
-  ./autoibamr.sh --platform=./IBAMR-toolchain/platforms/supported/linux_cluster.platform
+  ./autoibamr.sh
 ```
-
-Note that you probably also want to change the prefix path, or 
-the path to ``BLAS`` and ``LAPACK`` in the configuration file
-(see documentation below).
 
 #### Install IBAMR on a system without pre-installed git:
 
@@ -60,12 +56,6 @@ the path to ``BLAS`` and ``LAPACK`` in the configuration file
   cd autoibamr-master
   ./autoibamr.sh
 ```
-
-Note that in this case you will need to activate the installation of git by
-uncommenting the line `#PACKAGES="${PACKAGES} once:git"` in
-[autoibamr.cfg](autoibamr.cfg).
-
-
 
 Advanced Configuration
 ----
@@ -128,16 +118,17 @@ This file is a simple text file and can be changed with any text editor.
 
 Currently, we provide the packages
 
-* boost
-* Eigen3
-* gsl
-* hdf5
+* CMake
+* HDF5
 * libMesh
-* petsc
+* numdiff
+* parmetis
+* PETSc
 * SAMRAI
 * SILO
+* zlib
 
-and others. For a complete list see
+Their build scripts are in
 [IBAMR-toolchain/packages](IBAMR-toolchain/packages).
 
 There are several options within the configuration file, for example:
