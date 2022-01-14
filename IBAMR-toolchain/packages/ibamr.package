@@ -1,0 +1,73 @@
+VERSION=0.9.0
+CHECKSUM=61e737b1a834f3ff25526feaeeb6631c
+
+NAME=v${VERSION}
+PACKING=.tar.gz
+SOURCE=https://github.com/IBAMR/IBAMR/archive/refs/tags/
+EXTRACTSTO=IBAMR-${VERSION}
+BUILDCHAIN=custom
+INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
+
+#########################################################################
+
+CONFOPTS="
+--with-hypre=${PETSC_DIR} \  ### do we need petsc arch here?
+--with-samrai=${SAMRAI_DIR} \
+--with-hdf5=${HDF5_DIR} \
+--enable-libmesh \
+--with-libmesh=${LIBMESH_DIR} \
+--with-libmesh-method=dbg
+"
+
+# We default to shared-object files in IBAMR so compile accordingly
+### do we want these three export statements or the later three
+# export CFLAGS="-g -O1 -Wall" \
+# export CXXFLAGS="-g -O1 -Wall" \
+# export FCFLAGS="-g -O1 -Wall" \
+export CFLAGS=-fPIC
+export CXXFLAGS=-fPIC
+export FFLAGS=-fPIC
+### do we want this statement?
+# export CPPFLAGS="-DOMPI_SKIP_MPICXX" \
+if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
+    export CFLAGS="${CFLAGS} -O3 -march=native"
+    export CXXFLAGS="${CXXFLAGS} -O3 -march=native"
+    export FFLAGS="${FFLAGS} -O3 -march=native"
+fi
+
+# SILO is still optional
+if [ ! -z "${SILO_DIR}" ]; then
+    cecho ${INFO} "ibamr: configuration with silo=${SILO_DIR}"
+    CONFOPTS="${CONFOPTS} --with-silo=${SILO_DIR}"
+fi
+
+### is boost optional??
+if [ ! -z "${BOOST_DIR}" ]; then
+    cecho ${INFO} "ibamr: configuration with boost=${BOOST_DIR}"
+    CONFOPTS="${CONFOPTS} --with-boost=${BOOST_DIR}"
+fi
+#########################################################################
+
+package_specific_build () {
+    cd ${BUILDDIR}
+    cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* .
+
+    ./configure --prefix=${INSTALL_PATH} ${CONFOPTS}
+    quit_if_fail "ibamr ./configure failed"
+    
+    make -j${JOBS}
+    quit_if_fail "ibamr make failed"
+}
+
+package_specific_register () {
+    export IBAMR_DIR=${INSTALL_PATH}
+}
+
+package_specific_conf () {
+    # Generate configuration file
+    CONFIG_FILE=${CONFIGURATION_PATH}/${EXTRACTSTO}
+    rm -f $CONFIG_FILE
+    echo "
+export IBAMR_DIR=${INSTALL_PATH}
+" >> $CONFIG_FILE
+}
