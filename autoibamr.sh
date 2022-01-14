@@ -696,7 +696,7 @@ default DEVELOPER_MODE=OFF
 default PACKAGES_OFF=""
 
 # all packages are mandatory except silo and libmesh
-PACKAGES="cmake hdf5 numdiff parmetis petsc"
+PACKAGES="cmake hdf5 numdiff parmetis petsc samrai"
 if [ ${BUILD_SILO} = "ON" ]; then
     PACKAGES="${PACKAGES} zlib silo"
 fi
