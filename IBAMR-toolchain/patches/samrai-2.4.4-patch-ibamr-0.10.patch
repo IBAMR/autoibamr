@@ -1,70 +1,71 @@
-From 7e03ac4a9f768986122804f07480335f6eba9a0c Mon Sep 17 00:00:00 2001
+From 29747c23043dc9fb03e0b7c6b926dec77f6acd9c Mon Sep 17 00:00:00 2001
 From: David Wells <drwells@email.unc.edu>
-Date: Tue, 31 Jul 2018 17:15:37 -0400
-Subject: [PATCH] Collect necessary IBAMR patches.
+Date: Fri, 14 Jan 2022 17:24:31 -0500
+Subject: [PATCH] improved patch
 
 ---
- config/SAMRAI_config.h.in                          |  10 +-
- examples/ConvDiff/ConvDiff.C                       |   2 +
- examples/dataops/node_hierops.C                    |   8 +-
- examples/memory/main.C                             |   6 +-
- include/BoundaryLookupTable.C                      |   2 +-
- include/BoxList.C                                  |  26 +--
- include/BoxList.I                                  |   4 +-
- include/CartesianGridGeometry.C                    | 164 ++++++++---------
- include/EmptyAlgorithmX.C                          |   6 +
- include/EmptyAppUtilsX.C                           |   6 +
- include/EmptyGeometryX.C                           |   6 +
- include/EmptyHierarchyX.C                          |   6 +
- include/EmptyMathOpsX.C                            |   6 +
- include/EmptyMeshX.C                               |   6 +
- include/EmptyPatchDataX.C                          |   6 +
- include/EmptySolversX.C                            |   6 +
- include/EmptyTransferX.C                           |   6 +
- include/FACPreconditioner.C                        |   4 +
- include/GriddingAlgorithm.C                        |   6 +-
- include/HierarchyDataOpsReal.h                     |   7 +
- include/IndexData.I                                |  14 ++
- include/PatchLevel.C                               |  12 +-
- include/PatchLevel.h                               |  10 +-
- include/RefineSchedule.C                           |  59 ++++--
- include/RefineSchedule.h                           |  20 +-
- include/SideVariable.C                             |   2 +-
- include/StandardTagAndInitialize.C                 |   2 +-
- include/VariableFillPattern.C                      |  26 +++
- include/VariableFillPattern.h                      |  41 +++++
- include/VisItDataWriter.C                          |   4 +-
- source/algorithm/templates/EmptyAlgorithmX.C       |   6 +
- source/apputils/plotting/VisItDataWriter.C         |   4 +-
- source/apputils/templates/EmptyAppUtilsX.C         |   6 +
- .../cartesian/grid_geom/CartesianGridGeometry.C    | 164 ++++++++---------
- source/geometry/templates/EmptyGeometryX.C         |   6 +
- source/hierarchy/boxes/BoxList.C                   |  26 +--
- source/hierarchy/boxes/BoxList.I                   |   4 +-
- source/hierarchy/patches/BoundaryLookupTable.C     |   2 +-
- source/hierarchy/patches/PatchLevel.C              |  12 +-
- source/hierarchy/patches/PatchLevel.h              |  10 +-
- source/hierarchy/templates/EmptyHierarchyX.C       |   6 +
- source/mathops/hierarchy/HierarchyDataOpsReal.h    |   7 +
- source/mathops/templates/EmptyMathOpsX.C           |   6 +
- source/mesh/gridding/GriddingAlgorithm.C           |   6 +-
- source/mesh/gridding/StandardTagAndInitialize.C    |   2 +-
- source/mesh/templates/EmptyMeshX.C                 |   6 +
- source/patchdata/index/IndexData.I                 |  14 ++
- source/patchdata/side/SideVariable.C               |   2 +-
- source/patchdata/templates/EmptyPatchDataX.C       |   6 +
- source/solvers/FAC/FACPreconditioner.C             |   4 +
- source/solvers/templates/EmptySolversX.C           |   6 +
- source/toolbox/memory/MemoryUtilities.C            |   3 +-
- source/toolbox/restartdb/HDFDatabase.C             |  13 +-
- source/toolbox/restartdb/SiloDatabase.C            | 203 ++++++++++-----------
- .../templates/special/stl-FundamentalTypes.C       |   4 +-
- .../transfer/datamovers/standard/RefineSchedule.C  |  59 ++++--
- .../transfer/datamovers/standard/RefineSchedule.h  |  20 +-
- source/transfer/operators/VariableFillPattern.C    |  26 +++
- source/transfer/operators/VariableFillPattern.h    |  41 +++++
- source/transfer/templates/EmptyTransferX.C         |   6 +
- 60 files changed, 793 insertions(+), 370 deletions(-)
+ config/SAMRAI_config.h.in                     |  10 +-
+ examples/ConvDiff/ConvDiff.C                  |   2 +
+ examples/dataops/node_hierops.C               |   8 +-
+ examples/memory/main.C                        |   6 +-
+ include/BoundaryLookupTable.C                 |   2 +-
+ include/BoxList.C                             |  26 +--
+ include/BoxList.I                             |   4 +-
+ include/CartesianGridGeometry.C               | 164 +++++++-------
+ include/EmptyAlgorithmX.C                     |   6 +
+ include/EmptyAppUtilsX.C                      |   6 +
+ include/EmptyGeometryX.C                      |   6 +
+ include/EmptyHierarchyX.C                     |   6 +
+ include/EmptyMathOpsX.C                       |   6 +
+ include/EmptyMeshX.C                          |   6 +
+ include/EmptyPatchDataX.C                     |   6 +
+ include/EmptySolversX.C                       |   6 +
+ include/EmptyTransferX.C                      |   6 +
+ include/FACPreconditioner.C                   |   4 +
+ include/GriddingAlgorithm.C                   |   6 +-
+ include/HierarchyDataOpsReal.h                |   7 +
+ include/IndexData.I                           |  14 ++
+ include/PatchLevel.C                          |  12 +-
+ include/PatchLevel.h                          |  10 +-
+ include/RefineSchedule.C                      |  59 +++--
+ include/RefineSchedule.h                      |  20 +-
+ include/SideVariable.C                        |   2 +-
+ include/StandardTagAndInitialize.C            |   2 +-
+ include/VariableFillPattern.C                 |  26 +++
+ include/VariableFillPattern.h                 |  41 ++++
+ include/VisItDataWriter.C                     |   4 +-
+ include/tbox/SAMRAI_MPI.h                     |  22 +-
+ source/algorithm/templates/EmptyAlgorithmX.C  |   6 +
+ source/apputils/plotting/VisItDataWriter.C    |   4 +-
+ source/apputils/templates/EmptyAppUtilsX.C    |   6 +
+ .../grid_geom/CartesianGridGeometry.C         | 164 +++++++-------
+ source/geometry/templates/EmptyGeometryX.C    |   6 +
+ source/hierarchy/boxes/BoxList.C              |  26 +--
+ source/hierarchy/boxes/BoxList.I              |   4 +-
+ .../hierarchy/patches/BoundaryLookupTable.C   |   2 +-
+ source/hierarchy/patches/PatchLevel.C         |  12 +-
+ source/hierarchy/patches/PatchLevel.h         |  10 +-
+ source/hierarchy/templates/EmptyHierarchyX.C  |   6 +
+ .../mathops/hierarchy/HierarchyDataOpsReal.h  |   7 +
+ source/mathops/templates/EmptyMathOpsX.C      |   6 +
+ source/mesh/gridding/GriddingAlgorithm.C      |   6 +-
+ .../mesh/gridding/StandardTagAndInitialize.C  |   2 +-
+ source/mesh/templates/EmptyMeshX.C            |   6 +
+ source/patchdata/index/IndexData.I            |  14 ++
+ source/patchdata/side/SideVariable.C          |   2 +-
+ source/patchdata/templates/EmptyPatchDataX.C  |   6 +
+ source/solvers/FAC/FACPreconditioner.C        |   4 +
+ source/solvers/templates/EmptySolversX.C      |   6 +
+ source/toolbox/memory/MemoryUtilities.C       |   3 +-
+ source/toolbox/restartdb/HDFDatabase.C        |  13 +-
+ source/toolbox/restartdb/SiloDatabase.C       | 203 +++++++++---------
+ .../templates/special/stl-FundamentalTypes.C  |   4 +-
+ .../datamovers/standard/RefineSchedule.C      |  59 +++--
+ .../datamovers/standard/RefineSchedule.h      |  20 +-
+ .../transfer/operators/VariableFillPattern.C  |  26 +++
+ .../transfer/operators/VariableFillPattern.h  |  41 ++++
+ source/transfer/templates/EmptyTransferX.C    |   6 +
+ 61 files changed, 794 insertions(+), 391 deletions(-)
 
 diff --git a/config/SAMRAI_config.h.in b/config/SAMRAI_config.h.in
 index 90be02a..b8209b7 100644
@@ -754,28 +755,30 @@ diff --git a/include/HierarchyDataOpsReal.h b/include/HierarchyDataOpsReal.h
 index 6b62f1b..ed48d0b 100644
 --- a/include/HierarchyDataOpsReal.h
 +++ b/include/HierarchyDataOpsReal.h
-@@ -330,6 +330,13 @@ public:
+@@ -329,6 +329,13 @@ public:
+                     const int vol_id = -1,
  		    bool local_only=false) const = 0;
  
-    /**
++   /**
 +    * Return the integral of the function represented by the data array.
 +    * The return value is the sum \f$\sum_i ( data_i * vol_i )\f$.
 +    */
 +   virtual TYPE integral(const int data_id,
 +                         const int vol_id) const = 0;
 +
-+   /**
+    /**
      * Return 1 if \f$\|data2_i\| > 0\f$ and \f$data1_i * data2_i \leq 0\f$, for
      * any \f$i\f$ in the set of patch data indices, where \f$cvol_i > 0\f$.  Otherwise,
-     * return 0.  If the control volume is undefined (vol_id < 0), all values
 diff --git a/include/IndexData.I b/include/IndexData.I
 index 572a46e..e914729 100644
 --- a/include/IndexData.I
 +++ b/include/IndexData.I
-@@ -119,6 +119,20 @@ const TYPE& IndexIterator<DIM,TYPE,BOX_GEOMETRY>::operator()() const
+@@ -117,6 +117,20 @@ const TYPE& IndexIterator<DIM,TYPE,BOX_GEOMETRY>::operator()() const
+    return(*d_node->d_item);
+ }
  
- template<int DIM, class TYPE, class BOX_GEOMETRY>
- inline
++template<int DIM, class TYPE, class BOX_GEOMETRY>
++inline
 +TYPE& IndexIterator<DIM,TYPE,BOX_GEOMETRY>::getItem()
 +{
 +   return(*d_node->d_item);
@@ -788,11 +791,9 @@ index 572a46e..e914729 100644
 +    return(d_node->d_index);
 +}
 +
-+template<int DIM, class TYPE, class BOX_GEOMETRY>
-+inline
+ template<int DIM, class TYPE, class BOX_GEOMETRY>
+ inline
  IndexIterator<DIM,TYPE,BOX_GEOMETRY>::operator bool() const
- {
-    return(d_node ? true : false);
 diff --git a/include/PatchLevel.C b/include/PatchLevel.C
 index 15150cb..42f781a 100644
 --- a/include/PatchLevel.C
@@ -898,10 +899,11 @@ index d4e6a90..d19fb4a 100644
  
  /*
   * ************************************************************************
-@@ -810,6 +814,19 @@ template<int DIM> void RefineSchedule<DIM>::fillData(
+@@ -809,6 +813,19 @@ template<int DIM> void RefineSchedule<DIM>::fillData(
+    d_transaction_factory->setTransactionTime(fill_time);
     d_transaction_factory->setRefineItems(d_refine_items, d_number_refine_items);
  
-    /*
++   /*
 +    * Set the destination level number for the variable fill pattern
 +    * objects.
 +    */
@@ -914,14 +916,14 @@ index d4e6a90..d19fb4a 100644
 +         d_dst_level->getLevelNumber());
 +   }
 +
-+   /*
+    /*
      * Check whether scratch data needs to be allocated on the destination
      * level.  Keep track of those allocated components so that they may be
-     * deallocated later.
-@@ -841,6 +858,16 @@ template<int DIM> void RefineSchedule<DIM>::fillData(
+@@ -840,6 +857,16 @@ template<int DIM> void RefineSchedule<DIM>::fillData(
+ 
     d_dst_level->deallocatePatchData(allocate_vector);
  
-    /*
++   /*
 +    * Reset the destination level number for the variable fill pattern
 +    * objects.
 +    */
@@ -931,10 +933,9 @@ index d4e6a90..d19fb4a 100644
 +      rep_item.d_var_fill_pattern->setTargetPatchLevelNumber(-1);
 +   }
 +
-+   /*
+    /*
      * Unset the refine items for all transactions.  These items are
      * shared by all transaction objects in the communication schedule.
-     */
 @@ -1887,12 +1914,14 @@ template<int DIM> void RefineSchedule<DIM>::constructScheduleTransactions(
              hier::Box<DIM> src_mask( hier::Box<DIM>::shift( test_mask,-shift) );
  
@@ -965,7 +966,7 @@ diff --git a/include/RefineSchedule.h b/include/RefineSchedule.h
 index ed4ecb0..0293731 100644
 --- a/include/RefineSchedule.h
 +++ b/include/RefineSchedule.h
-@@ -542,15 +542,17 @@ private:
+@@ -542,14 +542,16 @@ private:
      */
     void initialCheckRefineClassItems() const;
  
@@ -977,15 +978,14 @@ index ed4ecb0..0293731 100644
      */
     void firstConstructorTasks();
  
-    /*!
++   /*!
 +    * Allocate static timers.
 +    */
 +   static void initializeTimers();
 +
-+   /*!
+    /*!
      * Free static timers.
      *
-     * To be called by shutdown registry to make sure
 @@ -723,7 +725,17 @@ private:
     int d_max_fill_boxes;
     hier::BoxArray<DIM> d_src_masks;
@@ -1073,10 +1073,11 @@ diff --git a/include/VariableFillPattern.h b/include/VariableFillPattern.h
 index 35c8377..9100093 100644
 --- a/include/VariableFillPattern.h
 +++ b/include/VariableFillPattern.h
-@@ -68,6 +68,47 @@ public:
+@@ -67,6 +67,47 @@ public:
+                     const bool overwrite_interior,
                      const hier::IntVector<DIM>& src_offset) const = 0;
  
-    /*!
++   /*!
 +    * This virtual method provides an interface to calculate overlaps between
 +    * the destination and source geometries on a specified level of the patch
 +    * hierarchy.
@@ -1117,10 +1118,9 @@ index 35c8377..9100093 100644
 +    */
 +   virtual void setTargetPatchLevelNumber(const int level_num);
 +
-+   /*!
+    /*!
      * Return the maximum ghost width of the boundary stencil.  The default
      * implementation throws an error.
-     */
 diff --git a/include/VisItDataWriter.C b/include/VisItDataWriter.C
 index edf7d77..b050436 100644
 --- a/include/VisItDataWriter.C
@@ -1143,6 +1143,41 @@ index edf7d77..b050436 100644
        hid_t space = H5Screate_simple(2, dim, NULL);
  #ifdef DEBUG_CHECK_ASSERTIONS
        TBOX_ASSERT(space >= 0);
+diff --git a/include/tbox/SAMRAI_MPI.h b/include/tbox/SAMRAI_MPI.h
+index 016e684..d31a2cc 100644
+--- a/include/tbox/SAMRAI_MPI.h
++++ b/include/tbox/SAMRAI_MPI.h
+@@ -11,29 +11,9 @@
+ #define included_tbox_SAMRAI_MPI
+ 
+ #include "SAMRAI_config.h"
+-#ifdef HAVE_MPI
+-#ifndef included_mpi
+-#define included_mpi
+-
+-/*
+- * Prevent inclusion of mpi C++ bindings in mpi.h includes
+- */
+-#ifndef MPI_NO_CPPBIND
+-#define MPI_NO_CPPBIND
+-#endif
+-
+-#ifndef MPICH_SKIP_MPICXX
+-#define MPICH_SKIP_MPICXX
+-#endif
+-
+-#ifndef OMPI_SKIP_MPICXX
+-#define OMPI_SKIP_MPICXX
+-#endif
+ 
+-#include "mpi.h"
++#include <mpi.h>
+ 
+-#endif
+-#endif
+ #include "tbox/Complex.h"
+ 
+ #include "tbox/Utilities.h"
 diff --git a/source/algorithm/templates/EmptyAlgorithmX.C b/source/algorithm/templates/EmptyAlgorithmX.C
 index 9b9795d..98e1e1a 100644
 --- a/source/algorithm/templates/EmptyAlgorithmX.C
@@ -1684,20 +1719,20 @@ diff --git a/source/mathops/hierarchy/HierarchyDataOpsReal.h b/source/mathops/hi
 index 6b62f1b..ed48d0b 100644
 --- a/source/mathops/hierarchy/HierarchyDataOpsReal.h
 +++ b/source/mathops/hierarchy/HierarchyDataOpsReal.h
-@@ -330,6 +330,13 @@ public:
+@@ -329,6 +329,13 @@ public:
+                     const int vol_id = -1,
  		    bool local_only=false) const = 0;
  
-    /**
++   /**
 +    * Return the integral of the function represented by the data array.
 +    * The return value is the sum \f$\sum_i ( data_i * vol_i )\f$.
 +    */
 +   virtual TYPE integral(const int data_id,
 +                         const int vol_id) const = 0;
 +
-+   /**
+    /**
      * Return 1 if \f$\|data2_i\| > 0\f$ and \f$data1_i * data2_i \leq 0\f$, for
      * any \f$i\f$ in the set of patch data indices, where \f$cvol_i > 0\f$.  Otherwise,
-     * return 0.  If the control volume is undefined (vol_id < 0), all values
 diff --git a/source/mathops/templates/EmptyMathOpsX.C b/source/mathops/templates/EmptyMathOpsX.C
 index 4d14944..40a8801 100644
 --- a/source/mathops/templates/EmptyMathOpsX.C
@@ -1773,10 +1808,12 @@ diff --git a/source/patchdata/index/IndexData.I b/source/patchdata/index/IndexDa
 index 572a46e..e914729 100644
 --- a/source/patchdata/index/IndexData.I
 +++ b/source/patchdata/index/IndexData.I
-@@ -119,6 +119,20 @@ const TYPE& IndexIterator<DIM,TYPE,BOX_GEOMETRY>::operator()() const
+@@ -117,6 +117,20 @@ const TYPE& IndexIterator<DIM,TYPE,BOX_GEOMETRY>::operator()() const
+    return(*d_node->d_item);
+ }
  
- template<int DIM, class TYPE, class BOX_GEOMETRY>
- inline
++template<int DIM, class TYPE, class BOX_GEOMETRY>
++inline
 +TYPE& IndexIterator<DIM,TYPE,BOX_GEOMETRY>::getItem()
 +{
 +   return(*d_node->d_item);
@@ -1789,11 +1826,9 @@ index 572a46e..e914729 100644
 +    return(d_node->d_index);
 +}
 +
-+template<int DIM, class TYPE, class BOX_GEOMETRY>
-+inline
+ template<int DIM, class TYPE, class BOX_GEOMETRY>
+ inline
  IndexIterator<DIM,TYPE,BOX_GEOMETRY>::operator bool() const
- {
-    return(d_node ? true : false);
 diff --git a/source/patchdata/side/SideVariable.C b/source/patchdata/side/SideVariable.C
 index 190dfd9..c92215c 100644
 --- a/source/patchdata/side/SideVariable.C
@@ -2661,10 +2696,11 @@ index d4e6a90..d19fb4a 100644
  
  /*
   * ************************************************************************
-@@ -810,6 +814,19 @@ template<int DIM> void RefineSchedule<DIM>::fillData(
+@@ -809,6 +813,19 @@ template<int DIM> void RefineSchedule<DIM>::fillData(
+    d_transaction_factory->setTransactionTime(fill_time);
     d_transaction_factory->setRefineItems(d_refine_items, d_number_refine_items);
  
-    /*
++   /*
 +    * Set the destination level number for the variable fill pattern
 +    * objects.
 +    */
@@ -2677,14 +2713,14 @@ index d4e6a90..d19fb4a 100644
 +         d_dst_level->getLevelNumber());
 +   }
 +
-+   /*
+    /*
      * Check whether scratch data needs to be allocated on the destination
      * level.  Keep track of those allocated components so that they may be
-     * deallocated later.
-@@ -841,6 +858,16 @@ template<int DIM> void RefineSchedule<DIM>::fillData(
+@@ -840,6 +857,16 @@ template<int DIM> void RefineSchedule<DIM>::fillData(
+ 
     d_dst_level->deallocatePatchData(allocate_vector);
  
-    /*
++   /*
 +    * Reset the destination level number for the variable fill pattern
 +    * objects.
 +    */
@@ -2694,10 +2730,9 @@ index d4e6a90..d19fb4a 100644
 +      rep_item.d_var_fill_pattern->setTargetPatchLevelNumber(-1);
 +   }
 +
-+   /*
+    /*
      * Unset the refine items for all transactions.  These items are
      * shared by all transaction objects in the communication schedule.
-     */
 @@ -1887,12 +1914,14 @@ template<int DIM> void RefineSchedule<DIM>::constructScheduleTransactions(
              hier::Box<DIM> src_mask( hier::Box<DIM>::shift( test_mask,-shift) );
  
@@ -2728,7 +2763,7 @@ diff --git a/source/transfer/datamovers/standard/RefineSchedule.h b/source/trans
 index ed4ecb0..0293731 100644
 --- a/source/transfer/datamovers/standard/RefineSchedule.h
 +++ b/source/transfer/datamovers/standard/RefineSchedule.h
-@@ -542,15 +542,17 @@ private:
+@@ -542,14 +542,16 @@ private:
      */
     void initialCheckRefineClassItems() const;
  
@@ -2740,15 +2775,14 @@ index ed4ecb0..0293731 100644
      */
     void firstConstructorTasks();
  
-    /*!
++   /*!
 +    * Allocate static timers.
 +    */
 +   static void initializeTimers();
 +
-+   /*!
+    /*!
      * Free static timers.
      *
-     * To be called by shutdown registry to make sure
 @@ -723,7 +725,17 @@ private:
     int d_max_fill_boxes;
     hier::BoxArray<DIM> d_src_masks;
@@ -2810,10 +2844,11 @@ diff --git a/source/transfer/operators/VariableFillPattern.h b/source/transfer/o
 index 35c8377..9100093 100644
 --- a/source/transfer/operators/VariableFillPattern.h
 +++ b/source/transfer/operators/VariableFillPattern.h
-@@ -68,6 +68,47 @@ public:
+@@ -67,6 +67,47 @@ public:
+                     const bool overwrite_interior,
                      const hier::IntVector<DIM>& src_offset) const = 0;
  
-    /*!
++   /*!
 +    * This virtual method provides an interface to calculate overlaps between
 +    * the destination and source geometries on a specified level of the patch
 +    * hierarchy.
@@ -2854,10 +2889,9 @@ index 35c8377..9100093 100644
 +    */
 +   virtual void setTargetPatchLevelNumber(const int level_num);
 +
-+   /*!
+    /*!
      * Return the maximum ghost width of the boundary stencil.  The default
      * implementation throws an error.
-     */
 diff --git a/source/transfer/templates/EmptyTransferX.C b/source/transfer/templates/EmptyTransferX.C
 index 955f3fb..fed18f1 100644
 --- a/source/transfer/templates/EmptyTransferX.C
@@ -2876,5 +2910,5 @@ index 955f3fb..fed18f1 100644
  
        template class Empty< NDIM >;
 -- 
-2.7.4
+2.34.1
 

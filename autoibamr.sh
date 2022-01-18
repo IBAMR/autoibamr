@@ -877,9 +877,11 @@ cat > ${CONFIGURATION_PATH}/enable.sh <<"EOF"
 #    source enable.sh
 # to load into your current shell.
 
-# find path of script:
-P=$(dirname $(stat -f "$0"))
-
+# hard-code in DIRNAME from configuration time:
+EOF
+# Split the command so we can save the path
+echo "P=${CONFIGURATION_PATH}" >> ${CONFIGURATION_PATH}/enable.sh
+cat >> ${CONFIGURATION_PATH}/enable.sh <<"EOF"
 for f in $(find $P)
 do
   if [ "$f" != "$P/enable.sh" ] && [ -f "$f" ]
