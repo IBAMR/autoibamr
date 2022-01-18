@@ -1,0 +1,46 @@
+VERSION=0.10.0-rc2
+CHECKSUM=fc26257b0f7801c72dadbe32dfe400f24351c8757383304ebba6f9f01f3c6a32
+NAME=v${VERSION}
+SOURCE=https://github.com/IBAMR/IBAMR/archive/refs/tags/
+PACKING=.tar.gz
+
+EXTRACTSTO=IBAMR-${VERSION}
+BUILDCHAIN=cmake
+
+INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
+
+CONFOPTS="
+-DHDF5_ROOT=${HDF5_DIR}
+-DHYPRE_ROOT=${PETSC_DIR}
+-DSAMRAI_ROOT=${SAMRAI_DIR}
+-DNUMDIFF_ROOT=${NUMDIFF_DIR}
+-DPETSC_ROOT=${PETSC_DIR}
+-DIBAMR_FORCE_BUNDLED_Boost=ON
+-DIBAMR_FORCE_BUNDLED_Eigen3=ON
+-DIBAMR_FORCE_BUNDLED_muParser=ON
+"
+
+# SILO is optional
+if [ ! -z "${SILO_DIR}" ]; then
+    cecho ${INFO} "IBAMR: configuration with silo=${SILO_DIR}"
+    CONFOPTS="${CONFOPTS} -DSILO_ROOT=${SILO_DIR}"
+fi
+
+# libMesh is optional
+if [ ! -z "${LIBMESH_DIR}" ]; then
+    cecho ${INFO} "IBAMR: configuration with libmesh=${LIBMESH_DIR}"
+    cecho ${INFO} "IBAMR: configuration with libmesh method=OPT"
+    CONFOPTS="${CONFOPTS} -DLIBMESH_ROOT=${LIBMESH_DIR} -DLIBMESH_METHOD=OPT"
+fi
+
+if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
+    CONFOPTS="${CONFOPTS} \
+      -DCMAKE_C_FLAGS='-O3 -march=native' \
+      -DCMAKE_CXX_FLAGS='-O3 -march=native' \
+      -DCMAKE_Fortran_FLAGS='-O3 -march=native'"
+else
+    CONFOPTS="${CONFOPTS} \
+      -DCMAKE_C_FLAGS='-O2' \
+      -DCMAKE_CXX_FLAGS='-O2' \
+      -DCMAKE_Fortran_FLAGS='-O2'"
+fi
