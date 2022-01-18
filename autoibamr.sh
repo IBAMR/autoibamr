@@ -612,8 +612,8 @@ default PROJECT=IBAMR-toolchain
 default DOWNLOAD_PATH=${PREFIX_PATH}/tmp/src
 default UNPACK_PATH=${PREFIX_PATH}/tmp/unpack
 default BUILD_PATH=${PREFIX_PATH}/tmp/build
-default INSTALL_PATH=${PREFIX_PATH}
-default CONFIGURATION_PATH=${INSTALL_PATH}/configuration
+default INSTALL_PATH=${PREFIX_PATH}/packages
+default CONFIGURATION_PATH=${PREFIX_PATH}/configuration
 
 default CLEAN_BUILD=OFF
 default DEVELOPER_MODE=OFF
