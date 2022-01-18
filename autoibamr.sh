@@ -622,7 +622,7 @@ default DEVELOPER_MODE=OFF
 default PACKAGES_OFF=""
 
 # all packages are mandatory except silo and libmesh
-PACKAGES="cmake hdf5 numdiff parmetis petsc samrai"
+PACKAGES="cmake hdf5 numdiff parmetis petsc"
 if [ ${BUILD_SILO} = "ON" ]; then
     PACKAGES="${PACKAGES} zlib silo"
 fi
@@ -630,7 +630,8 @@ if [ ${BUILD_LIBMESH} = "ON" ]; then
     PACKAGES="${PACKAGES} libmesh"
 fi
 
-PACKAGES="${PACKAGES} ibamr"
+# samrai optionally depends on SILO so add it afterwards
+PACKAGES="${PACKAGES} samrai ibamr"
 
 ################################################################################
 # Check if project was specified correctly
