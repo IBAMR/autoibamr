@@ -54,7 +54,6 @@ while [ -n "$1" ]; do
             echo "Options:"
             echo "  -p <path>, --prefix=<path>  set a different prefix path (default $PREFIX)"
             echo "  -j <N>, -j<N>, --jobs=<N>   compile with N processes in parallel (default ${JOBS})"
-            echo "  --platform=<platform>       force usage of a particular platform file"
             echo "  -y, --yes, --assume-yes     automatic yes to prompts"
             echo ""
             echo "The configuration including the choice of packages to install is stored in autoibamr.cfg, see README.md for more information."
@@ -87,12 +86,6 @@ while [ -n "$1" ]; do
             JOBS="${param#*j}"
         ;;
 
-        #####################################
-        # Specific platform
-        -pf=*|--platform=*)
-            GIVEN_PLATFORM="${param#*=}"
-        ;;
-        
         #####################################
         # Assume yes to prompts
         -y|--yes|--assume-yes)
@@ -570,74 +563,6 @@ package_conf() {
     quit_if_fail "There was a problem creating the configfiles for ${PACKAGE} ${VERSION}."
 }
 
-guess_platform() {
-    # Try to guess the name of the platform we're running on
-    if [ -f /usr/bin/cygwin1.dll ]; then
-        echo cygwin
-
-    elif [ -x /usr/bin/sw_vers ]; then
-        local MACOS_PRODUCT_NAME=$(sw_vers -productName)
-        local MACOS_VERSION=$(sw_vers -productVersion)
-
-        if [ "${MACOS_PRODUCT_NAME}" == "Mac OS X" ]; then
-            echo macos
-
-        elif [ "${MACOS_PRODUCT_NAME}" == "macOS" ]; then
-            echo macos
-
-        else
-            case ${MACOS_VERSION} in
-                10.11*) echo macos_elcapitan;;
-                10.12*) echo macos_sierra;;
-                10.13*) echo macos_highsierra;;
-                10.14*) echo macos_mojave;;
-                10.15*) echo macos_catalina;;
-                11.4*)  echo macos_bigsur;;
-                11.5*)  echo macos_bigsur;;
-            esac
-        fi
-
-    elif [ -n "${CRAYOS_VERSION}" ]; then
-        echo cray
-
-    elif [ -f /etc/os-release ]; then
-        local OS_ID=$(grep -oP '(?<=^ID=).+' /etc/os-release | tr -d '"')
-        local OS_VERSION_ID=$(grep -oP '(?<=^VERSION_ID=).+' /etc/os-release | tr -d '"')
-        local OS_MAJOR_VERSION=$(grep -oP '(?<=^VERSION_ID=).+' /etc/os-release | tr -d '"' | grep -oE '[0-9]+' | head -n 1)
-        local OS_NAME=$(grep -oP '(?<=^NAME=).+' /etc/os-release | tr -d '"')
-        local OS_PRETTY_NAME=$(grep -oP '(?<=^PRETTY_NAME=).+' /etc/os-release | tr -d '"')
-
-        if [ "${OS_ID}" == "fedora" ]; then
-            echo fedora
-
-        elif [ "${OS_ID}" == "centos" ]; then
-            echo centos${OS_VERSION_ID}
-
-        elif [ "${OS_ID}" == "rhel" ]; then
-            echo rhel${OS_MAJOR_VERSION}
-
-        elif [ "$OS_ID" == "debian" ]; then
-            echo debian
-
-        elif [ "$OS_ID" == "ubuntu" ]; then
-            echo ubuntu
-
-        elif [ "${OS_NAME}" == "openSUSE Leap" ]; then
-            echo opensuse15
-
-        elif [ "${OS_PRETTY_NAME}" == "Arch Linux" ]; then
-            echo arch
-
-        elif [ "${OS_PRETTY_NAME}" == "Manjaro Linux" ]; then
-            echo arch
-        else
-            echo unknown
-        fi
-    else
-        echo unknown
-    fi
-}
-
 guess_ostype() {
     # Try to guess the operating system type (ostype)
     if [ -f /usr/bin/cygwin1.dll ]; then
@@ -652,7 +577,7 @@ guess_ostype() {
 }
 
 guess_architecture() {
-    # Try to guess the architecture of the platform we are running on
+    # Try to guess the architecture we are running on
     ARCH=unknown
     if [ -x /usr/bin/uname -o -x /bin/uname ]
     then
@@ -710,12 +635,12 @@ PACKAGES="${PACKAGES} ibamr"
 ################################################################################
 # Check if project was specified correctly
 if [ -d ${PROJECT} ]; then
-    if [ -d ${PROJECT}/platforms -a -d ${PROJECT}/packages ]; then
+    if [ -d ${PROJECT}/packages ]; then
         cecho ${INFO} "Project: ${PROJECT}: Found configuration."
     else
         cecho ${BAD} "Please contact the authors, if you have not changed autoibamr!"
         cecho ${INFO} "autoibamr: Internal error:"
-        cecho ${INFO} "No subdirectories 'platforms' and 'packages' in ${PROJECT}."
+        cecho ${INFO} "No subdirectory 'packages' in ${PROJECT}."
         exit 1
     fi
 else
@@ -724,59 +649,13 @@ else
     cecho ${INFO} "Error: No project configuration directory found for project ${PROJECT}."
     echo "Please check if you have specified right project name in autoibamr.cfg"
     echo "Please check if you have directory called ${PROJECT}"
-    echo "with subdirectories ${PROJECT}/platforms and ${PROJECT}/packages"
+    echo "with subdirectory ${PROJECT}/packages"
     exit 1
 fi
 
 ################################################################################
-# Operating system (PLATFORM) check
-if [ -z "${GIVEN_PLATFORM}" ]; then
-    # No platform is forced to use, try to find a platform file.
-    PLATFORM_SUPPORTED=${PROJECT}/platforms/supported/`guess_platform`.platform
-    PLATFORM_CONTRIBUTED=${PROJECT}/platforms/contributed/`guess_platform`.platform
-    PLATFORM_DEPRECATED=${PROJECT}/platforms/deprecated/`guess_platform`.platform
-
-    if [ -e ${PLATFORM_SUPPORTED} ]; then
-        PLATFORM=${PLATFORM_SUPPORTED}
-        cecho ${INFO} "using ./${PLATFORM}."
-
-    elif [ -e ${PLATFORM_CONTRIBUTED} ]; then
-        PLATFORM=${PLATFORM_CONTRIBUTED}
-        cecho ${INFO} "using ./${PLATFORM}."
-        cecho ${WARN} "Warning: Platform is not officially supported but may still work!"
-
-    elif [ -e ${PLATFORM_DEPRECATED} ]; then
-        PLATFORM=${PLATFORM_DEPRECATED}
-        cecho ${INFO} "using ./${PLATFORM}."
-        cecho ${WARN} "Warning: Platform is deprecated and will be removed shortly but may still work!"
-
-    else
-        cecho ${BAD} "Error: Your operating system could not be automatically recognised."
-        echo "You may force a (similar) platform directly by:"
-        echo "./autoibamr.sh --platform=${PROJECT}/platforms/ {supported|contributed|deprecated} / <FORCED>.platform"
-        exit 1
-    fi
-
-    unset PLATFORM_SUPPORTED
-    unset PLATFORM_CONTRIBUTED
-    unset PLATFORM_DEPRECATED
-
-else
-    # Forced platform by the user, check if the given platform file is available.
-    if [ -e ${GIVEN_PLATFORM} ]; then
-        PLATFORM=${GIVEN_PLATFORM}
-        cecho ${BAD} "using (user-forced) ./${PLATFORM}."
-
-        unset GIVEN_PLATFORM
-
-    else
-        cecho ${BAD} "Error: Your forced platform file ${GIVEN_PLATFORM} does not exists"
-        exit 1
-    fi
-fi
-echo
-
 # Guess the operating system type -> PLATFORM_OSTYPE
+echo
 PLATFORM_OSTYPE=`guess_ostype`
 if [ -z "${PLATFORM_OSTYPE}" ]; then
     cecho ${WARN} "WARNING: could not determine your Operating System Type (assuming linux)"
@@ -810,29 +689,7 @@ if [ -z "${LDSUFFIX}" ]; then
         exit 1
 fi
 
-# Source PLATFORM variables if set up correctly
-if [ -z ${PLATFORM} ]; then
-    cecho ${BAD} "Please contact the authors, if you have not changed autoibamr!"
-    cecho ${INFO} "autoibamr: Internal error, no PLATFORM variable available."
-    exit 1
-else
-    # Load PLATFORM variables
-    source ${PLATFORM}
-fi
-echo
-
-# Output PLATFORM details
-echo "-------------------------------------------------------------------------------"
-cecho ${WARN} "Please read carefully your operating system notes below!"
-echo
-
-# Show the initial comments in the platform file until the pattern '##' appears.
-# Further, removes first field '#' before the output.
-awk '/^##/ {exit} {$1=""; print}' <${PLATFORM}
-echo
-
-# If interaction is enabled, let the user confirm, that the platform is set up
-# correctly
+# If interaction is enabled, let the user confirm
 if [ ${USER_INTERACTION} = ON ]; then
     echo "--------------------------------------------------------------------------------"
     cecho ${GOOD} "Please make sure you've read the instructions above and your system"
@@ -851,7 +708,6 @@ echo "**************************************************************************
 cecho ${GOOD} "autoibamr tries now to download, configure, build and install:"
 echo
 cecho ${GOOD} "Project:  ${PROJECT}"
-cecho ${GOOD} "Platform: ${PLATFORM}"
 echo
 echo "-------------------------------------------------------------------------------"
 
@@ -967,7 +823,6 @@ echo
 # Final test for compiler variables
 if [ -z "${CC}" ] || [ -z "${CXX}" ] || [ -z "${FC}" ] || [ -z "${FF}" ]; then
     cecho ${WARN} "One or multiple compiler variables (CC,CXX,FC,FF) are not set."
-    cecho ${INFO} "Please read your platform information above carefully, how you get those"
     cecho ${INFO} "compilers installed and set up! Usually the values should be:"
     cecho ${INFO} "CC=mpicc, CXX=mpicxx, FC=mpif90, FF=mpif77"
     cecho ${WARN} "It is strongly recommended to set them to guarantee the same compilers for all"
@@ -989,7 +844,6 @@ echo "**************************************************************************
 cecho ${GOOD} "autoibamr tries now to download, configure, build and install:"
 echo
 cecho ${GOOD} "Project:  ${PROJECT}"
-cecho ${GOOD} "Platform: ${PLATFORM}"
 echo
 
 

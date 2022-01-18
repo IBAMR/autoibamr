@@ -87,17 +87,6 @@ You can combine the command line options given below.
 
 * Example: to use 2 build processes type ``./autoibamr.sh -j 2``.
 
-#### Specific platform: ``[-pf=<platform>]``, ``[--platform=<platform>]``
-```bash
-  ./autoibamr.sh -pf=./IBAMR-toolchain/platforms/...
-  ./autoibamr.sh --platform=./IBAMR-toolchain/platforms/...
-```
-
-If your platform is not detected automatically you can specify it with this
-option manually. As shown above, this option is used to install IBAMR via
-autoibamr on linux clusters, for example. For a complete list of supported platforms
-see [IBAMR-toolchain/platforms](IBAMR-toolchain/platforms).
-
 #### User interaction: ``[-y]``, ``[--yes]``, ``[--assume-yes]``
 ```bash
   ./autoibamr.sh -y
