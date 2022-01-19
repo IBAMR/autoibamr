@@ -14,7 +14,6 @@ INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
 #########################################################################
 
 CONFOPTS="
-  --with-debugging=0
   --with-shared-libraries=1
   --with-mpi=1
   --with-x=0
@@ -22,11 +21,16 @@ CONFOPTS="
   --with-64-bit-indices=0
 "
 
-if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
-    CONFOPTS="${CONFOPTS} \
+if [ ${DEBUGGING} = ON ]; then
+    CONFOPTS="${CONFOPTS} --with-debugging=1"
+else
+    CONFOPTS="${CONFOPTS} --with-debugging=0"
+    if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
+        CONFOPTS="${CONFOPTS} \
       COPTFLAGS='-O3 -march=native -mtune=native' \
       CXXOPTFLAGS='-O3 -march=native -mtune=native' \
       FOPTFLAGS='-O3 -march=native -mtune=native'"
+    fi
 fi
 
 
@@ -92,9 +96,6 @@ package_specific_setup () {
 
 package_specific_register () {
     export PETSC_DIR=${INSTALL_PATH}
-    if [ ! -z "${SCALAPACK_DIR}" ]; then
-        export SCALAPACK_DIR=${INSTALL_PATH}
-    fi
 }
 
 package_specific_conf () {
@@ -104,7 +105,4 @@ package_specific_conf () {
     echo "
 export PETSC_DIR=${INSTALL_PATH}
 " >> $CONFIG_FILE
-    if [ ! -z "${SCALAPACK_DIR}" ]; then
-       echo "export SCALAPACK_DIR=${INSTALL_PATH}" >> $CONFIG_FILE
-    fi
 }

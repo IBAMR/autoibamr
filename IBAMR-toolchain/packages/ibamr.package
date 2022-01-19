@@ -44,18 +44,30 @@ fi
 # libMesh is optional
 if [ ! -z "${LIBMESH_DIR}" ]; then
     cecho ${INFO} "IBAMR: configuration with libmesh=${LIBMESH_DIR}"
-    cecho ${INFO} "IBAMR: configuration with libmesh method=OPT"
-    CONFOPTS="${CONFOPTS} -DLIBMESH_ROOT=${LIBMESH_DIR} -DLIBMESH_METHOD=OPT"
+    if [ ${DEBUGGING} = ON ]; then
+        _method="DEVEL"
+    else
+        _method="OPT"
+    fi
+    cecho ${INFO} "IBAMR: configuration with libmesh method=${_method}"
+    CONFOPTS="${CONFOPTS} -DLIBMESH_ROOT=${LIBMESH_DIR} -DLIBMESH_METHOD=${_method}"
 fi
 
-if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
+if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} \
+      -DCMAKE_C_FLAGS='-g' \
+      -DCMAKE_CXX_FLAGS='-g' \
+      -DCMAKE_Fortran_FLAGS='-g'"
+else
+    if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
+        CONFOPTS="${CONFOPTS} \
       -DCMAKE_C_FLAGS='-O3 -march=native' \
       -DCMAKE_CXX_FLAGS='-O3 -march=native' \
       -DCMAKE_Fortran_FLAGS='-O3 -march=native'"
-else
-    CONFOPTS="${CONFOPTS} \
+    else
+        CONFOPTS="${CONFOPTS} \
       -DCMAKE_C_FLAGS='-O2' \
       -DCMAKE_CXX_FLAGS='-O2' \
       -DCMAKE_Fortran_FLAGS='-O2'"
+    fi
 fi

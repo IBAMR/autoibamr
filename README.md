@@ -132,9 +132,9 @@ There are several options within the configuration file, for example:
   NATIVE_OPTIMIZATIONS={ON|OFF}
 ```
 
-* Enable the build of the IBAMR examples
+* Build with debugging support:
 ```bash
-  BUILD_EXAMPLES={ON|OFF}
+  DEBUGGING={ON|OFF}
 ```
 
 and more.
