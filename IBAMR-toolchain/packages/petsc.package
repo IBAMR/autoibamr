@@ -38,28 +38,28 @@ for external_pkg in hypre fblas-lapack; do
     CONFOPTS="${CONFOPTS} --download-${external_pkg}=1"
 done
 
-if [ ! -z "${CC}" ]; then
+if [ -n "${CC}" ]; then
     CONFOPTS="${CONFOPTS} CC=${CC}"
 fi
 
-if [ ! -z "${CXX}" ]; then
+if [ -n "${CXX}" ]; then
     CONFOPTS="${CONFOPTS} CXX=${CXX}"
 fi
 
-if [ ! -z "${FC}" ]; then
+if [ -n "${FC}" ]; then
     CONFOPTS="${CONFOPTS} FC=${FC}"
 fi
 
-if [ ! -z "${F77}" ]; then
+if [ -n "${F77}" ]; then
     CONFOPTS="${CONFOPTS} F77=${F77}"
 fi
 
-if [ ! -z "${F90}" ]; then
+if [ -n "${F90}" ]; then
     CONFOPTS="${CONFOPTS} F90=${F90}"
 fi
 
 # Add ParMETIS, if present
-if [ ! -z "${PARMETIS_DIR}" ]; then
+if [ -n "${PARMETIS_DIR}" ]; then
     cecho ${INFO} "PETSc: configuration with ParMETIS"
     CONFOPTS="\
         ${CONFOPTS} \
