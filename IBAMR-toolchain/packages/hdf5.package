@@ -10,6 +10,10 @@ BUILDCHAIN=autotools
 
 CONFOPTS="--enable-shared --enable-parallel"
 
+if [ ${DEBUGGING} = ON ]; then
+    CONFOPTS="${CONFOPTS} --enable-symbols=yes --enable-asserts"
+fi
+
 INSTALL_PATH=${INSTALL_PATH}/${NAME}
 
 package_specific_register () {

@@ -13,7 +13,6 @@ INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
 #########################################################################
 
 CONFOPTS="
-  --with-methods=opt
   --disable-boost
   --disable-capnproto
   --disable-cppunit
@@ -43,11 +42,16 @@ CONFOPTS="
   --enable-unique-id
 "
 
-if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
-    CONFOPTS="${CONFOPTS} \
+if [ ${DEBUGGING} = ON ]; then
+    CONFOPTS="${CONFOPTS} --with-methods=devel"
+else
+    CONFOPTS="${CONFOPTS} --with-methods=opt"
+    if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
+        CONFOPTS="${CONFOPTS} \
       COPTFLAGS='-O3 -march=native' \
       CXXOPTFLAGS='-O3 -march=native' \
       FOPTFLAGS='-O3 -march=native'"
+    fi
 fi
 
 #########################################################################

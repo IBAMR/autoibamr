@@ -5,47 +5,47 @@ NAME=${VERSION}
 PACKING=.tar.gz
 SOURCE=https://github.com/LLNL/SAMRAI/archive/refs/tags/
 EXTRACTSTO=SAMRAI-${VERSION}
-BUILDCHAIN=custom
+BUILDCHAIN=autotools
 INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
 
-#########################################################################
-
-CONFOPTS="
-  --with-F77=${FC} \
-  --with-hdf5=${HDF5_DIR} \
-  --without-petsc \
-  --without-hypre \
-  --without-blaslapack \
-  --without-cubes \
-  --without-eleven \
-  --without-kinsol \
-  --without-sundials \
-  --without-x \
-  --with-doxygen \
-  --with-dot \
-  --enable-debug \
-  --disable-opt \
-  --enable-implicit-template-instantiation \
-  --disable-deprecated
-"
-
 # We default to shared-object files in IBAMR so compile SAMRAI accordingly
-export CFLAGS=-fPIC
-export CXXFLAGS=-fPIC
-export FFLAGS=-fPIC
-if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
-    export CFLAGS="${CFLAGS} -O3 -march=native"
-    export CXXFLAGS="${CXXFLAGS} -O3 -march=native"
-    export FFLAGS="${FFLAGS} -O3 -march=native"
+samrai_compiler_flags="-fPIC"
+if [ ${DEBUGGING} = ON ]; then
+    samrai_compiler_flags="${samrai_compiler_flags} -g -O2"
+else
+    if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
+        samrai_compiler_flags="${samrai_compiler_flags} -O3 -march=native"
+    else
+        samrai_compiler_flags="${samrai_compiler_flags} -O2"
+    fi
 fi
+
+# SAMRAI also needs F77 specified
+CONFOPTS="
+  --with-F77=${FC}
+  --with-hdf5=${HDF5_DIR}
+  --without-petsc
+  --without-hypre
+  --without-blaslapack
+  --without-cubes
+  --without-eleven
+  --without-kinsol
+  --without-sundials
+  --without-x
+  --with-doxygen
+  --with-dot
+  --enable-implicit-template-instantiation
+  --disable-deprecated
+  CFLAGS='${samrai_compiler_flags}'
+  CXXFLAGS='${samrai_compiler_flags}'
+  FFLAGS='${samrai_compiler_flags}'
+"
 
 # SILO is still optional
 if [ ! -z "${SILO_DIR}" ]; then
     cecho ${INFO} "samrai: configuration with silo=${SILO_DIR}"
     CONFOPTS="${CONFOPTS} --with-silo=${SILO_DIR}"
 fi
-
-#########################################################################
 
 package_specific_patch () {
     if [ "$VERSION" = "2.4.4" ]; then
@@ -58,20 +58,6 @@ package_specific_patch () {
         cecho ${ERROR} "unsupported version of SAMRAI"
         exit 1
     fi
-}
-
-package_specific_build () {
-    cd ${BUILDDIR}
-    cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* .
-
-    ./configure --prefix=${INSTALL_PATH} ${CONFOPTS}
-    quit_if_fail "samrai ./configure failed"
-    
-    make -j${JOBS}
-    quit_if_fail "samrai make failed"
-
-    make install
-    quit_if_fail "samrai make install failed"
 }
 
 package_specific_register () {

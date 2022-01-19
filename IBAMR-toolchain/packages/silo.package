@@ -12,12 +12,17 @@ INSTALL_PATH=${INSTALL_PATH}/${NAME}
 #
 # Silo is too old to know about some changes made to HDF5 (notably the removal
 # of H5Pset_fapl_mpiposix) so we cannot configure with HDF5 either.
+silo_compiler_flags="-O2 -fPIC"
+if [ ${DEBUGGING} = ON ]; then
+    silo_compiler_flags="${silo_compiler_flags} -g"
+fi
+
 CONFOPTS="
 --enable-optimization
 --with-zlib=${ZLIB_INCLUDE},${ZLIB_LIBPATH}
-CFLAGS='$CFLAGS -O2 -fPIC'
-CXXFLAGS='$CCFLAGS -O2 -fPIC'
-FFLAGS='$FFLAGS -fallow-argument-mismatch -O2 -fPIC'
+CFLAGS='${silo_compiler_flags}'
+CXXFLAGS='${silo_compiler_flags}'
+FFLAGS='${silo_compiler_flags} -fallow-argument-mismatch'
 "
 
 package_specific_register () {
