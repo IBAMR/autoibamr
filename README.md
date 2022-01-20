@@ -1,5 +1,3 @@
-# *This is a work in progress and is not yet ready for public usage.*
-
 autoibamr
 =========
 
@@ -25,35 +23,12 @@ Follow the instructions on the screen
 (you can abort the process by pressing < CTRL > + C)
 
 
-### Examples
+### Installation
 
-#### Install IBAMR on RHEL 7, CentOS 7 or Fedora:
-```bash
-  module load mpi/openmpi-`uname -i`
-  ./autoibamr.sh
-```
-
-#### Install IBAMR on Ubuntu:
-```bash
-  ./autoibamr.sh
-```
-
-#### Install IBAMR on macOS:
-```bash
-  ./autoibamr.sh
-```
-
-#### Install IBAMR on a generic Linux system or cluster:
-```bash
-  ./autoibamr.sh
-```
-
-#### Install IBAMR on a system without pre-installed git:
+If you are on a cluster you will typically want to run `module load mpi` to set
+up the correct MPI environment. After that you can run
 
 ```bash
-  wget https://github.com/IBAMR/autoibamr/archive/master.tar.gz
-  tar -xzf master.tar.gz
-  cd autoibamr-master
   ./autoibamr.sh
 ```
 
@@ -146,30 +121,3 @@ directories, where the source and build files are stored:
   after installation)
 * The ``BUILD_PATH`` folder (can be safely removed after installation)
 * The ``INSTALL_PATH`` destination folder
-
-
-### Single package installation mode
-
-If you prefer to install only a single package, you can do so by
-```bash
-  ./autoibamr.sh --packages="IBAMR"
-```
-for instance, or a set of packages by
-```bash
-  ./autoibamr.sh --packages="opencascade petsc"
-```
-
-### Developer mode
-
-Our installer provides a software developer mode by setting
-``DEVELOPER_MODE=ON``
-within [autoibamr.cfg](autoibamr.cfg).
-
-More precisely, the developer mode skips the package ``fetch`` and ``unpack``,
-everything else (package configuration, building and installation) is done
-as before.
-
-Note that you need to have a previous run of autoibamr and
-you must not remove the ``UNPACK_PATH`` directory.
-Then you can modify source files in ``UNPACK_PATH`` of a package and
-run autoibamr again.
