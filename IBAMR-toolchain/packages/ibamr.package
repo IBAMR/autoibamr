@@ -55,17 +55,20 @@ fi
 
 if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} \
+      -DCMAKE_BUILD_TYPE=Debug \
       -DCMAKE_C_FLAGS='-g' \
       -DCMAKE_CXX_FLAGS='-g' \
       -DCMAKE_Fortran_FLAGS='-g'"
 else
     if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
         CONFOPTS="${CONFOPTS} \
+      -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_C_FLAGS='-O3 -march=native' \
       -DCMAKE_CXX_FLAGS='-O3 -march=native' \
       -DCMAKE_Fortran_FLAGS='-O3 -march=native'"
     else
         CONFOPTS="${CONFOPTS} \
+      -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_C_FLAGS='-O2' \
       -DCMAKE_CXX_FLAGS='-O2' \
       -DCMAKE_Fortran_FLAGS='-O2'"
