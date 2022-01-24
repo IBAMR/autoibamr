@@ -1,6 +1,6 @@
-if [ "${IBAMR_VERSION}" = 0.10.0-rc2 ]
+if [ "${IBAMR_VERSION}" = 0.10.0 ]
 then
-   CHECKSUM=fc26257b0f7801c72dadbe32dfe400f24351c8757383304ebba6f9f01f3c6a32
+    CHECKSUM=f0e955501f304a419712e7e5e39cea21aa90530ec82066459d418f3cab2fe040
 elif [ "${IBAMR_VERSION}" = 0.9.0 ]
 then
     CHECKSUM=61835fa28b7eb6dcab0278b96a906aab5ad4c5a5610bdea2560ead33df76002b
@@ -36,13 +36,13 @@ CONFOPTS="
 "
 
 # SILO is optional
-if [ ! -z "${SILO_DIR}" ]; then
+if [ -n "${SILO_DIR}" ]; then
     cecho ${INFO} "IBAMR: configuration with silo=${SILO_DIR}"
     CONFOPTS="${CONFOPTS} -DSILO_ROOT=${SILO_DIR}"
 fi
 
 # libMesh is optional
-if [ ! -z "${LIBMESH_DIR}" ]; then
+if [ -n "${LIBMESH_DIR}" ]; then
     cecho ${INFO} "IBAMR: configuration with libmesh=${LIBMESH_DIR}"
     if [ ${DEBUGGING} = ON ]; then
         _method="DEVEL"
