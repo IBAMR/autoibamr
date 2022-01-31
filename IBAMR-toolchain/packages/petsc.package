@@ -34,7 +34,7 @@ else
 fi
 
 
-for external_pkg in hypre fblas-lapack; do
+for external_pkg in hypre fblaslapack; do
     CONFOPTS="${CONFOPTS} --download-${external_pkg}=1"
 done
 
