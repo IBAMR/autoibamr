@@ -39,6 +39,10 @@ CONFOPTS="
 if [ -n "${SILO_DIR}" ]; then
     cecho ${INFO} "IBAMR: configuration with silo=${SILO_DIR}"
     CONFOPTS="${CONFOPTS} -DSILO_ROOT=${SILO_DIR}"
+
+    if [ ${SYSTEM_ZLIB_IN_STANDARD_LOCATION} = no ]; then
+        CONFOPTS="${CONFOPTS} -DZLIB_ROOT=${ZLIB_DIR}"
+    fi
 fi
 
 # libMesh is optional
