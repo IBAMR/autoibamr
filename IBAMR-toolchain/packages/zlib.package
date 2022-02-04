@@ -7,28 +7,123 @@ BUILDCHAIN=custom
 
 INSTALL_PATH=${INSTALL_PATH}/${NAME}
 
+# ZLIB is tricky because some MPI implementations link against a system copy and
+# some do not: hence we will get link problems on systems with it and SILO
+# problems on systems without it.
+
+USE_SYSTEM_ZLIB=no
+SYSTEM_ZLIB_IN_STANDARD_LOCATION=no
+
+package_specific_setup () {
+    _ldd=""
+    if [ "${PLATFORM_OSTYPE}" == "linux" ]; then
+        _ldd=ldd
+        _awk_command='{print $3}'
+    elif [ "${PLATFORM_OSTYPE}" == "macos" ]; then
+        _ldd="otool -L"
+        _awk_command='{print $1}'
+    else
+        cecho "${WARN}" "unknown platform link type"
+    fi
+
+    # For maximum generality, check if libmpi directly links against libz, and
+    # if so, use that libz
+    if [ -n "${_ldd}" ]; then
+        # First find the mpi library: these calls look weird due to how mktemp
+        # works on macos
+        _temp_source=$(mktemp XXXXXXXXXXXXXXXX)
+        mv "${_temp_source}" "${_temp_source}.c"
+        _temp_source="${_temp_source}.c"
+        _temp_out=$(mktemp XXXXXXXXXXXXXXXX)
+        echo "
+#include <mpi.h>
+
+int main(int argc, char **argv)
+{
+    MPI_Init(&argc, &argv);
+    MPI_Finalize();
+}
+" >> "${_temp_source}"
+        ${CC} "${_temp_source}" -o "${_temp_out}"
+        quit_if_fail "Unable to compile an MPI test program"
+        _mpilib=$(${_ldd} "${_temp_out}" | grep "libmpi\..*${LDSUFFIX}" | awk "${_awk_command}")
+        quit_if_fail "Unable to find libmpi linked against an MPI example"
+        rm "${_temp_out}"
+        rm "${_temp_source}"
+
+        # Now look for zlib:
+        cecho "${INFO}" "Checking MPI library ${_mpilib} for a ZLIB dependency"
+        ${_ldd} "${_mpilib}" | grep -q libz
+        has_link=$?
+        if [ ${has_link} ]; then
+            USE_SYSTEM_ZLIB=yes
+            zlib_system_prefix=$(dirname "$(${_ldd} "${_mpilib}" | grep libz | awk "${_awk_command}")")
+            quit_if_fail "Failed to complete link check of ${_mpilib} with ${_ldd}"
+            cecho "${INFO}" "found ZLIB installation used by MPI in ${zlib_system_prefix}"
+
+            # If we found zlib, try to figure out if its in a standard location or not:
+            echo "${zlib_system_prefix}" | grep -Eq '^/\(lib\|usr/lib\)'
+            if [ $? ]; then
+                cecho "${INFO}" "ZLIB installation is in a standard location"
+                SYSTEM_ZLIB_IN_STANDARD_LOCATION=yes
+            else
+                cecho "${WARN}" "ZLIB installation is not in a standard location: this configuration is under-tested and may not work!"
+                SYSTEM_ZLIB_IN_STANDARD_LOCATION=no
+                # at this point we just have to hope that things are installed
+                # in a sane way: otherwise we have no way to detect where the
+                # headers and library may have ended up.
+                INSTALL_PATH="${zlib_system_prefix}/../"
+                if [ ! -d "${INSTALL_PATH}/include" ]; then
+                    cecho "${ERROR}" "ZLIB, a dependency of MPI, was installed in a nonstandard location ${INSTALL_PATH} without a corresponding header directory ${INSTALL_PATH}/include . This is not presently supported by autoibamr."
+                fi
+                if [ ! -d "${INSTALL_PATH}/lib" ]; then
+                    cecho "${ERROR}" "ZLIB, a dependency of MPI, was installed in a nonstandard location ${INSTALL_PATH} without a corresponding library directory ${INSTALL_PATH}/lib . This is not presently supported by autoibamr."
+                fi
+            fi
+        fi
+    else
+        cecho "${WARN}" "Skipping check on whether or not MPI uses ZLIB: this may result in incompatibilties later on!"
+    fi
+}
+
 package_specific_build () {
-    cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* .
-    ./configure --prefix=${INSTALL_PATH}
-    quit_if_fail "zlib configure failed"
-    
-    make -j${JOBS} install
-    quit_if_fail "zlib make install failed"
+    if [ ${USE_SYSTEM_ZLIB} = yes ]; then
+        cecho "${INFO}" "skipping build - ZLIB already present"
+    else
+        cp -rf "${UNPACK_PATH}/${EXTRACTSTO}/"* .
+        ./configure --prefix="${INSTALL_PATH}"
+        quit_if_fail "zlib configure failed"
+
+        make -j"${JOBS}" install
+        quit_if_fail "zlib make install failed"
+    fi
 }
 
 package_specific_register () {
-    export ZLIB_DIR=${INSTALL_PATH}
-    export ZLIB_INCLUDE=${INSTALL_PATH}/include
-    export ZLIB_LIBPATH=${INSTALL_PATH}/lib
+    export SYSTEM_ZLIB_IN_STANDARD_LOCATION=${SYSTEM_ZLIB_IN_STANDARD_LOCATION}
+    if [ ${SYSTEM_ZLIB_IN_STANDARD_LOCATION} = yes ]; then
+        :
+    else
+        export ZLIB_DIR=${INSTALL_PATH}
+        export ZLIB_INCLUDE=${INSTALL_PATH}/include
+        export ZLIB_LIBPATH=${INSTALL_PATH}/lib
+    fi
 }
 
 package_specific_conf () {
     # Generate configuration file
     CONFIG_FILE=${CONFIGURATION_PATH}/${NAME}
-    rm -f $CONFIG_FILE
-    echo "
+    rm -f "$CONFIG_FILE"
+    if [ ${SYSTEM_ZLIB_IN_STANDARD_LOCATION} = yes ]; then
+        echo "
+export SYSTEM_ZLIB_IN_STANDARD_LOCATION=${SYSTEM_ZLIB_IN_STANDARD_LOCATION}
+" >> "$CONFIG_FILE"
+    else
+        echo "
+export SYSTEM_ZLIB_IN_STANDARD_LOCATION=${SYSTEM_ZLIB_IN_STANDARD_LOCATION}
 export ZLIB_DIR=${INSTALL_PATH}
 export ZLIB_INCLUDE=${INSTALL_PATH}/include
 export ZLIB_LIBPATH=${INSTALL_PATH}/lib
-" >> $CONFIG_FILE
+" >> "$CONFIG_FILE"
+    fi
 }
