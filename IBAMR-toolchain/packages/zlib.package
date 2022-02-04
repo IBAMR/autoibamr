@@ -18,8 +18,10 @@ package_specific_setup () {
     _ldd=""
     if [ "${PLATFORM_OSTYPE}" == "linux" ]; then
         _ldd=ldd
+        _awk_command='{print $3}'
     elif [ "${PLATFORM_OSTYPE}" == "macos" ]; then
         _ldd="otool -L"
+        _awk_command='{print $1}'
     else
         cecho "${WARN}" "unknown platform link type"
     fi
@@ -27,9 +29,12 @@ package_specific_setup () {
     # For maximum generality, check if libmpi directly links against libz, and
     # if so, use that libz
     if [ -n "${_ldd}" ]; then
-        # First find the mpi library:
-        _temp_source=$(mktemp XXXX.c)
-        _temp_out=$(mktemp XXXX)
+        # First find the mpi library: these calls look weird due to how mktemp
+        # works on macos
+        _temp_source=$(mktemp XXXXXXXXXXXXXXXX)
+        mv "${_temp_source}" "${_temp_source}.c"
+        _temp_source="${_temp_source}.c"
+        _temp_out=$(mktemp XXXXXXXXXXXXXXXX)
         echo "
 #include <mpi.h>
 
@@ -40,17 +45,19 @@ int main(int argc, char **argv)
 }
 " >> "${_temp_source}"
         ${CC} "${_temp_source}" -o "${_temp_out}"
-        _mpilib=$(${_ldd} "${_temp_out}" | grep "libmpi.${LDSUFFIX}" | awk '{print $3}')
+        quit_if_fail "Unable to compile an MPI test program"
+        _mpilib=$(${_ldd} "${_temp_out}" | grep "libmpi\..*${LDSUFFIX}" | awk "${_awk_command}")
         quit_if_fail "Unable to find libmpi linked against an MPI example"
         rm "${_temp_out}"
         rm "${_temp_source}"
 
         # Now look for zlib:
+        cecho "${INFO}" "Checking MPI library ${_mpilib} for a ZLIB dependency"
         ${_ldd} "${_mpilib}" | grep -q libz
         has_link=$?
         if [ ${has_link} ]; then
             USE_SYSTEM_ZLIB=yes
-            zlib_system_prefix=$(dirname "$(${_ldd} "${_mpilib}" | grep libz | awk '{print $3}')")
+            zlib_system_prefix=$(dirname "$(${_ldd} "${_mpilib}" | grep libz | awk "${_awk_command}")")
             quit_if_fail "Failed to complete link check of ${_mpilib} with ${_ldd}"
             cecho "${INFO}" "found ZLIB installation used by MPI in ${zlib_system_prefix}"
 
