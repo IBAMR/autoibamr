@@ -86,7 +86,6 @@ Currently, we provide the packages
 * HDF5
 * libMesh
 * numdiff
-* parmetis
 * PETSc
 * SAMRAI
 * SILO
@@ -94,6 +93,8 @@ Currently, we provide the packages
 
 Their build scripts are in
 [IBAMR-toolchain/packages](IBAMR-toolchain/packages).
+
+In addition, PETSc sets up BLAS, LAPACK, HYPRE, metis, and parmetis.
 
 There are several options within the configuration file, for example:
 

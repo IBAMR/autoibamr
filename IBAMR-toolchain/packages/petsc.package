@@ -34,7 +34,7 @@ else
 fi
 
 
-for external_pkg in hypre fblaslapack; do
+for external_pkg in fblaslapack hypre metis parmetis; do
     CONFOPTS="${CONFOPTS} --download-${external_pkg}=1"
 done
 
@@ -56,15 +56,6 @@ fi
 
 if [ -n "${F90}" ]; then
     CONFOPTS="${CONFOPTS} F90=${F90}"
-fi
-
-# Add ParMETIS, if present
-if [ -n "${PARMETIS_DIR}" ]; then
-    cecho ${INFO} "PETSc: configuration with ParMETIS"
-    CONFOPTS="\
-        ${CONFOPTS} \
-        --with-parmetis-dir=${PARMETIS_DIR} \
-        --with-metis-dir=${PARMETIS_DIR}"
 fi
 
 #########################################################################
