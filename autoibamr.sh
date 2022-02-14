@@ -494,9 +494,7 @@ package_build() {
         done
 
     elif [ ${BUILDCHAIN} = "cmake" ]; then
-        rm -f ${BUILDDDIR}/CMakeCache.txt
-        rm -rf ${BUILDDIR}/CMakeFiles
-        echo cmake ${CONFOPTS} -DCMAKE_C_COMPILER="${CC}" \
+        echo rm -f CMakeCache.txt \; cmake ${CONFOPTS} -DCMAKE_C_COMPILER="${CC}" \
              -DCMAKE_CXX_COMPILER="${CXX}" -DCMAKE_Fortran_COMPILER="${FC}" \
              -DCMAKE_INSTALL_MESSAGE=LAZY -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} \
              ${UNPACK_PATH}/${EXTRACTSTO} >>autoibamr_configure
