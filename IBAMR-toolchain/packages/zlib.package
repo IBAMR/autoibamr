@@ -55,7 +55,7 @@ int main(int argc, char **argv)
         cecho "${INFO}" "Checking MPI library ${_mpilib} for a ZLIB dependency"
         ${_ldd} "${_mpilib}" | grep -q libz
         has_link=$?
-        if [ ${has_link} ]; then
+        if [ ${has_link} -eq 0 ]; then
             USE_SYSTEM_ZLIB=yes
             zlib_system_prefix=$(dirname "$(${_ldd} "${_mpilib}" | grep libz | awk "${_awk_command}")")
             quit_if_fail "Failed to complete link check of ${_mpilib} with ${_ldd}"
