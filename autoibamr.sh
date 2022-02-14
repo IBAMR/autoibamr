@@ -619,10 +619,11 @@ default DEVELOPER_MODE=OFF
 # TODO - we can probably remove this
 default PACKAGES_OFF=""
 
-# all packages are mandatory except silo and libmesh
-PACKAGES="cmake hdf5 numdiff petsc"
+# all packages are mandatory except Silo and libMesh. HDF5, PETSc, and Silo
+# depend on ZLIB: libMesh depends on PETSc.
+PACKAGES="cmake zlib hdf5 numdiff petsc"
 if [ ${BUILD_SILO} = "ON" ]; then
-    PACKAGES="${PACKAGES} zlib silo"
+    PACKAGES="${PACKAGES} silo"
 fi
 if [ ${BUILD_LIBMESH} = "ON" ]; then
     PACKAGES="${PACKAGES} libmesh"
