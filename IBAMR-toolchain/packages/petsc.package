@@ -21,6 +21,12 @@ CONFOPTS="
   --with-64-bit-indices=0
 "
 
+if [ ${SYSTEM_ZLIB_IN_STANDARD_LOCATION} = yes ]; then
+    CONFOPTS="${CONFOPTS} --with-zlib=1"
+else
+    CONFOPTS="${CONFOPTS} --with-zlib=${ZLIB_DIR}"
+fi
+
 if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} --with-debugging=1"
 else
