@@ -800,6 +800,7 @@ fi
 
 if [ -n "${FC}" ]; then
     cecho ${INFO} "FC  = $(which ${FC})"
+    export FC=$(which ${FC})
 else
     cecho ${BAD} "FC  variable not set. Please set it with \$export FC=<(MPI) F90 compiler>"
 fi
