@@ -772,7 +772,7 @@ if [ -n "${CC}" ]; then
     cecho ${INFO} "CC  = $(which ${CC})"
     export CC=$(which ${CC})
 else
-    cecho ${BAD} "CC  variable not set. Please set it with \$export CC  = <(MPI) C compiler>"
+    cecho ${BAD} "CC  variable not set. Please set it with \$export CC=<(MPI) C compiler>"
 fi
 
 # CXX test
@@ -787,7 +787,7 @@ if [ -n "${CXX}" ]; then
     cecho ${INFO} "CXX = $(which ${CXX})"
     export CXX=$(which ${CXX})
 else
-    cecho ${BAD} "CXX variable not set. Please set it with \$export CXX = <(MPI) C++ compiler>"
+    cecho ${BAD} "CXX variable not set. Please set it with \$export CXX=<(MPI) C++ compiler>"
 fi
 
 # FC test
@@ -801,19 +801,19 @@ fi
 if [ -n "${FC}" ]; then
     cecho ${INFO} "FC  = $(which ${FC})"
 else
-    cecho ${BAD} "FC  variable not set. Please set it with \$export FC  = <(MPI) F90 compiler>"
+    cecho ${BAD} "FC  variable not set. Please set it with \$export FC=<(MPI) F90 compiler>"
 fi
 
 echo
 
 # Final test for compiler variables
 if [ -z "${CC}" ] || [ -z "${CXX}" ] || [ -z "${FC}" ]; then
-    cecho ${WARN} "One or multiple compiler variables (CC,CXX,FC) are not set."
-    cecho ${INFO} "compilers installed and set up! Usually the values should be:"
-    cecho ${INFO} "CC=mpicc, CXX=mpicxx, FC=mpif90"
-    cecho ${WARN} "It is strongly recommended to set them to guarantee the same compilers for all"
-    cecho ${WARN} "dependencies."
+    cecho ${BAD} "One or multiple compiler variables (CC,CXX,FC) were not set"
+    cecho ${BAD} "and could not be automatically found. Rerun autoibamr after"
+    cecho ${BAD} "exporting paths to the specified compilers in the manner"
+    cecho ${BAD} "specified above."
     echo
+    exit 1
 fi
 
 ################################################################################
