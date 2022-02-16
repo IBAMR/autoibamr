@@ -38,10 +38,50 @@ fi
 TIC_GLOBAL="$(${DATE_CMD} +%s)"
 
 ################################################################################
+# Colors for progress and error reporting
+BAD="\033[1;31m"
+GOOD="\033[1;32m"
+WARN="\033[1;35m"
+INFO="\033[1;34m"
+
+################################################################################
+# Define autoibamr helper functions
+
+prettify_dir() {
+   # Make a directory name more readable by replacing homedir with "~"
+   echo ${1/#$HOME\//~\/}
+}
+
+cecho() {
+    # Display messages in a specified color
+    COL=$1; shift
+    echo -e "${COL}$*\033[0m"
+}
+
+default () {
+    # Export a variable, if it is not already set
+    VAR="${1%%=*}"
+    VALUE="${1#*=}"
+    eval "[[ \$$VAR ]] || export $VAR='$VALUE'"
+}
+
+quit_if_fail() {
+    # Exit with some useful information if something goes wrong
+    STATUS=$?
+    if [ ${STATUS} -ne 0 ]; then
+        cecho ${BAD} 'Failure with exit status:' ${STATUS}
+        cecho ${BAD} 'Exit message:' $1
+        exit ${STATUS}
+    fi
+}
+
+################################################################################
 # Parse command line input parameters
 PREFIX=~/autoibamr
 JOBS=1
 USER_INTERACTION=ON
+DEBUGGING=OFF
+NATIVE_OPTIMIZATIONS=OFF
 
 while [ -n "$1" ]; do
     param="$1"
@@ -52,12 +92,27 @@ while [ -n "$1" ]; do
             echo ""
             echo "Usage: $0 [options]"
             echo "Options:"
-            echo "  -p <path>, --prefix=<path>  set a different prefix path (default $PREFIX)"
-            echo "  -j <N>, -j<N>, --jobs=<N>   compile with N processes in parallel (default ${JOBS})"
-            echo "  -y, --yes, --assume-yes     automatic yes to prompts"
+            echo "  --enable-debugging             build dependencies with assertions, optimizations, and debug symbols,"
+            echo "                                 and build IBAMR with assertions, no optimizations, and debug symbols."
+            echo "  --enable-native-optimizations  build dependencies and IBAMR with platform-specific optimizations."
+            echo "  -p <path>, --prefix=<path>     set a different prefix path (default $PREFIX)"
+            echo "  -j <N>, -j<N>, --jobs=<N>      compile with N processes in parallel (default ${JOBS})"
+            echo "  -y, --yes, --assume-yes        automatic yes to prompts"
             echo ""
             echo "The configuration including the choice of packages to install is stored in autoibamr.cfg, see README.md for more information."
             exit 0
+        ;;
+
+        #####################################
+        # debug builds
+        --enable-debugging)
+            DEBUGGING=ON
+        ;;
+
+        #####################################
+        # native optimization builds
+        --enable-native-optimizations)
+            NATIVE_OPTIMIZATIONS=ON
         ;;
 
         #####################################
@@ -99,6 +154,12 @@ while [ -n "$1" ]; do
     shift
 done
 
+# Don't permit things that don't make sense
+if [ ${DEBUGGING} = "ON" ] && [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
+  cecho ${BAD} "ERROR: --enable-debugging and --enable-native-optimizations are mutually incompatible features."
+  exit 1
+fi
+
 # Check the input argument of the install path and (if used) replace the tilde
 # character '~' by the users home directory ${HOME}. Afterwards clear the
 # PREFIX input variable.
@@ -133,44 +194,6 @@ if [ -z "${DOWNLOADERS}" ]; then
     echo "Please install wget or curl."
     exit 1
 fi
-
-################################################################################
-# Colors for progress and error reporting
-BAD="\033[1;31m"
-GOOD="\033[1;32m"
-WARN="\033[1;35m"
-INFO="\033[1;34m"
-
-################################################################################
-# Define autoibamr helper functions
-
-prettify_dir() {
-   # Make a directory name more readable by replacing homedir with "~"
-   echo ${1/#$HOME\//~\/}
-}
-
-cecho() {
-    # Display messages in a specified color
-    COL=$1; shift
-    echo -e "${COL}$*\033[0m"
-}
-
-default () {
-    # Export a variable, if it is not already set
-    VAR="${1%%=*}"
-    VALUE="${1#*=}"
-    eval "[[ \$$VAR ]] || export $VAR='$VALUE'"
-}
-
-quit_if_fail() {
-    # Exit with some useful information if something goes wrong
-    STATUS=$?
-    if [ ${STATUS} -ne 0 ]; then
-        cecho ${BAD} 'Failure with exit status:' ${STATUS}
-        cecho ${BAD} 'Exit message:' $1
-        exit ${STATUS}
-    fi
-}
 
 ################################################################################
 #verify_archive():
@@ -682,6 +705,14 @@ elif [ ${PLATFORM_OSTYPE} == "cygwin" ]; then
 fi
 
 cecho ${INFO} "Dynamic shared library file extension detected as: *.${LDSUFFIX}"
+
+if [ ${DEBUGGING} = "ON" ]; then
+    cecho ${INFO} "Setting up a build intended for debugging"
+fi
+
+if [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
+    cecho ${INFO} "Setting up a build that uses platform-specific optimizations"
+fi
 
 if [ -z "${LDSUFFIX}" ]; then
     # check if PLATFORM_OSTYPE is set and not empty failed
