@@ -804,27 +804,13 @@ else
     cecho ${BAD} "FC  variable not set. Please set it with \$export FC  = <(MPI) F90 compiler>"
 fi
 
-# FF test
-if [ -z "${FF}" ]; then
-    if builtin command -v mpif77 > /dev/null; then
-        cecho ${WARN} "FF  variable not set, but default mpif77 found."
-        export FF=mpif77
-    fi
-fi
-
-if [ -n "${FF}" ]; then
-    cecho ${INFO} "FF  = $(which ${FF})"
-else
-    cecho ${BAD} "FF  variable not set. Please set it with \$export FF  = <(MPI) F77 compiler>"
-fi
-
 echo
 
 # Final test for compiler variables
-if [ -z "${CC}" ] || [ -z "${CXX}" ] || [ -z "${FC}" ] || [ -z "${FF}" ]; then
-    cecho ${WARN} "One or multiple compiler variables (CC,CXX,FC,FF) are not set."
+if [ -z "${CC}" ] || [ -z "${CXX}" ] || [ -z "${FC}" ]; then
+    cecho ${WARN} "One or multiple compiler variables (CC,CXX,FC) are not set."
     cecho ${INFO} "compilers installed and set up! Usually the values should be:"
-    cecho ${INFO} "CC=mpicc, CXX=mpicxx, FC=mpif90, FF=mpif77"
+    cecho ${INFO} "CC=mpicc, CXX=mpicxx, FC=mpif90"
     cecho ${WARN} "It is strongly recommended to set them to guarantee the same compilers for all"
     cecho ${WARN} "dependencies."
     echo
