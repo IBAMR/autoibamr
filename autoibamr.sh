@@ -38,6 +38,44 @@ fi
 TIC_GLOBAL="$(${DATE_CMD} +%s)"
 
 ################################################################################
+# Colors for progress and error reporting
+BAD="\033[1;31m"
+GOOD="\033[1;32m"
+WARN="\033[1;35m"
+INFO="\033[1;34m"
+
+################################################################################
+# Define autoibamr helper functions
+
+prettify_dir() {
+   # Make a directory name more readable by replacing homedir with "~"
+   echo ${1/#$HOME\//~\/}
+}
+
+cecho() {
+    # Display messages in a specified color
+    COL=$1; shift
+    echo -e "${COL}$*\033[0m"
+}
+
+default () {
+    # Export a variable, if it is not already set
+    VAR="${1%%=*}"
+    VALUE="${1#*=}"
+    eval "[[ \$$VAR ]] || export $VAR='$VALUE'"
+}
+
+quit_if_fail() {
+    # Exit with some useful information if something goes wrong
+    STATUS=$?
+    if [ ${STATUS} -ne 0 ]; then
+        cecho ${BAD} 'Failure with exit status:' ${STATUS}
+        cecho ${BAD} 'Exit message:' $1
+        exit ${STATUS}
+    fi
+}
+
+################################################################################
 # Parse command line input parameters
 PREFIX=~/autoibamr
 JOBS=1
@@ -133,44 +171,6 @@ if [ -z "${DOWNLOADERS}" ]; then
     echo "Please install wget or curl."
     exit 1
 fi
-
-################################################################################
-# Colors for progress and error reporting
-BAD="\033[1;31m"
-GOOD="\033[1;32m"
-WARN="\033[1;35m"
-INFO="\033[1;34m"
-
-################################################################################
-# Define autoibamr helper functions
-
-prettify_dir() {
-   # Make a directory name more readable by replacing homedir with "~"
-   echo ${1/#$HOME\//~\/}
-}
-
-cecho() {
-    # Display messages in a specified color
-    COL=$1; shift
-    echo -e "${COL}$*\033[0m"
-}
-
-default () {
-    # Export a variable, if it is not already set
-    VAR="${1%%=*}"
-    VALUE="${1#*=}"
-    eval "[[ \$$VAR ]] || export $VAR='$VALUE'"
-}
-
-quit_if_fail() {
-    # Exit with some useful information if something goes wrong
-    STATUS=$?
-    if [ ${STATUS} -ne 0 ]; then
-        cecho ${BAD} 'Failure with exit status:' ${STATUS}
-        cecho ${BAD} 'Exit message:' $1
-        exit ${STATUS}
-    fi
-}
 
 ################################################################################
 #verify_archive():
