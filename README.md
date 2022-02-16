@@ -62,6 +62,20 @@ You can combine the command line options given below.
 
 * Example: to use 2 build processes type ``./autoibamr.sh -j 2``.
 
+#### Debug mode: `--enable-debugging`
+```bash
+  ./autoibamr.sh --enable-debugging
+```
+Sets up a debug build, where dependencies are compiled with assertion checking,
+debug symbols, and optimizations and IBAMR is compiled with assertions, no
+optimizations, and debug symbols.
+
+#### Platform-specific optimizations: `--enable-native-optimizations`
+```bash
+  ./autoibamr.sh --enable-native-optimizations
+```
+Turns on processor-specific optimizations. Incompatible with debug mode.
+
 #### User interaction: ``[-y]``, ``[--yes]``, ``[--assume-yes]``
 ```bash
   ./autoibamr.sh -y
@@ -101,16 +115,6 @@ There are several options within the configuration file, for example:
 * Remove existing build directories to use always a fresh setup
 ```bash
   CLEAN_BUILD={ON|OFF}
-```
-
-* Enable native compiler optimizations like ``-march=native``
-```bash
-  NATIVE_OPTIMIZATIONS={ON|OFF}
-```
-
-* Build with debugging support:
-```bash
-  DEBUGGING={ON|OFF}
 ```
 
 and more.
