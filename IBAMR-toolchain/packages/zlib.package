@@ -16,10 +16,10 @@ SYSTEM_ZLIB_IN_STANDARD_LOCATION=no
 
 package_specific_setup () {
     _ldd=""
-    if [ "${PLATFORM_OSTYPE}" == "linux" ]; then
+    if [ "${PLATFORM_OSTYPE}" = "linux" ]; then
         _ldd=ldd
         _awk_command='{print $3}'
-    elif [ "${PLATFORM_OSTYPE}" == "macos" ]; then
+    elif [ "${PLATFORM_OSTYPE}" = "macos" ]; then
         _ldd="otool -L"
         _awk_command='{print $1}'
     else
@@ -54,8 +54,8 @@ int main(int argc, char **argv)
         # Now look for zlib:
         cecho "${INFO}" "Checking MPI library ${_mpilib} for a ZLIB dependency"
         ${_ldd} "${_mpilib}" | grep -q libz
-        has_link=$?
-        if [ ${has_link} -eq 0 ]; then
+        _has_link=$?
+        if [ ${_has_link} -eq 0 ]; then
             USE_SYSTEM_ZLIB=yes
             zlib_system_prefix=$(dirname "$(${_ldd} "${_mpilib}" | grep libz | awk "${_awk_command}")")
             quit_if_fail "Failed to complete link check of ${_mpilib} with ${_ldd}"
@@ -63,7 +63,8 @@ int main(int argc, char **argv)
 
             # If we found zlib, try to figure out if its in a standard location or not:
             echo "${zlib_system_prefix}" | grep -Eq '^/(lib|usr/lib)'
-            if [ $? ]; then
+            _found_system_zlib=$?
+            if [ ${_found_system_zlib} -eq 0 ]; then
                 cecho "${INFO}" "ZLIB installation is in a standard location"
                 SYSTEM_ZLIB_IN_STANDARD_LOCATION=yes
             else
