@@ -82,6 +82,8 @@ JOBS=1
 USER_INTERACTION=ON
 DEBUGGING=OFF
 NATIVE_OPTIMIZATIONS=OFF
+BUILD_LIBMESH=ON
+BUILD_SILO=ON
 
 while [ -n "$1" ]; do
     param="$1"
@@ -92,6 +94,8 @@ while [ -n "$1" ]; do
             echo ""
             echo "Usage: $0 [options]"
             echo "Options:"
+            echo "  --disable-libmesh              Build IBAMR without libMesh. libMesh is on by default; this flag disables it."
+            echo "  --disable-silo                 Build IBAMR without SILO. SILO is on by default; this flag disables it."
             echo "  --enable-debugging             build dependencies with assertions, optimizations, and debug symbols,"
             echo "                                 and build IBAMR with assertions, no optimizations, and debug symbols."
             echo "  --enable-native-optimizations  build dependencies and IBAMR with platform-specific optimizations."
@@ -101,6 +105,18 @@ while [ -n "$1" ]; do
             echo ""
             echo "The configuration including the choice of packages to install is stored in autoibamr.cfg, see README.md for more information."
             exit 0
+        ;;
+
+        #####################################
+        # libMesh
+        --disable-libmesh)
+            BUILD_LIBMESH=OFF
+        ;;
+
+        #####################################
+        # SILO
+        --disable-silo)
+            BUILD_SILO=OFF
         ;;
 
         #####################################
@@ -705,6 +721,19 @@ elif [ ${PLATFORM_OSTYPE} == "cygwin" ]; then
 fi
 
 cecho ${INFO} "Dynamic shared library file extension detected as: *.${LDSUFFIX}"
+
+# Print configuration options
+if [ ${BUILD_LIBMESH} = "ON" ]; then
+    cecho ${INFO} "Setting up with libMesh support"
+else
+    cecho ${INFO} "Setting up without libMesh support"
+fi
+
+if [ ${BUILD_SILO} = "ON" ]; then
+    cecho ${INFO} "Setting up with SILO support"
+else
+    cecho ${INFO} "Setting up without SILO support"
+fi
 
 if [ ${DEBUGGING} = "ON" ]; then
     cecho ${INFO} "Setting up a build intended for debugging"

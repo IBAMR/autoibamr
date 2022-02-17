@@ -86,6 +86,8 @@ Turns on processor-specific optimizations. Incompatible with debug mode.
 With this option you skip the user interaction. This might be useful if you
 submit the installation to the queueing system of a cluster.
 
+By default both libMesh and SILO will be set up and used as dependencies. They
+can be disabled with `--disable-libmesh` and `--disable-silo` respectively.
 
 ### Configuration file options
 
