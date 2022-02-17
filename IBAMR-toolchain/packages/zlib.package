@@ -62,7 +62,7 @@ int main(int argc, char **argv)
             cecho "${INFO}" "found ZLIB installation used by MPI in ${zlib_system_prefix}"
 
             # If we found zlib, try to figure out if its in a standard location or not:
-            echo "${zlib_system_prefix}" | grep -Eq '^/\(lib\|usr/lib\)'
+            echo "${zlib_system_prefix}" | grep -Eq '^/(lib|usr/lib)'
             if [ $? ]; then
                 cecho "${INFO}" "ZLIB installation is in a standard location"
                 SYSTEM_ZLIB_IN_STANDARD_LOCATION=yes
