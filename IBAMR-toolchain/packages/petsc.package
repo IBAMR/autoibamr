@@ -14,17 +14,17 @@ INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
 #########################################################################
 
 CONFOPTS="
+  --force
   --with-shared-libraries=1
   --with-mpi=1
   --with-x=0
   --with-fortran-bindings=0
   --with-64-bit-indices=0
+  --with-hdf5-dir=${HDF5_DIR}
 "
 
 if [ ${SYSTEM_ZLIB_IN_STANDARD_LOCATION} = yes ]; then
     CONFOPTS="${CONFOPTS} --with-zlib=1"
-else
-    CONFOPTS="${CONFOPTS} --with-zlib=1 --with-zlib-dir=${ZLIB_DIR}"
 fi
 
 if [ ${DEBUGGING} = ON ]; then

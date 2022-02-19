@@ -17,20 +17,17 @@ if [ ${DEBUGGING} = ON ]; then
     silo_compiler_flags="${silo_compiler_flags} -g"
 fi
 
+# TODO: Silo uses HDF5 to determine zlib support. Clarify this logic if we ever
+# decide to install our own copy of zlib.
+
+# the browser intermittently fails to link so just disable it unconditionally
 CONFOPTS="
+--enable-browser=no
 --enable-optimization
 CFLAGS='${silo_compiler_flags}'
 CXXFLAGS='${silo_compiler_flags}'
 FFLAGS='${silo_compiler_flags} -fallow-argument-mismatch'
 "
-
-if [ ${SYSTEM_ZLIB_IN_STANDARD_LOCATION} = no ]; then
-    CONFOPTS="${CONFOPTS} --with-zlib=${ZLIB_INCLUDE},${ZLIB_LIBPATH}"
-else
-    # This fails to link without explicit zlib support and we typically don't
-    # need it anyway
-    CONFOPTS="${CONFOPTS} --enable-browser=no"
-fi
 
 package_specific_register () {
     export SILO_DIR=${INSTALL_PATH}
