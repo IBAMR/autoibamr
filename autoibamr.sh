@@ -36,6 +36,12 @@ else
 fi
 # Start global timer
 TIC_GLOBAL="$(${DATE_CMD} +%s)"
+# Start logging
+AUTOIBAMR_LOGFILE=$(pwd)/autoibamr.log
+if [ -f autoibamr.log ]; then
+    mv "${AUTOIBAMR_LOGFILE}" "${AUTOIBAMR_LOGFILE}.previous"
+fi
+touch "${AUTOIBAMR_LOGFILE}"
 
 ################################################################################
 # Colors for progress and error reporting
@@ -53,9 +59,10 @@ prettify_dir() {
 }
 
 cecho() {
-    # Display messages in a specified color
+    # Display messages in a specified color and also log them
     COL=$1; shift
     echo -e "${COL}$*\033[0m"
+    echo "$*" >> "${AUTOIBAMR_LOGFILE}"
 }
 
 default () {
@@ -797,7 +804,7 @@ echo
 echo "-------------------------------------------------------------------------------"
 cecho ${INFO} "Packages:"
 for PACKAGE in ${PACKAGES[@]}; do
-    echo ${PACKAGE}
+    cecho ${INFO} ${PACKAGE}
 done
 echo
 
