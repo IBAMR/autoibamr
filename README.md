@@ -105,7 +105,6 @@ Currently, we provide the packages
 * PETSc
 * SAMRAI
 * SILO
-* zlib
 
 Their build scripts are in
 [IBAMR-toolchain/packages](IBAMR-toolchain/packages).

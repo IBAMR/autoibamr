@@ -42,10 +42,6 @@ CONFOPTS="
 if [ -n "${SILO_DIR}" ]; then
     cecho ${INFO} "IBAMR: configuration with silo=${SILO_DIR}"
     CONFOPTS="${CONFOPTS} -DSILO_ROOT=${SILO_DIR}"
-
-    if [ ${SYSTEM_ZLIB_IN_STANDARD_LOCATION} = no ]; then
-        CONFOPTS="${CONFOPTS} -DZLIB_ROOT=${ZLIB_DIR}"
-    fi
 fi
 
 # libMesh is optional
@@ -81,3 +77,16 @@ else
       -DCMAKE_Fortran_FLAGS='-O2'"
     fi
 fi
+
+package_specific_patch () {
+    cd ${UNPACK_PATH}/${EXTRACTSTO}
+    quit_if_fail "cd failed"
+    cecho ${WARN} "applying patch for building IBAMR without ZLIB"
+    ## TODO: these patches are only valid for 0.10
+    patch -p1 < ${ORIG_DIR}/${PROJECT}/patches/ibamr-remove-zlib.patch
+    quit_if_fail "patch failed"
+    cecho ${WARN} "applying patch for marking an example that depends on libMesh as such"
+    ## TODO: these patches are only valid for 0.10
+    patch -p1 < ${ORIG_DIR}/${PROJECT}/patches/ibamr-libmesh-example-0.10.patch
+    quit_if_fail "patch failed"
+}

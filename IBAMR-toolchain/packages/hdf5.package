@@ -8,13 +8,12 @@ SOURCE=https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${MAJORVER}/hdf5-${MA
 PACKING=.tar.bz2
 BUILDCHAIN=autotools
 
-CONFOPTS="--enable-shared --enable-parallel"
-if [ ${SYSTEM_ZLIB_IN_STANDARD_LOCATION} = yes ]; then
-    CONFOPTS="${CONFOPTS} --with-zlib=yes"
-else
-    CONFOPTS="${CONFOPTS} --with-zlib=${ZLIB_DIR}"
-fi
-
+# ignore ZLIB for now
+#
+# Even though we don't use it, PETSc may try to pick up the HDF5 Fortran
+# interface, so turn it on to prevent PETSc from accidentally linking against
+# two different copies of HDF5
+CONFOPTS="--enable-shared --enable-parallel --enable-fortran"
 
 if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} --enable-symbols=yes --enable-asserts"
