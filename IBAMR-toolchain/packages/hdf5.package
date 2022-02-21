@@ -9,7 +9,11 @@ PACKING=.tar.bz2
 BUILDCHAIN=autotools
 
 # ignore ZLIB for now
-CONFOPTS="--enable-shared --enable-parallel"
+#
+# Even though we don't use it, PETSc may try to pick up the Fortran interface,
+# so turn it on to prevent PETSc from accidentally linking against two different
+# copies of HDF5
+CONFOPTS="--enable-shared --enable-parallel --enable-fortran"
 
 if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} --enable-symbols=yes --enable-asserts"
