@@ -9,9 +9,6 @@ INSTALL_PATH=${INSTALL_PATH}/${NAME}
 
 # Silo cannot be configured with shared libraries when python is not
 # present, so it must be done statically.
-#
-# Silo is too old to know about some changes made to HDF5 (notably the removal
-# of H5Pset_fapl_mpiposix) so we cannot configure with HDF5 either.
 silo_compiler_flags="-O2 -fPIC"
 if [ ${DEBUGGING} = ON ]; then
     silo_compiler_flags="${silo_compiler_flags} -g"
