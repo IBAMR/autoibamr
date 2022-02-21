@@ -8,7 +8,8 @@ SOURCE=https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${MAJORVER}/hdf5-${MA
 PACKING=.tar.bz2
 BUILDCHAIN=autotools
 
-CONFOPTS="--enable-shared --enable-parallel --with-zlib=${SYSTEM_ZLIB_IN_STANDARD_LOCATION}"
+# ignore ZLIB for now
+CONFOPTS="--enable-shared --enable-parallel"
 
 if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} --enable-symbols=yes --enable-asserts"

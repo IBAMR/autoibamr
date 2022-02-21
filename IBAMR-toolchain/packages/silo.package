@@ -1,8 +1,8 @@
-VERSION=4.10.2-bsd
-NAME=silo-${VERSION}
-SOURCE=https://wci.llnl.gov/sites/wci/files/2021-01/
+VERSION=4.11
+NAME=silo-${VERSION}-bsd
 PACKING=.tgz
-CHECKSUM=4b901dfc1eb4656e83419a6fde15a2f6c6a31df84edfad7f1dc296e01b20140e
+SOURCE=https://wci.llnl.gov/sites/wci/files/2021-09/
+CHECKSUM=6d0a85a079d48fcdcc0084ecb5fc4cfdcc64852edee780c60cb244d16f4bc4ec
 BUILDCHAIN=autotools
 
 INSTALL_PATH=${INSTALL_PATH}/${NAME}
@@ -17,17 +17,26 @@ if [ ${DEBUGGING} = ON ]; then
     silo_compiler_flags="${silo_compiler_flags} -g"
 fi
 
-# TODO: Silo uses HDF5 to determine zlib support. Clarify this logic if we ever
-# decide to install our own copy of zlib.
+# Silo uses HDF5 to determine zlib support: if we ever support using it then we
+# will probably need to point Silo to it here
 
 # the browser intermittently fails to link so just disable it unconditionally
 CONFOPTS="
 --enable-browser=no
 --enable-optimization
+--with-hdf5=${HDF5_DIR}/include,${HDF5_DIR}/lib,
 CFLAGS='${silo_compiler_flags}'
 CXXFLAGS='${silo_compiler_flags}'
 FFLAGS='${silo_compiler_flags} -fallow-argument-mismatch'
 "
+
+package_specific_patch () {
+    cd ${UNPACK_PATH}/${EXTRACTSTO}
+    quit_if_fail "cd failed"
+    cecho ${WARN} "applying patch for building SILO with HDF5"
+    patch -p0 < ${ORIG_DIR}/${PROJECT}/patches/silo-hdf5.patch
+    quit_if_fail "patch failed"
+}
 
 package_specific_register () {
     export SILO_DIR=${INSTALL_PATH}
