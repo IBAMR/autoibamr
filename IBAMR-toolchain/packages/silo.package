@@ -1,36 +1,39 @@
-VERSION=4.10.2-bsd
-NAME=silo-${VERSION}
-SOURCE=https://wci.llnl.gov/sites/wci/files/2021-01/
+VERSION=4.11
+NAME=silo-${VERSION}-bsd
 PACKING=.tgz
-CHECKSUM=4b901dfc1eb4656e83419a6fde15a2f6c6a31df84edfad7f1dc296e01b20140e
+SOURCE=https://wci.llnl.gov/sites/wci/files/2021-09/
+CHECKSUM=6d0a85a079d48fcdcc0084ecb5fc4cfdcc64852edee780c60cb244d16f4bc4ec
 BUILDCHAIN=autotools
 
 INSTALL_PATH=${INSTALL_PATH}/${NAME}
 
 # Silo cannot be configured with shared libraries when python is not
 # present, so it must be done statically.
-#
-# Silo is too old to know about some changes made to HDF5 (notably the removal
-# of H5Pset_fapl_mpiposix) so we cannot configure with HDF5 either.
 silo_compiler_flags="-O2 -fPIC"
 if [ ${DEBUGGING} = ON ]; then
     silo_compiler_flags="${silo_compiler_flags} -g"
 fi
 
+# Silo uses HDF5 to determine zlib support: if we ever support using it then we
+# will probably need to point Silo to it here
+
+# the browser intermittently fails to link so just disable it unconditionally
 CONFOPTS="
+--enable-browser=no
 --enable-optimization
+--with-hdf5=${HDF5_DIR}/include,${HDF5_DIR}/lib,
 CFLAGS='${silo_compiler_flags}'
 CXXFLAGS='${silo_compiler_flags}'
 FFLAGS='${silo_compiler_flags} -fallow-argument-mismatch'
 "
 
-if [ ${SYSTEM_ZLIB_IN_STANDARD_LOCATION} = no ]; then
-    CONFOPTS="${CONFOPTS} --with-zlib=${ZLIB_INCLUDE},${ZLIB_LIBPATH}"
-else
-    # This fails to link without explicit zlib support and we typically don't
-    # need it anyway
-    CONFOPTS="${CONFOPTS} --enable-browser=no"
-fi
+package_specific_patch () {
+    cd ${UNPACK_PATH}/${EXTRACTSTO}
+    quit_if_fail "cd failed"
+    cecho ${WARN} "applying patch for building SILO with HDF5"
+    patch -p0 < ${ORIG_DIR}/${PROJECT}/patches/silo-hdf5.patch
+    quit_if_fail "patch failed"
+}
 
 package_specific_register () {
     export SILO_DIR=${INSTALL_PATH}
