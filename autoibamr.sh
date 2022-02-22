@@ -620,15 +620,6 @@ guess_ostype() {
     fi
 }
 
-guess_architecture() {
-    # Try to guess the architecture we are running on
-    ARCH=unknown
-    if [ -x /usr/bin/uname -o -x /bin/uname ]
-    then
-        ARCH=`uname -m`
-    fi
-}
-
 ################################################################################
 ### autoibamr script
 ################################################################################
@@ -644,11 +635,6 @@ export ORIG_DIR=`pwd`
 ################################################################################
 # Read configuration variables from autoibamr.cfg
 source autoibamr.cfg
-
-# For changes specific to your local setup or for debugging, use local.cfg
-if [ -f local.cfg ]; then
-    source local.cfg
-fi
 
 # If any variables are missing, set them to defaults
 default PROJECT=IBAMR-toolchain
@@ -950,8 +936,6 @@ EOF
 ORIG_INSTALL_PATH=${INSTALL_PATH}
 ORIG_CONFIGURATION_PATH=${CONFIGURATION_PATH}
 ORIG_JOBS=${JOBS}
-
-guess_architecture
 
 # Reset timings
 TIMINGS=""
