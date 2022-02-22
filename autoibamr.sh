@@ -470,7 +470,7 @@ package_unpack() {
     fi
 
     # Apply patches with git cherry-pick of commits given by ${CHERRYPICKCOMMITS}
-    if [ ${PACKING} = "git" ] && [ ! -z "${CHERRYPICKCOMMITS}" ]; then
+    if [ ${PACKING} = "git" ] && [ -n "${CHERRYPICKCOMMITS}" ]; then
         cecho ${INFO} "autoibamr: git cherry-pick -X theirs ${CHERRYPICKCOMMITS}"
         cd ${UNPACK_PATH}/${EXTRACTSTO}
         git cherry-pick -X theirs ${CHERRYPICKCOMMITS}
@@ -1047,7 +1047,7 @@ for PACKAGE in ${PACKAGES[@]}; do
             rm -rf ${UNPACK_PATH:?}/${EXTRACTSTO}
         fi
     else
-        if [ ! -z "${LOAD}" ]; then
+        if [ -n "${LOAD}" ]; then
             # Let the user know we're loading the current package
             cecho ${GOOD} "Loading ${PACKAGE}"
             unset LOAD
