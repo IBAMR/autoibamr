@@ -470,7 +470,7 @@ package_unpack() {
     fi
 
     # Apply patches with git cherry-pick of commits given by ${CHERRYPICKCOMMITS}
-    if [ ${PACKING} = "git" ] && [ ! -z "${CHERRYPICKCOMMITS}" ]; then
+    if [ ${PACKING} = "git" ] && [ -n "${CHERRYPICKCOMMITS}" ]; then
         cecho ${INFO} "autoibamr: git cherry-pick -X theirs ${CHERRYPICKCOMMITS}"
         cd ${UNPACK_PATH}/${EXTRACTSTO}
         git cherry-pick -X theirs ${CHERRYPICKCOMMITS}
@@ -620,15 +620,6 @@ guess_ostype() {
     fi
 }
 
-guess_architecture() {
-    # Try to guess the architecture we are running on
-    ARCH=unknown
-    if [ -x /usr/bin/uname -o -x /bin/uname ]
-    then
-        ARCH=`uname -m`
-    fi
-}
-
 ################################################################################
 ### autoibamr script
 ################################################################################
@@ -644,11 +635,6 @@ export ORIG_DIR=`pwd`
 ################################################################################
 # Read configuration variables from autoibamr.cfg
 source autoibamr.cfg
-
-# For changes specific to your local setup or for debugging, use local.cfg
-if [ -f local.cfg ]; then
-    source local.cfg
-fi
 
 # If any variables are missing, set them to defaults
 default PROJECT=IBAMR-toolchain
@@ -951,8 +937,6 @@ ORIG_INSTALL_PATH=${INSTALL_PATH}
 ORIG_CONFIGURATION_PATH=${CONFIGURATION_PATH}
 ORIG_JOBS=${JOBS}
 
-guess_architecture
-
 # Reset timings
 TIMINGS=""
 
@@ -1063,7 +1047,7 @@ for PACKAGE in ${PACKAGES[@]}; do
             rm -rf ${UNPACK_PATH:?}/${EXTRACTSTO}
         fi
     else
-        if [ ! -z "${LOAD}" ]; then
+        if [ -n "${LOAD}" ]; then
             # Let the user know we're loading the current package
             cecho ${GOOD} "Loading ${PACKAGE}"
             unset LOAD
