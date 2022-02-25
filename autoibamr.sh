@@ -88,6 +88,7 @@ PREFIX=~/autoibamr
 JOBS=1
 USER_INTERACTION=ON
 DEBUGGING=OFF
+DEPENDENCIES_ONLY=OFF
 NATIVE_OPTIMIZATIONS=OFF
 BUILD_LIBMESH=ON
 BUILD_SILO=ON
@@ -103,6 +104,7 @@ while [ -n "$1" ]; do
             echo "Usage: $0 [options]"
             echo "Options:"
             echo "  --clean-build                  Delete all build directories before recompiling. By default build directories are kept."
+            echo "  --dependencies-only            Compile everything but IBAMR itself."
             echo "  --disable-libmesh              Build IBAMR without libMesh. libMesh is on by default; this flag disables it."
             echo "  --disable-silo                 Build IBAMR without SILO. SILO is on by default; this flag disables it."
             echo "  --enable-debugging             build dependencies with assertions, optimizations, and debug symbols,"
@@ -120,6 +122,12 @@ while [ -n "$1" ]; do
         # clean build
         --clean-build)
             CLEAN_BUILD=ON
+        ;;
+
+        #####################################
+        # only dependencies
+        --dependencies-only)
+            DEPENDENCIES_ONLY=ON
         ;;
 
         #####################################
@@ -669,7 +677,11 @@ if [ ${BUILD_LIBMESH} = "ON" ]; then
 fi
 
 # samrai optionally depends on SILO so add it afterwards
-PACKAGES="${PACKAGES} samrai ibamr"
+if [ ${DEPENDENCIES_ONLY} = "ON" ]; then
+    PACKAGES="${PACKAGES} samrai"
+else
+    PACKAGES="${PACKAGES} samrai ibamr"
+fi
 
 ################################################################################
 # Check if project was specified correctly
@@ -734,6 +746,12 @@ if [ ${BUILD_SILO} = "ON" ]; then
 else
     cecho ${INFO} "Setting up without SILO support"
 fi
+
+
+if [ ${DEPENDENCIES_ONLY} = "ON" ]; then
+    cecho ${INFO} "Skipping compilation of IBAMR itself (only compiling dependencies)"
+fi
+
 
 if [ ${DEBUGGING} = "ON" ]; then
     cecho ${INFO} "Setting up a build intended for debugging"
