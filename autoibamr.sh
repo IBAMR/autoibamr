@@ -91,6 +91,7 @@ DEBUGGING=OFF
 NATIVE_OPTIMIZATIONS=OFF
 BUILD_LIBMESH=ON
 BUILD_SILO=ON
+CLEAN_BUILD=OFF
 
 while [ -n "$1" ]; do
     param="$1"
@@ -101,6 +102,7 @@ while [ -n "$1" ]; do
             echo ""
             echo "Usage: $0 [options]"
             echo "Options:"
+            echo "  --clean-build                  Delete all build directories before recompiling. By default build directories are kept."
             echo "  --disable-libmesh              Build IBAMR without libMesh. libMesh is on by default; this flag disables it."
             echo "  --disable-silo                 Build IBAMR without SILO. SILO is on by default; this flag disables it."
             echo "  --enable-debugging             build dependencies with assertions, optimizations, and debug symbols,"
@@ -112,6 +114,12 @@ while [ -n "$1" ]; do
             echo ""
             echo "The configuration including the choice of packages to install is stored in autoibamr.cfg, see README.md for more information."
             exit 0
+        ;;
+
+        #####################################
+        # clean build
+        --clean-build)
+            CLEAN_BUILD=ON
         ;;
 
         #####################################
@@ -645,7 +653,6 @@ default BUILD_PATH=${PREFIX_PATH}/tmp/build
 default INSTALL_PATH=${PREFIX_PATH}/packages
 default CONFIGURATION_PATH=${PREFIX_PATH}/configuration
 
-default CLEAN_BUILD=OFF
 default DEVELOPER_MODE=OFF
 
 # TODO - we can probably remove this
