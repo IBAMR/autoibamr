@@ -90,6 +90,7 @@ USER_INTERACTION=ON
 DEBUGGING=OFF
 DEPENDENCIES_ONLY=OFF
 NATIVE_OPTIMIZATIONS=OFF
+CMAKE_LOAD_TARBALL=ON
 BUILD_LIBMESH=ON
 BUILD_SILO=ON
 CLEAN_BUILD=OFF
@@ -105,6 +106,7 @@ while [ -n "$1" ]; do
             echo "Options:"
             echo "  --clean-build                  Delete all build directories before recompiling. By default build directories are kept."
             echo "  --dependencies-only            Compile everything but IBAMR itself."
+            echo "  --disable-cmake-binary         Instead of trying to download a precompiled CMake binary, compile it."
             echo "  --disable-libmesh              Build IBAMR without libMesh. libMesh is on by default; this flag disables it."
             echo "  --disable-silo                 Build IBAMR without SILO. SILO is on by default; this flag disables it."
             echo "  --enable-debugging             build dependencies with assertions, optimizations, and debug symbols,"
@@ -116,6 +118,12 @@ while [ -n "$1" ]; do
             echo ""
             echo "The configuration including the choice of packages to install is stored in autoibamr.cfg, see README.md for more information."
             exit 0
+        ;;
+
+        #####################################
+        # CMake tarball
+        --disable-cmake-binary)
+            CMAKE_LOAD_TARBALL=OFF
         ;;
 
         #####################################
