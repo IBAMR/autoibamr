@@ -404,44 +404,44 @@ package_fetch () {
 
     # Fetch the package appropriately from its source
     if [ ${PACKING} = ".tar.bz2" ] || [ ${PACKING} = ".tar.gz" ] || [ ${PACKING} = ".tbz2" ] || [ ${PACKING} = ".tgz" ] || [ ${PACKING} = ".tar.xz" ] || [ ${PACKING} = ".zip" ]; then
-        cd ${DOWNLOAD_PATH}
-        download_archive ${NAME}${PACKING}
+        cd "${DOWNLOAD_PATH}"
+        download_archive "${NAME}${PACKING}"
         quit_if_fail "autoibamr: download_archive ${NAME}${PACKING} failed"
 
-    elif [ ${PACKING} = "git" ]; then
+    elif [ "${PACKING}" = "git" ]; then
         # Go into the unpack dir
-        cd ${UNPACK_PATH}
+        cd "${UNPACK_PATH}"
 
         # Clone the git repository if not existing locally
-        if [ ! -d ${EXTRACTSTO} ]; then
-            git clone ${SOURCE}${NAME} ${EXTRACTSTO}
+        if [ ! -d "${EXTRACTSTO}" ]; then
+            git clone "${SOURCE}${NAME}" "${EXTRACTSTO}"
             quit_if_fail "autoibamr: git clone ${SOURCE}${NAME} ${EXTRACTSTO} failed"
         fi
 
         # Checkout the desired version
-        cd ${EXTRACTSTO}
-        git checkout ${VERSION} --force
+        cd "${EXTRACTSTO}"
+        git checkout "${VERSION}" --force
         quit_if_fail "autoibamr: git checkout ${VERSION} --force failed"
 
         # Switch to the tmp dir
         cd ..
-    elif [ ${PACKING} = "hg" ]; then
-        cd ${UNPACK_PATH}
+    elif [ "${PACKING}" = "hg" ]; then
+        cd "${UNPACK_PATH}"
         # Suitably clone or update hg repositories
-        if [ ! -d ${NAME} ]; then
-            hg clone ${SOURCE}${NAME}
+        if [ ! -d "${NAME}" ]; then
+            hg clone "${SOURCE}${NAME}"
         else
-            cd ${NAME}
+            cd "${NAME}"
             hg pull --update
             cd ..
         fi
-    elif [ ${PACKING} = "svn" ]; then
-        cd ${UNPACK_PATH}
+    elif [ "${PACKING}" = "svn" ]; then
+        cd "${UNPACK_PATH}"
         # Suitably check out or update svn repositories
-        if [ ! -d ${NAME} ]; then
-            svn co ${SOURCE} ${NAME}
+        if [ ! -d "${NAME}" ]; then
+            svn co "${SOURCE}" "${NAME}"
         else
-            cd ${NAME}
+            cd "${NAME}"
             svn up
             cd ..
         fi
@@ -453,21 +453,21 @@ package_fetch () {
 
 package_unpack() {
     # First make sure we're in the right directory before unpacking
-    cd ${UNPACK_PATH}
-    FILE_TO_UNPACK=${DOWNLOAD_PATH}/${NAME}${PACKING}
+    cd "${UNPACK_PATH}"
+    FILE_TO_UNPACK="${DOWNLOAD_PATH}/${NAME}${PACKING}"
 
     # Only need to unpack archives
-    if [ ${PACKING} = ".tar.bz2" ] || [ ${PACKING} = ".tar.gz" ] || [ ${PACKING} = ".tbz2" ] || [ ${PACKING} = ".tgz" ] || [ ${PACKING} = ".tar.xz" ] || [ ${PACKING} = ".zip" ]; then
+    if [ "${PACKING}" = ".tar.bz2" ] || [ "${PACKING}" = ".tar.gz" ] || [ "${PACKING}" = ".tbz2" ] || [ "${PACKING}" = ".tgz" ] || [ "${PACKING}" = ".tar.xz" ] || [ "${PACKING}" = ".zip" ]; then
         cecho ${GOOD} "Unpacking ${NAME}${PACKING}"
         # Make sure the archive was downloaded
-        if [ ! -e ${FILE_TO_UNPACK} ]; then
-            cecho ${BAD} "${FILE_TO_UNPACK} does not exist. Please download first."
+        if [ ! -e "${FILE_TO_UNPACK}" ]; then
+            cecho "${BAD}" "${FILE_TO_UNPACK} does not exist. Please download first."
             exit 1
         fi
 
         # remove old unpack (this might be corrupted)
         if [ -d "${EXTRACTSTO}" ]; then
-            rm -rf ${EXTRACTSTO}
+            rm -rf "${EXTRACTSTO}"
             quit_if_fail "Removing of ${EXTRACTSTO} failed."
         fi
 
