@@ -90,9 +90,26 @@ USER_INTERACTION=ON
 DEBUGGING=OFF
 DEPENDENCIES_ONLY=OFF
 NATIVE_OPTIMIZATIONS=OFF
+CMAKE_LOAD_TARBALL=ON
 BUILD_LIBMESH=ON
 BUILD_SILO=ON
 CLEAN_BUILD=OFF
+
+# Figure out which binary to use for python support. Note that older PETSc ./configure only supports python2. For now, prefer
+# using python2 but use what the user supplies as PYTHON_INTERPRETER.
+PYTHON_INTERPRETER="python"
+if builtin command -v python --version > /dev/null; then
+  PYTHON_INTERPRETER="python2"
+elif builtin command -v python3 --version > /dev/null; then
+  PYTHON_INTERPRETER="python3"
+elif builtin command -v python2 --version > /dev/null; then
+  PYTHON_INTERPRETER="python2"
+elif builtin command -v python2.7 --version > /dev/null; then
+  PYTHON_INTERPRETER="python2.7"
+fi
+
+# Figure out the version of the existing python:
+PYTHONVER=$(${PYTHON_INTERPRETER} -c "import sys; print(sys.version[:3])")
 
 while [ -n "$1" ]; do
     param="$1"
@@ -105,17 +122,26 @@ while [ -n "$1" ]; do
             echo "Options:"
             echo "  --clean-build                  Delete all build directories before recompiling. By default build directories are kept."
             echo "  --dependencies-only            Compile everything but IBAMR itself."
+            echo "  --disable-cmake-binary         Instead of trying to download a precompiled CMake binary, compile it."
             echo "  --disable-libmesh              Build IBAMR without libMesh. libMesh is on by default; this flag disables it."
             echo "  --disable-silo                 Build IBAMR without SILO. SILO is on by default; this flag disables it."
             echo "  --enable-debugging             build dependencies with assertions, optimizations, and debug symbols,"
             echo "                                 and build IBAMR with assertions, no optimizations, and debug symbols."
             echo "  --enable-native-optimizations  build dependencies and IBAMR with platform-specific optimizations."
+            echo "  --python-interpreter           Absolute path to a python interpreter. Defaults to the first of {python,python3,python2.7}"
+            echo "                                 found on the present machine."
             echo "  -p <path>, --prefix=<path>     set a different prefix path (default $PREFIX)"
             echo "  -j <N>, -j<N>, --jobs=<N>      compile with N processes in parallel (default ${JOBS})"
             echo "  -y, --yes, --assume-yes        automatic yes to prompts"
             echo ""
             echo "The configuration including the choice of packages to install is stored in autoibamr.cfg, see README.md for more information."
             exit 0
+        ;;
+
+        #####################################
+        # CMake tarball
+        --disable-cmake-binary)
+            CMAKE_LOAD_TARBALL=OFF
         ;;
 
         #####################################
@@ -911,22 +937,6 @@ echo
 cecho ${GOOD} "Project:  ${PROJECT}"
 echo
 
-
-# Figure out what binary to use for python support. Note that older PETSc ./configure only supports python2. For now, prefer
-# using python2 but use what the user supplies as PYTHON_INTERPRETER.
-if builtin command -v python2 --version > /dev/null; then
-  default PYTHON_INTERPRETER="python2"
-fi
-if builtin command -v python2.7 --version > /dev/null; then
-  default PYTHON_INTERPRETER="python2.7"
-fi
-if builtin command -v python3 --version > /dev/null; then
-  default PYTHON_INTERPRETER="python3"
-fi
-default PYTHON_INTERPRETER="python"
-
-# Figure out the version of the existing python:
-default PYTHONVER=`${PYTHON_INTERPRETER} -c "import sys; print(sys.version[:3])"`
 
 # Create necessary directories and set appropriate variables
 mkdir -p ${DOWNLOAD_PATH}
