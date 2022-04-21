@@ -7,6 +7,17 @@ Linux and macOS computers.
 
 `autoibamr` is based on candi: https://github.com/dealii/candi
 
+Dependencies
+----
+
+autoibamr requires that your present machine already have a working copy of MPI
+and the standard MPI compiler wrappers installed. If you want to use custom MPI
+compiler wrappers then you should set `CC`, `CXX`, and `FC` to full paths to the
+C, C++, and Fortran compilers, respectively.
+
+Several IBAMR dependencies require using MPI compiler wrappers, so providing
+`MPI_ROOT` and using a separate compiler toolchain is presently not supported.
+
 Quickstart
 ----
 
@@ -105,39 +116,5 @@ can be disabled with `--disable-libmesh` and `--disable-silo` respectively.
 
 ### Configuration file options
 
-If you want to change the set of packages to be installed,
-you can enable or disable a package in the configuration file
-[autoibamr.cfg](autoibamr.cfg).
-This file is a simple text file and can be changed with any text editor.
-
-Currently, we provide the packages
-
-* CMake
-* HDF5
-* libMesh
-* numdiff
-* PETSc
-* SAMRAI
-* SILO
-
-Their build scripts are in
-[IBAMR-toolchain/packages](IBAMR-toolchain/packages).
-
-In addition, PETSc sets up BLAS, LAPACK, HYPRE, metis, and parmetis.
-
-There are several options within the configuration file, for example:
-
-* Remove existing build directories to use always a fresh setup
-```bash
-  CLEAN_BUILD={ON|OFF}
-```
-
-and more.
-
-Furthermore you can specify the install directory and other internal
-directories, where the source and build files are stored:
-* The ``DOWNLOAD_PATH`` folder (can be safely removed after installation)
-* The ``UNPACK_PATH`` folder of the downloaded packages (can be safely removed
-  after installation)
-* The ``BUILD_PATH`` folder (can be safely removed after installation)
-* The ``INSTALL_PATH`` destination folder
+Some less-used configuration options are available in `autoibamr.cfg`. In a
+future version of autoibamr these features will become command-line arguments.
