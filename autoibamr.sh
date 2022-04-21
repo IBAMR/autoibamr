@@ -90,6 +90,7 @@ USER_INTERACTION=ON
 DEBUGGING=OFF
 DEPENDENCIES_ONLY=OFF
 NATIVE_OPTIMIZATIONS=OFF
+IBAMR_VERSION=0.10.1
 CMAKE_LOAD_TARBALL=ON
 BUILD_LIBMESH=ON
 BUILD_SILO=ON
@@ -127,12 +128,13 @@ while [ -n "$1" ]; do
             echo "  --disable-silo                 Build IBAMR without SILO. SILO is on by default; this flag disables it."
             echo "  --enable-debugging             build dependencies with assertions, optimizations, and debug symbols,"
             echo "                                 and build IBAMR with assertions, no optimizations, and debug symbols."
-            echo "  --enable-native-optimizations  build dependencies and IBAMR with platform-specific optimizations."
+            echo "  --enable-native-optimizations  Build dependencies and IBAMR with platform-specific optimizations."
+            echo "  --ibamr-version                Version of IBAMR to install. Presently, only 0.10.1 is supported."
             echo "  --python-interpreter           Absolute path to a python interpreter. Defaults to the first of {python,python3,python2.7}"
             echo "                                 found on the present machine."
-            echo "  -p <path>, --prefix=<path>     set a different prefix path (default $PREFIX)"
-            echo "  -j <N>, -j<N>, --jobs=<N>      compile with N processes in parallel (default ${JOBS})"
-            echo "  -y, --yes, --assume-yes        automatic yes to prompts"
+            echo "  -p <path>, --prefix=<path>     Set a different prefix path (default $PREFIX)"
+            echo "  -j <N>, -j<N>, --jobs=<N>      Compile with N processes in parallel (default ${JOBS})"
+            echo "  -y, --yes, --assume-yes        Automatic yes to prompts"
             echo ""
             echo "The configuration including the choice of packages to install is stored in autoibamr.cfg, see README.md for more information."
             exit 0
@@ -181,6 +183,17 @@ while [ -n "$1" ]; do
         ;;
 
         #####################################
+        # IBAMR version
+        --ibamr-version)
+            shift
+            IBAMR_VERSION="${1}"
+        ;;
+
+        --ibamr-version=*)
+            IBAMR_VERSION="${param#*=}"
+        ;;
+
+        #####################################
         # Prefix path
         -p)
             shift
@@ -223,6 +236,13 @@ done
 if [ ${DEBUGGING} = "ON" ] && [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
   cecho ${BAD} "ERROR: --enable-debugging and --enable-native-optimizations are mutually incompatible features."
   exit 1
+fi
+
+# Eventually we should support more versions of IBAMR, but this is not yet
+# implemented. In particular, we need to handle patching IBAMR correctly.
+if [ ! "${IBAMR_VERSION}" = "0.10.1" ]; then
+    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR version 0.10.1"
+    exit 1
 fi
 
 # Check the input argument of the install path and (if used) replace the tilde
