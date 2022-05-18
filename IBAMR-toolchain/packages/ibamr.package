@@ -81,14 +81,10 @@ fi
 package_specific_patch () {
     cd ${UNPACK_PATH}/${EXTRACTSTO}
     quit_if_fail "cd failed"
-    cecho ${WARN} "applying patch for building IBAMR without ZLIB"
-    ## TODO: these patches are only valid for 0.10
-    patch -p1 < ${ORIG_DIR}/${PROJECT}/patches/ibamr-remove-zlib.patch
-    quit_if_fail "patch failed"
-    cecho ${WARN} "applying patch for marking an example that depends on libMesh as such"
-    ## TODO: these patches are only valid for 0.10
-    patch -p1 < ${ORIG_DIR}/${PROJECT}/patches/ibamr-libmesh-example-0.10.patch
-    quit_if_fail "patch failed"
+
+    cecho ${INFO} "Applying patches to IBAMR"
+    find "${ORIG_DIR}/${PROJECT}/patches/" -name "ibamr-${IBAMR_VERSION}-*.patch" -exec patch -p1 --input={} \;
+    quit_if_fail "Failed to apply an IBAMR patch."
 }
 
 package_specific_register () {
