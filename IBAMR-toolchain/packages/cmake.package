@@ -24,7 +24,8 @@ else
 fi
 
 SOURCE=https://cmake.org/files/v${MAJOR}/
-INSTALL_PATH=${INSTALL_PATH}/${NAME}
+# do not use NAME since we want this to always be the same
+INSTALL_PATH=${INSTALL_PATH}/cmake-${VERSION}
 
 if [ ${BUILDCHAIN} == "ignore" ]; then
     package_specific_install () {
@@ -39,7 +40,7 @@ package_specific_register () {
 
 package_specific_conf () {
     # Generate configuration file
-    CONFIG_FILE=${CONFIGURATION_PATH}/${NAME}
+    CONFIG_FILE=${CONFIGURATION_PATH}/cmake-${VERSION}
     rm -f $CONFIG_FILE
     echo "
 export PATH=${INSTALL_PATH}/bin:\${PATH}

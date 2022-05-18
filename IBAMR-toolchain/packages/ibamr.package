@@ -90,3 +90,16 @@ package_specific_patch () {
     patch -p1 < ${ORIG_DIR}/${PROJECT}/patches/ibamr-libmesh-example-0.10.patch
     quit_if_fail "patch failed"
 }
+
+package_specific_register () {
+    export IBAMR_ROOT=${INSTALL_PATH}
+}
+
+package_specific_conf () {
+    # Generate configuration file
+    CONFIG_FILE=${CONFIGURATION_PATH}/${EXTRACTSTO}
+    rm -f $CONFIG_FILE
+    echo "
+export IBAMR_ROOT=${INSTALL_PATH}
+" >> $CONFIG_FILE
+}
