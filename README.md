@@ -43,6 +43,36 @@ up the correct MPI environment. After that you can run
   ./autoibamr.sh
 ```
 
+### Using the installed copy of IBAMR
+
+This can be done in two ways:
+1. source the `enable.sh` script installed in `autoibamr/packages`:
+
+```bash
+   source ~/autoibamr/packages/configuration/enable.sh
+```
+
+   This sets up the environment variables for each package. For example, this
+   will set `IBAMR_ROOT` to the full path to the IBAMR installation. You can then
+   configure your IBAMR application by running
+
+```bash
+   cmake -DIBAMR_ROOT="${IBAMR_ROOT}" .
+```
+   in the normal way. Running `enable.sh` also sets up your `PATH` variable to
+   include the copy of CMake provided by autoibamr.
+
+2. Use the IBAMR installation directory directly: By default, IBAMR is installed
+   in `$HOME/autoibamr/packages/IBAMR-0.10.1/`. You can configure your own IBAMR
+   application by running
+
+```bash
+   $HOME/autoibamr/packages/cmake-3.20.5/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.10.1/" .
+```
+   in the normal way. That command uses the version of CMake installed by
+   autoibamr - you can use another installed version if you wish (that is at
+   least version 3.15).
+
 Working with IBAMR examples
 ----
 autoibamr sets up IBAMR and its dependencies for use in external projects. It
