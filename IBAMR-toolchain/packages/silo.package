@@ -31,7 +31,7 @@ package_specific_patch () {
     cd ${UNPACK_PATH}/${EXTRACTSTO}
     quit_if_fail "cd failed"
     cecho ${WARN} "applying patch for building SILO with HDF5"
-    patch -p0 < ${ORIG_DIR}/${PROJECT}/patches/silo-hdf5.patch
+    patch -p0 < "${ORIG_DIR}/${PROJECT}/patches/silo-${VERSION}-hdf5.patch"
     quit_if_fail "patch failed"
 }
 
