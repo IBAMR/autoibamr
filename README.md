@@ -18,6 +18,13 @@ C, C++, and Fortran compilers, respectively.
 Several IBAMR dependencies require using MPI compiler wrappers, so providing
 `MPI_ROOT` and using a separate compiler toolchain is presently not supported.
 
+In addition to MPI, we require that the following build-time dependencies are
+available:
+- python, e.g., python3-distutils on Ubuntu. Any system copy of Python should
+  work.
+- The standard Unix build tools: i.e., awk, sed, grep, make, and m4. These
+  packages are typically installed automatically.
+
 Quickstart
 ----
 
