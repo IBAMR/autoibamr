@@ -40,6 +40,11 @@ then install the latest IBAMR release and common dependencies:
 Follow the instructions on the screen
 (you can abort the process by pressing < CTRL > + C)
 
+Most of IBAMR's dependencies are hosted on GitHub. If you have trouble
+accessing GitHub then you may need to install a workaround. Some users have
+reported that GitHub520 can help - see issue #73 for more information if this
+applies to you.
+
 
 ### Installation
 
