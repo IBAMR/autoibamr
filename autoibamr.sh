@@ -376,10 +376,7 @@ verify_archive() {
 download_archive () {
     ARCHIVE_FILE=$1
 
-    # Prepend MIRROR to SOURCE (to prefer) mirror source download
-    if [ -n "${MIRROR}" ]; then
-        SOURCE="${MIRROR} ${SOURCE}"
-    fi
+    # TODO - it would be nice to support mirrors here
 
     for DOWNLOADER in ${DOWNLOADERS}; do
     for source in ${SOURCE}; do
@@ -1084,23 +1081,6 @@ for PACKAGE in ${PACKAGES[@]}; do
             package_unpack
         fi
         package_build
-
-        # Clean build directory after install
-        if [ ${INSTANT_CLEAN_BUILD_AFTER_INSTALL} = ON ]; then
-            rm -rf ${BUILDDIR}
-        fi
-
-        # Clean src after install
-        if [ ${INSTANT_CLEAN_SRC_AFTER_INSTALL} = ON ]; then
-            if [ -f ${DOWNLOAD_PATH}/${NAME}${PACKING} ]; then
-                rm -f ${DOWNLOAD_PATH:?}/${NAME}${PACKING}
-            fi
-        fi
-
-        # Clean unpack directory after install
-        if [ ${INSTANT_CLEAN_UNPACK_AFTER_INSTALL} = ON ]; then
-            rm -rf ${UNPACK_PATH:?}/${EXTRACTSTO}
-        fi
     else
         if [ -n "${LOAD}" ]; then
             # Let the user know we're loading the current package
