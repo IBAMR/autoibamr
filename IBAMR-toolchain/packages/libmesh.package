@@ -12,7 +12,9 @@ INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
 
 #########################################################################
 
+# To pass a header check we need to help libMesh's configure script find PETSc. The test is run only with C so we only need to modify CFLAGS.
 CONFOPTS="
+  CFLAGS=-I${PETSC_DIR}/${PETSC_ARCH}/include
   --disable-boost
   --disable-capnproto
   --disable-cppunit
