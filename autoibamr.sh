@@ -691,10 +691,6 @@ echo
 # WARNING: You should NEVER override this variable!
 export ORIG_DIR=`pwd`
 
-################################################################################
-# Read configuration variables from autoibamr.cfg
-source autoibamr.cfg
-
 # If any variables are missing, set them to defaults
 default PROJECT=IBAMR-toolchain
 
