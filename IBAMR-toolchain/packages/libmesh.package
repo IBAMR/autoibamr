@@ -64,6 +64,15 @@ package_specific_setup () {
     cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* . || true
 }
 
+package_specific_patch () {
+    cd ${UNPACK_PATH}/${EXTRACTSTO}
+    quit_if_fail "cd failed"
+
+    cecho ${INFO} "Applying patches to libMesh"
+    find "${ORIG_DIR}/${PROJECT}/patches/" -name "${NAME}-*.patch" -exec patch -p1 --input={} \;
+    quit_if_fail "Failed to apply a libMesh patch."
+}
+
 package_specific_register () {
     export LIBMESH_DIR=${INSTALL_PATH}
 }

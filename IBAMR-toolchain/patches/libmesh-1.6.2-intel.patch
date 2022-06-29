@@ -1,0 +1,726 @@
+diff -u -r ./include/fe/fe_abstract.h ./include/fe/fe_abstract.h
+--- ./include/fe/fe_abstract.h	2022-06-28 10:08:03.072506000 -0400
++++ ./include/fe/fe_abstract.h	2022-06-28 10:12:20.647545000 -0400
+@@ -440,7 +440,7 @@
+   /**
+    * \returns The approximation order of the finite element.
+    */
+-  Order get_order()  const { return static_cast<Order>(fe_type.order + _p_level); }
++  Order get_order()  const { return static_cast<Order>(fe_type.order.get_order() + int(_p_level)); }
+ 
+   /**
+    * Sets the *base* FE order of the finite element.
+diff -u -r ./include/systems/generic_projector.h ./include/systems/generic_projector.h
+--- ./include/systems/generic_projector.h	2022-06-28 10:08:02.997520000 -0400
++++ ./include/systems/generic_projector.h	2022-06-28 11:33:18.166241000 -0400
+@@ -2314,7 +2314,7 @@
+ 
+           // This may be a p refined element
+           fe_type.order =
+-            libMesh::Order (fe_type.order + elem.p_level());
++            libMesh::Order (fe_type.order.get_order() + int(elem.p_level()));
+ 
+           // If this is a Lagrange element with DoFs on edges then by
+           // convention we interpolate at the node rather than project
+@@ -2495,7 +2495,7 @@
+ 
+           // This may be a p refined element
+           fe_type.order =
+-            libMesh::Order (fe_type.order + elem.p_level());
++            libMesh::Order (fe_type.order.get_order() + int(elem.p_level()));
+ 
+           // If this is a Lagrange element with DoFs on sides then by
+           // convention we interpolate at the node rather than project
+@@ -2648,7 +2648,7 @@
+ 
+           // This may be a p refined element
+           fe_type.order =
+-            libMesh::Order (fe_type.order + elem->p_level());
++            libMesh::Order (fe_type.order.get_order() + int(elem->p_level()));
+ 
+           const unsigned int var_component =
+             system.variable_scalar_number(var, 0);
+diff -u -r ./src/base/dof_map.C ./src/base/dof_map.C
+--- ./src/base/dof_map.C	2022-06-28 10:07:50.735876000 -0400
++++ ./src/base/dof_map.C	2022-06-28 11:13:39.914167000 -0400
+@@ -617,7 +617,7 @@
+ 
+           // Make sure we haven't done more p refinement than we can
+           // handle
+-          if (elem->p_level() + base_fe_type.order >
++          if (elem->p_level() + base_fe_type.order.get_order() >
+               FEInterface::max_order(base_fe_type, type))
+             {
+               libmesh_assert_less_msg(base_fe_type.order.get_order(),
+@@ -629,7 +629,7 @@
+                                       << "\nonly supports FEInterface::max_order = "
+                                       << FEInterface::max_order(base_fe_type,type)
+                                       << ", not fe_type.order = "
+-                                      << base_fe_type.order);
++                                      << base_fe_type.order.get_order());
+ 
+ #  ifdef DEBUG
+               libMesh::err << "WARNING: Finite element "
+@@ -641,7 +641,7 @@
+                            << std::endl;
+ #  endif
+               elem->set_p_level(FEInterface::max_order(base_fe_type,type)
+-                                - base_fe_type.order);
++                                - base_fe_type.order.get_order());
+             }
+ #endif
+ 
+@@ -2424,7 +2424,7 @@
+             is_inf ?
+             FEInterface::n_dofs_at_node(fe_type, p_level, &elem, n) :
+ #endif
+-            ndan (type, static_cast<Order>(fe_type.order + p_level), n);
++            ndan (type, static_cast<Order>(fe_type.order.get_order() + int(p_level)), n);
+ 
+           // If this is a non-vertex on a hanging node with extra
+           // degrees of freedom, we use the non-vertex dofs (which
+@@ -2707,7 +2707,7 @@
+                           is_inf ?
+                           FEInterface::n_dofs_at_node(var.type(), extra_order, elem, n) :
+ #endif
+-                          ndan (type, static_cast<Order>(var.type().order + extra_order), n);
++                          ndan (type, static_cast<Order>(var.type().order.get_order() + extra_order), n);
+ 
+                         const int n_comp = old_dof_obj->n_comp_group(sys_num,vg);
+ 
+diff -u -r ./src/error_estimation/patch_recovery_error_estimator.C ./src/error_estimation/patch_recovery_error_estimator.C
+--- ./src/error_estimation/patch_recovery_error_estimator.C	2022-06-28 10:07:50.981928000 -0400
++++ ./src/error_estimation/patch_recovery_error_estimator.C	2022-06-28 10:54:15.857297000 -0400
+@@ -315,7 +315,7 @@
+           const FEType & fe_type = dof_map.variable_type (var);
+ 
+           const Order element_order  = static_cast<Order>
+-            (fe_type.order + elem->p_level());
++            (fe_type.order.get_order() + int(elem->p_level()));
+ 
+           // Finite element object for use in this patch
+           std::unique_ptr<FEBase> fe (FEBase::build (dim, fe_type));
+@@ -699,7 +699,7 @@
+               Real element_error = 0;
+ 
+               const Order qorder =
+-                static_cast<Order>(fe_type.order + e_p->p_level());
++                static_cast<Order>(fe_type.order.get_order() + int(e_p->p_level()));
+ 
+               // A quadrature rule for this element
+               QGrid samprule (dim, qorder);
+diff -u -r ./src/error_estimation/weighted_patch_recovery_error_estimator.C ./src/error_estimation/weighted_patch_recovery_error_estimator.C
+--- ./src/error_estimation/weighted_patch_recovery_error_estimator.C	2022-06-28 10:07:51.000900000 -0400
++++ ./src/error_estimation/weighted_patch_recovery_error_estimator.C	2022-06-28 11:17:16.237231000 -0400
+@@ -216,7 +216,7 @@
+           const FEType & fe_type = dof_map.variable_type (var);
+ 
+           const Order element_order  = static_cast<Order>
+-            (fe_type.order + elem->p_level());
++            (fe_type.order.get_order() + int(elem->p_level()));
+ 
+           // Finite element object for use in this patch
+           std::unique_ptr<FEBase> fe (FEBase::build (dim, fe_type));
+@@ -619,7 +619,7 @@
+               Real element_error = 0;
+ 
+               const Order qorder =
+-                static_cast<Order>(fe_type.order + e_p->p_level());
++                static_cast<Order>(fe_type.order.get_order() + int(e_p->p_level()));
+ 
+               // A quadrature rule for this element
+               QGrid samprule (dim, qorder);
+diff -u -r ./src/fe/fe_base.C ./src/fe/fe_base.C
+--- ./src/fe/fe_base.C	2022-06-28 10:07:51.103879000 -0400
++++ ./src/fe/fe_base.C	2022-06-28 11:04:03.716271000 -0400
+@@ -1070,8 +1070,8 @@
+   }
+ 
+   FEType fe_type = base_fe_type, temp_fe_type;
+-  fe_type.order = static_cast<Order>(fe_type.order +
+-                                     elem->max_descendant_p_level());
++  fe_type.order = static_cast<Order>(fe_type.order.get_order() +
++                                     int(elem->max_descendant_p_level()));
+ 
+   // In 3D, project any edge values next
+   if (dim > 2 && cont != DISCONTINUOUS)
+@@ -1115,8 +1115,8 @@
+ 
+             temp_fe_type = base_fe_type;
+             temp_fe_type.order =
+-              static_cast<Order>(temp_fe_type.order +
+-                                 child->p_level());
++              static_cast<Order>(temp_fe_type.order.get_order() +
++                                 int(child->p_level()));
+ 
+             FEInterface::dofs_on_edge(child, dim,
+                                       temp_fe_type, e, old_side_dofs);
+@@ -1255,8 +1255,8 @@
+ 
+             temp_fe_type = base_fe_type;
+             temp_fe_type.order =
+-              static_cast<Order>(temp_fe_type.order +
+-                                 child->p_level());
++              static_cast<Order>(temp_fe_type.order.get_order() +
++                                 int(child->p_level()));
+ 
+             FEInterface::dofs_on_side(child, dim,
+                                       temp_fe_type, s, old_side_dofs);
+diff -u -r ./src/fe/fe_bernstein_shape_1D.C ./src/fe/fe_bernstein_shape_1D.C
+--- ./src/fe/fe_bernstein_shape_1D.C	2022-06-28 10:07:51.081920000 -0400
++++ ./src/fe/fe_bernstein_shape_1D.C	2022-06-28 11:16:03.629368000 -0400
+@@ -214,7 +214,7 @@
+   libmesh_assert(elem);
+   return FE<1,BERNSTEIN>::shape
+     (elem->type(),
+-     static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, p);
++     static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, p);
+ }
+ 
+ 
+@@ -402,7 +402,7 @@
+   libmesh_assert(elem);
+   return FE<1,BERNSTEIN>::shape_deriv
+     (elem->type(),
+-     static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++     static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ 
+@@ -615,7 +615,7 @@
+   libmesh_assert(elem);
+   return FE<1,BERNSTEIN>::shape_second_deriv
+     (elem->type(),
+-     static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++     static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ #endif
+diff -u -r ./src/fe/fe.C ./src/fe/fe.C
+--- ./src/fe/fe.C	2022-06-28 10:07:51.133941000 -0400
++++ ./src/fe/fe.C	2022-06-28 11:15:12.654270000 -0400
+@@ -60,7 +60,7 @@
+ unsigned int FE<Dim,T>::n_shape_functions () const
+ {
+   return FE<Dim,T>::n_dofs (this->elem_type,
+-                            static_cast<Order>(this->fe_type.order + this->_p_level));
++                            static_cast<Order>(this->fe_type.order.get_order() + int(this->_p_level)));
+ }
+ 
+ 
+diff -u -r ./src/fe/fe_hierarchic_shape_1D.C ./src/fe/fe_hierarchic_shape_1D.C
+--- ./src/fe/fe_hierarchic_shape_1D.C	2022-06-28 10:07:51.067896000 -0400
++++ ./src/fe/fe_hierarchic_shape_1D.C	2022-06-28 11:27:51.093352000 -0400
+@@ -106,7 +106,7 @@
+                              const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_hierarchic_1D_shape(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, p);
++  return fe_hierarchic_1D_shape(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, p);
+ }
+ 
+ 
+@@ -133,7 +133,7 @@
+                                 const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_hierarchic_1D_shape(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, p);
++  return fe_hierarchic_1D_shape(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, p);
+ }
+ 
+ 
+@@ -186,7 +186,7 @@
+                                    const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_hierarchic_1D_shape_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return fe_hierarchic_1D_shape_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ 
+@@ -217,7 +217,7 @@
+                                       const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_hierarchic_1D_shape_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return fe_hierarchic_1D_shape_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ 
+@@ -273,7 +273,7 @@
+ {
+   libmesh_assert(elem);
+   return fe_hierarchic_1D_shape_second_deriv(elem->type(),
+-                                             static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++                                             static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ 
+@@ -302,7 +302,7 @@
+ {
+   libmesh_assert(elem);
+   return fe_hierarchic_1D_shape_second_deriv(elem->type(),
+-                                             static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++                                             static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ #endif
+diff -u -r ./src/fe/fe_interface.C ./src/fe/fe_interface.C
+--- ./src/fe/fe_interface.C	2022-06-28 10:07:51.100869000 -0400
++++ ./src/fe/fe_interface.C	2022-06-28 11:20:34.655125000 -0400
+@@ -495,7 +495,7 @@
+ #endif
+ 
+   // Account for Elem::p_level() when computing total_order
+-  auto total_order = static_cast<Order>(fe_t.order + elem->p_level());
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + elem->p_level());
+ 
+   fe_with_vec_switch(n_shape_functions(elem->type(), total_order));
+ }
+@@ -523,7 +523,7 @@
+ #endif
+ 
+   // Ignore Elem::p_level() and instead use extra_order to compute total_order.
+-  auto total_order = static_cast<Order>(fe_t.order + extra_order);
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + extra_order);
+ 
+   fe_with_vec_switch(n_shape_functions(elem->type(), total_order));
+ }
+@@ -559,7 +559,7 @@
+   libmesh_deprecated();
+ 
+   FEType p_refined_fe_t = fe_t;
+-  p_refined_fe_t.order = static_cast<Order>(p_refined_fe_t.order + elem->p_level());
++  p_refined_fe_t.order = static_cast<Order>(p_refined_fe_t.order.get_order() + int(elem->p_level()));
+   return FEInterface::n_dofs(dim, p_refined_fe_t, elem->type());
+ }
+ 
+@@ -581,7 +581,7 @@
+ #endif
+ 
+   // Account for Elem::p_level() when computing total_order
+-  auto total_order = static_cast<Order>(fe_t.order + elem->p_level());
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + int(elem->p_level()));
+ 
+   fe_with_vec_switch(n_dofs(elem->type(), total_order));
+ }
+@@ -605,7 +605,7 @@
+ #endif
+ 
+   // Elem::p_level() is ignored, extra_order is used instead.
+-  auto total_order = static_cast<Order>(fe_t.order + extra_order);
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + extra_order);
+ 
+   fe_with_vec_switch(n_dofs(elem->type(), total_order));
+ }
+@@ -673,7 +673,7 @@
+ #endif
+ 
+   // Account for Elem::p_level() when computing total_order
+-  auto total_order = static_cast<Order>(fe_t.order + elem->p_level());
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + elem->p_level());
+ 
+   fe_with_vec_switch(n_dofs_at_node(elem->type(), total_order, n));
+ }
+@@ -697,7 +697,7 @@
+ #endif
+ 
+   // Ignore Elem::p_level() and instead use extra_order to compute total_order.
+-  auto total_order = static_cast<Order>(fe_t.order + extra_order);
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + extra_order);
+ 
+   fe_with_vec_switch(n_dofs_at_node(elem->type(), total_order, n));
+ }
+@@ -740,7 +740,7 @@
+ #endif
+ 
+   // Account for Elem::p_level() when computing total_order
+-  auto total_order = static_cast<Order>(fe_t.order + elem->p_level());
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + int(elem->p_level()));
+ 
+   fe_with_vec_switch(n_dofs_per_elem(elem->type(), total_order));
+ }
+@@ -763,7 +763,7 @@
+ #endif
+ 
+   // Ignore Elem::p_level() and instead use extra_order to compute total_order.
+-  auto total_order = static_cast<Order>(fe_t.order + extra_order);
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + extra_order);
+ 
+   fe_with_vec_switch(n_dofs_per_elem(elem->type(), total_order));
+ }
+@@ -999,7 +999,7 @@
+   // with the last parameter set to "false" so that the
+   // Elem::p_level() is not used internally and the "total_order" that
+   // we compute is used instead. See fe.h for more details.
+-  auto total_order = static_cast<Order>(fe_t.order + extra_order);
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + extra_order);
+ 
+   fe_switch(shape(elem, total_order, i, p, false));
+ }
+@@ -1160,7 +1160,7 @@
+ #endif
+ 
+   // Ignore Elem::p_level() and instead use extra_order to compute total_order
+-  auto total_order = static_cast<Order>(fe_t.order + extra_order);
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + extra_order);
+ 
+   // Below we call
+   //
+@@ -1203,7 +1203,7 @@
+   if (elem && is_InfFE_elem(elem->type()))
+     {
+       FEType elevated = fe_t;
+-      elevated.order = static_cast<Order>(fe_t.order + add_p_level * elem->p_level());
++      elevated.order = static_cast<Order>(fe_t.order.get_order() + add_p_level * elem->p_level());
+       for (auto qpi : index_range(p))
+         phi[qpi] = ifem_shape(elevated, elem, i, p[qpi]);
+       return;
+@@ -1390,7 +1390,7 @@
+   // with the last parameter set to "false" so that the
+   // Elem::p_level() is not used internally and the "total_order" that
+   // we compute is used instead. See fe.h for more details.
+-  auto total_order = static_cast<Order>(fe_t.order + extra_order);
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + extra_order);
+ 
+   switch(dim)
+     {
+@@ -1639,7 +1639,7 @@
+ 
+   // Ignore Elem::p_level() when computing total order, use
+   // extra_order instead.
+-  auto total_order = static_cast<Order>(fe_t.order + extra_order);
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + extra_order);
+ 
+   // We call shape_deriv() with the final argument == false so that
+   // the Elem::p_level() is ignored internally.
+@@ -1825,7 +1825,7 @@
+ 
+   // Ignore Elem::p_level() when computing total order, use
+   // extra_order instead.
+-  auto total_order = static_cast<Order>(fe_t.order + extra_order);
++  auto total_order = static_cast<Order>(fe_t.order.get_order() + extra_order);
+ 
+   // We are calling FE::shape_second_deriv() with the final argument
+   // == false so that the Elem::p_level() is ignored and the
+diff -u -r ./src/fe/fe_lagrange_shape_1D.C ./src/fe/fe_lagrange_shape_1D.C
+--- ./src/fe/fe_lagrange_shape_1D.C	2022-06-28 10:07:51.158858000 -0400
++++ ./src/fe/fe_lagrange_shape_1D.C	2022-06-28 11:28:27.444262000 -0400
+@@ -71,7 +71,7 @@
+                            const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_1D_shape(static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, p(0));
++  return fe_lagrange_1D_shape(static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, p(0));
+ }
+ 
+ template <>
+@@ -94,7 +94,7 @@
+                               const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_1D_shape(static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, p(0));
++  return fe_lagrange_1D_shape(static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, p(0));
+ }
+ 
+ 
+@@ -161,7 +161,7 @@
+                                  const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_1D_shape_deriv(static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p(0));
++  return fe_lagrange_1D_shape_deriv(static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p(0));
+ }
+ 
+ 
+@@ -174,7 +174,7 @@
+                                     const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_1D_shape_deriv(static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p(0));
++  return fe_lagrange_1D_shape_deriv(static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p(0));
+ }
+ 
+ 
+@@ -242,7 +242,7 @@
+                                         const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_1D_shape_second_deriv(static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p(0));
++  return fe_lagrange_1D_shape_second_deriv(static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p(0));
+ }
+ 
+ 
+@@ -255,7 +255,7 @@
+                                            const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_1D_shape_second_deriv(static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p(0));
++  return fe_lagrange_1D_shape_second_deriv(static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p(0));
+ }
+ 
+ #endif // LIBMESH_ENABLE_SECOND_DERIVATIVES
+diff -u -r ./src/fe/fe_lagrange_shape_2D.C ./src/fe/fe_lagrange_shape_2D.C
+--- ./src/fe/fe_lagrange_shape_2D.C	2022-06-28 10:07:51.169856000 -0400
++++ ./src/fe/fe_lagrange_shape_2D.C	2022-06-28 11:26:07.184094000 -0400
+@@ -120,7 +120,7 @@
+                            const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_2D_shape(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, p);
++  return fe_lagrange_2D_shape(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, p);
+ }
+ 
+ 
+@@ -133,7 +133,7 @@
+                               const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_2D_shape(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, p);
++  return fe_lagrange_2D_shape(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, p);
+ }
+ 
+ 
+@@ -202,7 +202,7 @@
+                                  const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_2D_shape_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return fe_lagrange_2D_shape_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ 
+@@ -216,7 +216,7 @@
+                                     const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_2D_shape_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return fe_lagrange_2D_shape_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ 
+@@ -287,7 +287,7 @@
+                                         const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_2D_shape_second_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return fe_lagrange_2D_shape_second_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ 
+@@ -301,7 +301,7 @@
+                                            const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_2D_shape_second_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return fe_lagrange_2D_shape_second_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ #endif // LIBMESH_ENABLE_SECOND_DERIVATIVES
+diff -u -r ./src/fe/fe_lagrange_shape_3D.C ./src/fe/fe_lagrange_shape_3D.C
+--- ./src/fe/fe_lagrange_shape_3D.C	2022-06-28 10:07:51.173869000 -0400
++++ ./src/fe/fe_lagrange_shape_3D.C	2022-06-28 11:21:53.423548000 -0400
+@@ -120,7 +120,7 @@
+                            const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_3D_shape(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, p);
++  return fe_lagrange_3D_shape(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, p);
+ }
+ 
+ 
+@@ -133,7 +133,7 @@
+                               const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_3D_shape(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, p);
++  return fe_lagrange_3D_shape(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, p);
+ }
+ 
+ template <>
+@@ -199,7 +199,7 @@
+                                  const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_3D_shape_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return fe_lagrange_3D_shape_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ 
+@@ -212,7 +212,7 @@
+                                     const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return fe_lagrange_3D_shape_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return fe_lagrange_3D_shape_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ #ifdef LIBMESH_ENABLE_SECOND_DERIVATIVES
+@@ -284,7 +284,7 @@
+ {
+   libmesh_assert(elem);
+   return fe_lagrange_3D_shape_second_deriv
+-    (elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++    (elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ 
+@@ -299,7 +299,7 @@
+ {
+   libmesh_assert(elem);
+   return fe_lagrange_3D_shape_second_deriv
+-    (elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++    (elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ 
+diff -u -r ./src/fe/fe_monomial_shape_1D.C ./src/fe/fe_monomial_shape_1D.C
+--- ./src/fe/fe_monomial_shape_1D.C	2022-06-28 10:07:51.161967000 -0400
++++ ./src/fe/fe_monomial_shape_1D.C	2022-06-28 11:28:48.209599000 -0400
+@@ -89,7 +89,7 @@
+                            const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return FE<1,MONOMIAL>::shape(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, p);
++  return FE<1,MONOMIAL>::shape(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, p);
+ }
+ 
+ 
+@@ -160,7 +160,7 @@
+                                  const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return FE<1,MONOMIAL>::shape_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return FE<1,MONOMIAL>::shape_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ 
+ 
+ }
+@@ -230,7 +230,7 @@
+                                         const bool add_p_level)
+ {
+   libmesh_assert(elem);
+-  return FE<1,MONOMIAL>::shape_second_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return FE<1,MONOMIAL>::shape_second_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ #endif
+diff -u -r ./src/fe/fe_monomial_shape_2D.C ./src/fe/fe_monomial_shape_2D.C
+--- ./src/fe/fe_monomial_shape_2D.C	2022-06-28 10:07:51.186923000 -0400
++++ ./src/fe/fe_monomial_shape_2D.C	2022-06-28 11:28:57.076131000 -0400
+@@ -141,7 +141,7 @@
+ {
+   libmesh_assert(elem);
+   // by default call the orientation-independent shape functions
+-  return FE<2,MONOMIAL>::shape(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, p);
++  return FE<2,MONOMIAL>::shape(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, p);
+ }
+ 
+ 
+@@ -346,7 +346,7 @@
+ {
+   libmesh_assert(elem);
+   // by default call the orientation-independent shape functions
+-  return FE<2,MONOMIAL>::shape_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return FE<2,MONOMIAL>::shape_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ 
+@@ -598,7 +598,7 @@
+ {
+   libmesh_assert(elem);
+   // by default call the orientation-independent shape functions
+-  return FE<2,MONOMIAL>::shape_second_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return FE<2,MONOMIAL>::shape_second_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ #endif
+diff -u -r ./src/fe/fe_monomial_shape_3D.C ./src/fe/fe_monomial_shape_3D.C
+--- ./src/fe/fe_monomial_shape_3D.C	2022-06-28 10:07:51.216933000 -0400
++++ ./src/fe/fe_monomial_shape_3D.C	2022-06-28 11:22:57.344308000 -0400
+@@ -210,7 +210,7 @@
+ {
+   libmesh_assert(elem);
+   // by default call the orientation-independent shape functions
+-  return FE<3,MONOMIAL>::shape(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, p);
++  return FE<3,MONOMIAL>::shape(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, p);
+ }
+ 
+ 
+@@ -680,7 +680,7 @@
+ {
+   libmesh_assert(elem);
+   // by default call the orientation-independent shape functions
+-  return FE<3,MONOMIAL>::shape_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return FE<3,MONOMIAL>::shape_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ 
+@@ -1361,7 +1361,7 @@
+ {
+   libmesh_assert(elem);
+   // by default call the orientation-independent shape functions
+-  return FE<3,MONOMIAL>::shape_second_deriv(elem->type(), static_cast<Order>(fet.order + add_p_level * elem->p_level()), i, j, p);
++  return FE<3,MONOMIAL>::shape_second_deriv(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * elem->p_level()), i, j, p);
+ }
+ 
+ #endif
+diff -u -r ./src/fe/fe_subdivision_2D.C ./src/fe/fe_subdivision_2D.C
+--- ./src/fe/fe_subdivision_2D.C	2022-06-28 10:07:51.198973000 -0400
++++ ./src/fe/fe_subdivision_2D.C	2022-06-28 11:24:21.217321000 -0400
+@@ -753,7 +753,7 @@
+ {
+   libmesh_assert(elem);
+   const Order totalorder =
+-    static_cast<Order>(fet.order+add_p_level*elem->p_level());
++    static_cast<Order>(fet.order.get_order() + add_p_level*elem->p_level());
+   return FE<2,SUBDIVISION>::shape(elem->type(), totalorder, i, p);
+ }
+ 
+@@ -811,7 +811,7 @@
+ {
+   libmesh_assert(elem);
+   const Order totalorder =
+-    static_cast<Order>(fet.order+add_p_level*elem->p_level());
++    static_cast<Order>(fet.order.get_order() + add_p_level*elem->p_level());
+   return FE<2,SUBDIVISION>::shape_deriv(elem->type(), totalorder, i, j, p);
+ }
+ 
+@@ -871,7 +871,7 @@
+ {
+   libmesh_assert(elem);
+   const Order totalorder =
+-    static_cast<Order>(fet.order+add_p_level*elem->p_level());
++    static_cast<Order>(fet.order.get_order() + add_p_level*elem->p_level());
+   return FE<2,SUBDIVISION>::shape_second_deriv(elem->type(), totalorder, i, j, p);
+ }
+ 
+diff -u -r ./src/fe/fe_szabab_shape_1D.C ./src/fe/fe_szabab_shape_1D.C
+--- ./src/fe/fe_szabab_shape_1D.C	2022-06-28 10:07:51.069872000 -0400
++++ ./src/fe/fe_szabab_shape_1D.C	2022-06-28 11:25:22.144560000 -0400
+@@ -101,7 +101,7 @@
+ {
+   libmesh_assert(elem);
+ 
+-  return FE<1,SZABAB>::shape(elem->type(), static_cast<Order>(fet.order + add_p_level * add_p_level * elem->p_level()), i, p);
++  return FE<1,SZABAB>::shape(elem->type(), static_cast<Order>(fet.order.get_order() + add_p_level * add_p_level * elem->p_level()), i, p);
+ }
+ 
+ 
+@@ -179,7 +179,7 @@
+   libmesh_assert(elem);
+ 
+   return FE<1,SZABAB>::shape_deriv(elem->type(),
+-                                   static_cast<Order>(fet.order + add_p_level * add_p_level * elem->p_level()),
++                                   static_cast<Order>(fet.order.get_order() + add_p_level * add_p_level * elem->p_level()),
+                                    i,
+                                    j,
+                                    p);
+@@ -238,7 +238,7 @@
+   libmesh_assert(elem);
+ 
+   return FE<1,SZABAB>::shape_second_deriv(elem->type(),
+-                                          static_cast<Order>(fet.order + add_p_level * add_p_level * elem->p_level()),
++                                          static_cast<Order>(fet.order.get_order() + add_p_level * add_p_level * elem->p_level()),
+                                           i,
+                                           j,
+                                           p);
