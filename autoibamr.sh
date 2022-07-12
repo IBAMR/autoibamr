@@ -1001,6 +1001,17 @@ ${FC} test.f -o test.f.out
 quit_if_fail "The provided Fortran compiler ${FC} could not compile and link a basic test program. A common cause of this error is forgetting to install a Fortran compiler."
 
 cecho ${GOOD} "The provided MPI compiler wrappers work"
+
+################################################################################
+# Do a sanity check for the command line utilities we use at some point
+for APPLICATION in awk grep m4 make patch
+do
+    cecho ${INFO} "Testing that the program ${APPLICATION} is available"
+    which ${APPLICATION}
+    quit_if_fail "Unable to find ${APPLICATION} in default search directories - make sure this program is installed and run autoibamr again."
+done
+cecho ${GOOD} "The required command-line utilities work"
+
 ################################################################################
 # configuration script
 cat > ${CONFIGURATION_PATH}/enable.sh <<"EOF"
