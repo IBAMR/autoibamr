@@ -950,7 +950,6 @@ echo
 cecho ${GOOD} "Project:  ${PROJECT}"
 echo
 
-
 # Create necessary directories and set appropriate variables
 mkdir -p ${DOWNLOAD_PATH}
 mkdir -p ${UNPACK_PATH}
@@ -958,6 +957,51 @@ mkdir -p ${BUILD_PATH}
 mkdir -p ${INSTALL_PATH}
 mkdir -p ${CONFIGURATION_PATH}
 
+################################################################################
+# Do a sanity check for the compilers
+cecho ${INFO} "Checking the provided MPI compiler wrappers"
+cd ${BUILD_PATH}
+mkdir -p check-compilers
+cd check-compilers
+
+cat > ./test.c <<"EOF"
+#include <mpi.h>
+
+int main(int argc, char **argv)
+{
+  MPI_Init(&argc, &argv);
+  MPI_Finalize();
+}
+EOF
+
+${CC} test.c -o test.c.out
+quit_if_fail "The provided C compiler ${CC} could not compile and link a basic test program."
+
+cat > ./test.cpp <<"EOF"
+#include <mpi.h>
+
+#include <vector>
+
+int main(int argc, char **argv)
+{
+  std::vector<int> ints;
+  MPI_Init(&argc, &argv);
+  MPI_Finalize();
+}
+EOF
+${CXX} test.cpp -o test.cpp.out
+quit_if_fail "The provided C++ compiler ${CXX} could not compile and link a basic test program. A common cause of this error is forgetting to install a C++ compiler."
+
+cat > ./test.f <<"EOF"
+       PROGRAM MAIN
+         WRITE (*,*) "HELLO WORLD"
+       END PROGRAM
+EOF
+${FC} test.f -o test.f.out
+quit_if_fail "The provided Fortran compiler ${FC} could not compile and link a basic test program. A common cause of this error is forgetting to install a Fortran compiler."
+
+cecho ${GOOD} "The provided MPI compiler wrappers work"
+################################################################################
 # configuration script
 cat > ${CONFIGURATION_PATH}/enable.sh <<"EOF"
 # helper script to source all configuration files. Use
