@@ -90,7 +90,7 @@ USER_INTERACTION=ON
 DEBUGGING=OFF
 DEPENDENCIES_ONLY=OFF
 NATIVE_OPTIMIZATIONS=OFF
-IBAMR_VERSION=0.10.1
+IBAMR_VERSION=0.11.0
 CMAKE_LOAD_TARBALL=ON
 BUILD_LIBMESH=ON
 BUILD_SILO=ON
@@ -129,7 +129,7 @@ while [ -n "$1" ]; do
             echo "  --enable-debugging             build dependencies with assertions, optimizations, and debug symbols,"
             echo "                                 and build IBAMR with assertions, no optimizations, and debug symbols."
             echo "  --enable-native-optimizations  Build dependencies and IBAMR with platform-specific optimizations."
-            echo "  --ibamr-version                Version of IBAMR to install. Presently, only 0.10.1 is supported."
+            echo "  --ibamr-version                Version of IBAMR to install. Presently, only versions 0.10.1 and 0.11.0 are supported."
             echo "  --python-interpreter           Absolute path to a python interpreter. Defaults to the first of {python,python3,python2.7}"
             echo "                                 found on the present machine."
             echo "  -p <path>, --prefix=<path>     Set a different prefix path (default $PREFIX)"
@@ -238,10 +238,12 @@ if [ ${DEBUGGING} = "ON" ] && [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
   exit 1
 fi
 
-# Eventually we should support more versions of IBAMR, but this is not yet
-# implemented. In particular, we need to handle patching IBAMR correctly.
-if [ ! "${IBAMR_VERSION}" = "0.10.1" ]; then
-    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR version 0.10.1"
+if [ "${IBAMR_VERSION}" = "0.11.0" ]; then
+    : # OK
+elif [ "${IBAMR_VERSION}" = "0.10.1" ]; then
+    : # OK
+else
+    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR versions 0.11.0 and 0.10.1"
     exit 1
 fi
 
