@@ -21,6 +21,10 @@ fi
 CONFOPTS="
 --enable-browser=no
 --enable-optimization
+--enable-silex=no
+--enable-hzip=no
+--enable-fpzip=no
+--enable-zfp=no
 --with-hdf5=${HDF5_DIR}/include,${HDF5_DIR}/lib,
 CFLAGS='${silo_compiler_flags}'
 CXXFLAGS='${silo_compiler_flags}'
