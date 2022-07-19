@@ -14,14 +14,14 @@ if [ ${DEBUGGING} = ON ]; then
     silo_compiler_flags="${silo_compiler_flags} -g"
 fi
 
-# Silo uses HDF5 to determine zlib support: if we ever support using it then we
-# will probably need to point Silo to it here
-
-# the browser intermittently fails to link so just disable it unconditionally
+# Silo is not compatible with newer versions of HDF5. We don't use SILO's HDF5
+# bindings anyway so unconditionally disable it.
+#
+# The browser intermittently fails to link so unconditionally disable it too.
 CONFOPTS="
---enable-browser=no
 --enable-optimization
---with-hdf5=${HDF5_DIR}/include,${HDF5_DIR}/lib,
+--enable-browser=no
+--with-hdf5=no
 CFLAGS='${silo_compiler_flags}'
 CXXFLAGS='${silo_compiler_flags}'
 FFLAGS='${silo_compiler_flags} -fallow-argument-mismatch'
