@@ -1,72 +1,3 @@
-From 29747c23043dc9fb03e0b7c6b926dec77f6acd9c Mon Sep 17 00:00:00 2001
-From: David Wells <drwells@email.unc.edu>
-Date: Fri, 14 Jan 2022 17:24:31 -0500
-Subject: [PATCH] improved patch
-
----
- config/SAMRAI_config.h.in                     |  10 +-
- examples/ConvDiff/ConvDiff.C                  |   2 +
- examples/dataops/node_hierops.C               |   8 +-
- examples/memory/main.C                        |   6 +-
- include/BoundaryLookupTable.C                 |   2 +-
- include/BoxList.C                             |  26 +--
- include/BoxList.I                             |   4 +-
- include/CartesianGridGeometry.C               | 164 +++++++-------
- include/EmptyAlgorithmX.C                     |   6 +
- include/EmptyAppUtilsX.C                      |   6 +
- include/EmptyGeometryX.C                      |   6 +
- include/EmptyHierarchyX.C                     |   6 +
- include/EmptyMathOpsX.C                       |   6 +
- include/EmptyMeshX.C                          |   6 +
- include/EmptyPatchDataX.C                     |   6 +
- include/EmptySolversX.C                       |   6 +
- include/EmptyTransferX.C                      |   6 +
- include/FACPreconditioner.C                   |   4 +
- include/GriddingAlgorithm.C                   |   6 +-
- include/HierarchyDataOpsReal.h                |   7 +
- include/IndexData.I                           |  14 ++
- include/PatchLevel.C                          |  12 +-
- include/PatchLevel.h                          |  10 +-
- include/RefineSchedule.C                      |  59 +++--
- include/RefineSchedule.h                      |  20 +-
- include/SideVariable.C                        |   2 +-
- include/StandardTagAndInitialize.C            |   2 +-
- include/VariableFillPattern.C                 |  26 +++
- include/VariableFillPattern.h                 |  41 ++++
- include/VisItDataWriter.C                     |   4 +-
- include/tbox/SAMRAI_MPI.h                     |  22 +-
- source/algorithm/templates/EmptyAlgorithmX.C  |   6 +
- source/apputils/plotting/VisItDataWriter.C    |   4 +-
- source/apputils/templates/EmptyAppUtilsX.C    |   6 +
- .../grid_geom/CartesianGridGeometry.C         | 164 +++++++-------
- source/geometry/templates/EmptyGeometryX.C    |   6 +
- source/hierarchy/boxes/BoxList.C              |  26 +--
- source/hierarchy/boxes/BoxList.I              |   4 +-
- .../hierarchy/patches/BoundaryLookupTable.C   |   2 +-
- source/hierarchy/patches/PatchLevel.C         |  12 +-
- source/hierarchy/patches/PatchLevel.h         |  10 +-
- source/hierarchy/templates/EmptyHierarchyX.C  |   6 +
- .../mathops/hierarchy/HierarchyDataOpsReal.h  |   7 +
- source/mathops/templates/EmptyMathOpsX.C      |   6 +
- source/mesh/gridding/GriddingAlgorithm.C      |   6 +-
- .../mesh/gridding/StandardTagAndInitialize.C  |   2 +-
- source/mesh/templates/EmptyMeshX.C            |   6 +
- source/patchdata/index/IndexData.I            |  14 ++
- source/patchdata/side/SideVariable.C          |   2 +-
- source/patchdata/templates/EmptyPatchDataX.C  |   6 +
- source/solvers/FAC/FACPreconditioner.C        |   4 +
- source/solvers/templates/EmptySolversX.C      |   6 +
- source/toolbox/memory/MemoryUtilities.C       |   3 +-
- source/toolbox/restartdb/HDFDatabase.C        |  13 +-
- source/toolbox/restartdb/SiloDatabase.C       | 203 +++++++++---------
- .../templates/special/stl-FundamentalTypes.C  |   4 +-
- .../datamovers/standard/RefineSchedule.C      |  59 +++--
- .../datamovers/standard/RefineSchedule.h      |  20 +-
- .../transfer/operators/VariableFillPattern.C  |  26 +++
- .../transfer/operators/VariableFillPattern.h  |  41 ++++
- source/transfer/templates/EmptyTransferX.C    |   6 +
- 61 files changed, 794 insertions(+), 391 deletions(-)
-
 diff --git a/config/SAMRAI_config.h.in b/config/SAMRAI_config.h.in
 index 90be02a..b8209b7 100644
 --- a/config/SAMRAI_config.h.in
@@ -96,6 +27,46 @@ index 90be02a..b8209b7 100644
  
  /* Define if restrict is not properly supported */
  #undef RESTRICT_IS_BROKEN
+diff --git a/configure b/configure
+index 633a02f..ee0d504 100755
+--- a/configure
++++ b/configure
+@@ -7192,7 +7192,7 @@ else
+   fi
+     rm -f conftest.f conftest.o conftest
+ 
+-  FLIBS="$flibs_result"
++  FLIBS="" # The way FLIBS is populated by this script is broken and we never use it in IBAMR, so skip it
+ 
+          for casc_flag in $flibs_result; do
+ 
+@@ -8165,7 +8165,7 @@ else
+   fi
+     rm -f conftest.f conftest.o conftest
+ 
+-  FLIBS="$flibs_result"
++  FLIBS="" # Same
+ 
+          for casc_flag in $flibs_result; do
+ 
+@@ -9132,7 +9132,7 @@ else
+   fi
+     rm -f conftest.f conftest.o conftest
+ 
+-  FLIBS="$flibs_result"
++  FLIBS="" # Same
+ 
+          for casc_flag in $flibs_result; do
+ 
+@@ -10520,7 +10520,7 @@ fi # test "x$[]_AC_LANG_PREFIX[]LIBS" = "x"
+ fi
+ { echo "$as_me:$LINENO: result: $ac_cv_f77_libs" >&5
+ echo "${ECHO_T}$ac_cv_f77_libs" >&6; }
+-FLIBS="$ac_cv_f77_libs"
++FLIBS=""
+ 
+ 
+ ac_ext=c
 diff --git a/examples/ConvDiff/ConvDiff.C b/examples/ConvDiff/ConvDiff.C
 index 981aca0..888ef16 100644
 --- a/examples/ConvDiff/ConvDiff.C
@@ -159,6 +130,32 @@ index 6018db9..b7d1f6e 100644
  
        tbox::MemoryUtilities::printMemoryInfo(tbox::pout);
        tbox::MemoryUtilities::recordMemoryInfo();
+diff --git a/include/ArrayDataIterator.h b/include/ArrayDataIterator.h
+index 34b9102..331cf10 100644
+--- a/include/ArrayDataIterator.h
++++ b/include/ArrayDataIterator.h
+@@ -67,7 +67,7 @@ public:
+    /**
+     * Destructor for the array data iterator.
+     */
+-   ~ArrayDataIterator<DIM>();
++   ~ArrayDataIterator();
+ 
+    /**
+     * Extract the index corresponding to the iterator position in the box.
+diff --git a/include/BoundaryBox.h b/include/BoundaryBox.h
+index 909c7d2..10d6f24 100644
+--- a/include/BoundaryBox.h
++++ b/include/BoundaryBox.h
+@@ -59,7 +59,7 @@ public:
+    /**
+     * The destructor for BoundaryBox.
+     */
+-   ~BoundaryBox<DIM>();
++   ~BoundaryBox();
+ 
+    /**
+     * Return a reference to the Box<DIM> member of the boundary box
 diff --git a/include/BoundaryLookupTable.C b/include/BoundaryLookupTable.C
 index 49a502f..396e74e 100644
 --- a/include/BoundaryLookupTable.C
@@ -172,6 +169,58 @@ index 49a502f..396e74e 100644
     }
  
     if (d_table[0].isNull()) {
+diff --git a/include/BoundaryLookupTable.h b/include/BoundaryLookupTable.h
+index 91105bf..edb8e0e 100644
+--- a/include/BoundaryLookupTable.h
++++ b/include/BoundaryLookupTable.h
+@@ -186,7 +186,7 @@ protected:
+     *
+     * The destructor deallocates lookup table contents.
+     */
+-   ~BoundaryLookupTable<DIM>();
++   ~BoundaryLookupTable();
+ 
+ private:
+ 
+diff --git a/include/Box.h b/include/Box.h
+index 69ea6b2..71311fa 100644
+--- a/include/Box.h
++++ b/include/Box.h
+@@ -449,7 +449,7 @@ public:
+    /**
+     * Destructor for the box iterator.
+     */
+-   ~BoxIterator<DIM>();
++   ~BoxIterator();
+ 
+    /**
+     * @brief Initializer for the box iterator.
+diff --git a/include/BoxArray.h b/include/BoxArray.h
+index 01d930e..3551385 100644
+--- a/include/BoxArray.h
++++ b/include/BoxArray.h
+@@ -88,7 +88,7 @@ public:
+    /**
+     * The BoxArray destructor releases the box array data.
+     */
+-   ~BoxArray<DIM>();
++   ~BoxArray();
+ 
+    /**
+     * Return the number of boxes in the array.
+diff --git a/include/BoxGeometry.h b/include/BoxGeometry.h
+index c777a85..23603de 100644
+--- a/include/BoxGeometry.h
++++ b/include/BoxGeometry.h
+@@ -76,7 +76,7 @@ public:
+    /**
+     * The virtual destructor does nothing interesting.
+     */
+-   virtual ~BoxGeometry<DIM>();
++   virtual ~BoxGeometry();
+ 
+    /**
+     * Calculate the overlap between two box geometry objects given the
 diff --git a/include/BoxList.C b/include/BoxList.C
 index 3bb6e02..1695831 100644
 --- a/include/BoxList.C
@@ -305,6 +354,32 @@ index e751158..b9fe76c 100644
  }
  
  template<int DIM> inline
+diff --git a/include/BoxList.h b/include/BoxList.h
+index f624286..a383c2e 100644
+--- a/include/BoxList.h
++++ b/include/BoxList.h
+@@ -72,7 +72,7 @@ public:
+    /**
+     * The destructor releases all list storage.
+     */
+-   ~BoxList<DIM>();
++   ~BoxList();
+ 
+    /**
+     * Return integer number of boxes in the box list.  Note that this 
+diff --git a/include/BoxOverlap.h b/include/BoxOverlap.h
+index 6aa46c3..c2020bf 100644
+--- a/include/BoxOverlap.h
++++ b/include/BoxOverlap.h
+@@ -49,7 +49,7 @@ public:
+    /**
+     * The virtual destructor does nothing interesting.
+     */
+-   virtual ~BoxOverlap<DIM>();
++   virtual ~BoxOverlap();
+ 
+    /**
+     * Return true if intersecting boxes have no communication dependencies.
 diff --git a/include/CartesianGridGeometry.C b/include/CartesianGridGeometry.C
 index 5bf05f5..21627ca 100644
 --- a/include/CartesianGridGeometry.C
@@ -547,6 +622,93 @@ index 5bf05f5..21627ca 100644
  
     d_using_original_locations = db->getBool("d_using_original_locations");
  }
+diff --git a/include/CartesianPatchGeometry.h b/include/CartesianPatchGeometry.h
+index 4bc4732..deb953b 100644
+--- a/include/CartesianPatchGeometry.h
++++ b/include/CartesianPatchGeometry.h
+@@ -43,7 +43,7 @@ public:
+     * patch boundary information to hier::PatchGeometry base class constructor
+     * and allocates storage for spatial coordinates on patch.
+     */
+-   CartesianPatchGeometry<DIM>(
++   CartesianPatchGeometry(
+       const hier::IntVector<DIM>& ratio_to_level_zero,
+       const tbox::Array< tbox::Array<bool> >& touches_regular_bdry,
+       const tbox::Array< tbox::Array<bool> >& touches_periodic_bdry,
+@@ -55,7 +55,7 @@ public:
+     * Destructor for CartesianPatchGeometry deallocates the
+     * storage for spatial coordinates on patch.
+     */
+-   ~CartesianPatchGeometry<DIM>();
++   ~CartesianPatchGeometry();
+ 
+    /**
+     * Return const pointer to dx array for patch. 
+diff --git a/include/CellData.h b/include/CellData.h
+index 968e5b2..8b42bf0 100644
+--- a/include/CellData.h
++++ b/include/CellData.h
+@@ -110,7 +110,7 @@ public:
+    /*!
+     * @brief The virtual destructor for a cell data object.
+     */
+-   virtual ~CellData<DIM,TYPE>();
++   virtual ~CellData();
+ 
+    /*!
+     * @brief Return the depth (e.g., the number of components in each spatial
+diff --git a/include/CellGeometry.h b/include/CellGeometry.h
+index e4aa7bd..10d1c16 100644
+--- a/include/CellGeometry.h
++++ b/include/CellGeometry.h
+@@ -59,7 +59,7 @@ public:
+    /*!
+     * @brief The virtual destructor does nothing interesting.
+     */
+-   virtual ~CellGeometry<DIM>();
++   virtual ~CellGeometry();
+ 
+    /*!
+     * @brief Compute the overlap in cell-centered index space between 
+diff --git a/include/CellIndex.h b/include/CellIndex.h
+index 7455900..c37d994 100644
+--- a/include/CellIndex.h
++++ b/include/CellIndex.h
+@@ -54,7 +54,7 @@ public:
+    /**
+     * The cell index destructor does nothing interesting.
+     */
+-   ~CellIndex<DIM>();
++   ~CellIndex();
+ 
+    /**
+     * Plus-equals operator for a cell index and an integer vector.
+diff --git a/include/CellIterator.h b/include/CellIterator.h
+index 6859915..5451254 100644
+--- a/include/CellIterator.h
++++ b/include/CellIterator.h
+@@ -67,7 +67,7 @@ public:
+    /**
+     * Destructor for the cell iterator.
+     */
+-   ~CellIterator<DIM>();
++   ~CellIterator();
+ 
+    /**
+     * Extract the cell index corresponding to the iterator position in the box.
+diff --git a/include/CellOverlap.h b/include/CellOverlap.h
+index 32103af..84d8625 100644
+--- a/include/CellOverlap.h
++++ b/include/CellOverlap.h
+@@ -48,7 +48,7 @@ public:
+     * The virtual destructor does nothing interesting except deallocate
+     * box data.
+     */
+-   virtual ~CellOverlap<DIM>();
++   virtual ~CellOverlap();
+ 
+    /**
+     * Return whether there is an empty intersection between the two
 diff --git a/include/EmptyAlgorithmX.C b/include/EmptyAlgorithmX.C
 index 9b9795d..98e1e1a 100644
 --- a/include/EmptyAlgorithmX.C
@@ -794,6 +956,80 @@ index 572a46e..e914729 100644
  template<int DIM, class TYPE, class BOX_GEOMETRY>
  inline
  IndexIterator<DIM,TYPE,BOX_GEOMETRY>::operator bool() const
+diff --git a/include/Patch.h b/include/Patch.h
+index cefa6e9..8f58d8a 100644
+--- a/include/Patch.h
++++ b/include/Patch.h
+@@ -74,7 +74,7 @@ public:
+    /**
+     * Virtual destructor for patch objects.
+     */
+-   virtual ~Patch<DIM>();
++   virtual ~Patch();
+ 
+    /**
+     * Return the box over which this patch is defined.  The components on a
+diff --git a/include/PatchData.h b/include/PatchData.h
+index 242e834..45a74ef 100644
+--- a/include/PatchData.h
++++ b/include/PatchData.h
+@@ -67,7 +67,7 @@ public:
+    /**
+     * The virtual destructor for a patch data object.
+     */
+-   virtual ~PatchData<DIM>();
++   virtual ~PatchData();
+ 
+    /**
+     * Return the box over which this patch data object is defined.  All
+diff --git a/include/PatchDataFactory.h b/include/PatchDataFactory.h
+index 8ce4fe5..6d66dfb 100644
+--- a/include/PatchDataFactory.h
++++ b/include/PatchDataFactory.h
+@@ -83,7 +83,7 @@ public:
+     * @brief Virtual destructor for the patch data factory class.
+     *
+     */
+-   virtual ~PatchDataFactory<DIM>();
++   virtual ~PatchDataFactory();
+ 
+    /**
+     * @brief Abstract virtual function to clone a patch data factory.
+diff --git a/include/PatchDescriptor.h b/include/PatchDescriptor.h
+index a8f816d..617aa07 100644
+--- a/include/PatchDescriptor.h
++++ b/include/PatchDescriptor.h
+@@ -74,7 +74,7 @@ public:
+     * The virtual destructor for a patch descriptor deallocates the
+     * internal data structures.
+     */
+-   virtual ~PatchDescriptor<DIM>();
++   virtual ~PatchDescriptor();
+ 
+    /*!
+     * Add a new patch data factory and name string identifier to the patch 
+diff --git a/include/PatchGeometry.h b/include/PatchGeometry.h
+index c564e0b..d58d312 100644
+--- a/include/PatchGeometry.h
++++ b/include/PatchGeometry.h
+@@ -46,7 +46,7 @@ public:
+    /**
+     * The default constructor for the patch geometry base class.
+     */
+-   PatchGeometry<DIM>(
++   PatchGeometry(
+       const IntVector<DIM>& ratio_to_level_zero,
+       const tbox::Array< tbox::Array<bool> >& touches_regular_bdry,
+       const tbox::Array< tbox::Array<bool> >& touches_periodic_bdry);
+@@ -54,7 +54,7 @@ public:
+    /**
+     * The virtual destructor for the patch geometry base class.
+     */
+-   virtual ~PatchGeometry<DIM>();
++   virtual ~PatchGeometry();
+ 
+    /**
+     * Return const reference to patch boundary information.
 diff --git a/include/PatchLevel.C b/include/PatchLevel.C
 index 15150cb..42f781a 100644
 --- a/include/PatchLevel.C
@@ -1031,6 +1267,19 @@ index 66d7b1d..34b0824 100644
  
        tbox::Pointer< hier::PatchLevel<DIM> > level = 
           hierarchy->getPatchLevel(level_number);
+diff --git a/include/Variable.h b/include/Variable.h
+index 934d268..070d837 100644
+--- a/include/Variable.h
++++ b/include/Variable.h
+@@ -87,7 +87,7 @@ public:
+    /**
+     * Virtual destructor for variable objects.
+     */
+-   virtual ~Variable<DIM>();
++   virtual ~Variable();
+ 
+    /**
+     * Return the instance identifier for this particular variable object.
 diff --git a/include/VariableFillPattern.C b/include/VariableFillPattern.C
 index cd00635..16caf7c 100644
 --- a/include/VariableFillPattern.C
@@ -1886,6 +2135,79 @@ index af374cd..5843f17 100644
           d_tmp_residual->freeVectorComponents();
           d_tmp_residual.setNull();
        }
+diff --git a/source/solvers/packages/petsc/PETScAbstractVectorReal.h b/source/solvers/packages/petsc/PETScAbstractVectorReal.h
+index be70fd0..5438023 100644
+--- a/source/solvers/packages/petsc/PETScAbstractVectorReal.h
++++ b/source/solvers/packages/petsc/PETScAbstractVectorReal.h
+@@ -25,17 +25,8 @@
+ 
+ #include "tbox/SAMRAI_MPI.h"
+ 
+-/* petsc defines skip so avoid redefining */
+-#ifdef MPICH_SKIP_MPICXX
+-#undef MPICH_SKIP_MPICXX
+-#endif
+-
+ #include "petscvec.h"
+ 
+-#ifndef MPICH_SKIP_MPICXX
+-#define MPICH_SKIP_MPICXX
+-#endif
+-
+ namespace SAMRAI {
+     namespace solv {
+ 
+diff --git a/source/solvers/packages/petsc/SNESAbstractFunctions.h b/source/solvers/packages/petsc/SNESAbstractFunctions.h
+index db6fc2b..17be5e0 100644
+--- a/source/solvers/packages/petsc/SNESAbstractFunctions.h
++++ b/source/solvers/packages/petsc/SNESAbstractFunctions.h
+@@ -15,9 +15,6 @@
+ #include "tbox/SAMRAI_MPI.h"
+ 
+ #ifdef HAVE_PETSC
+-#ifdef MPICH_SKIP_MPICXX
+-#undef MPICH_SKIP_MPICXX
+-#endif
+ 
+ extern "C" {
+ #ifdef PETSC2028
+@@ -27,10 +24,6 @@ extern "C" {
+ #endif
+ }
+ 
+-#ifndef MPICH_SKIP_MPICXX
+-#define MPICH_SKIP_MPICXX
+-#endif
+-
+ #ifdef REQUIRES_CMATH
+ #include <cmath>
+ #endif
+diff --git a/source/solvers/packages/petsc/SNES_SAMRAIContext.h b/source/solvers/packages/petsc/SNES_SAMRAIContext.h
+index 6db0ea5..0596d0b 100644
+--- a/source/solvers/packages/petsc/SNES_SAMRAIContext.h
++++ b/source/solvers/packages/petsc/SNES_SAMRAIContext.h
+@@ -20,10 +20,6 @@
+ 
+ #ifdef HAVE_PETSC
+ 
+-#ifdef MPICH_SKIP_MPICXX
+-#undef MPICH_SKIP_MPICXX
+-#endif
+-
+ extern "C" {
+ #ifdef PETSC2028
+ #include "snes.h"
+@@ -32,10 +28,6 @@ extern "C" {
+ #endif
+ }
+ 
+-#ifndef MPICH_SKIP_MPICXX
+-#define MPICH_SKIP_MPICXX
+-#endif
+-
+ #endif
+ 
+ #include "SAMRAI_config.h"
 diff --git a/source/solvers/templates/EmptySolversX.C b/source/solvers/templates/EmptySolversX.C
 index c0abd23..9190fe7 100644
 --- a/source/solvers/templates/EmptySolversX.C
@@ -1903,6 +2225,209 @@ index c0abd23..9190fe7 100644
        };
  
        template class Empty< NDIM >;
+diff --git a/source/solvers/vectors/PETSc_SAMRAIVectorReal.h b/source/solvers/vectors/PETSc_SAMRAIVectorReal.h
+index c1b9af5..362e0f2 100644
+--- a/source/solvers/vectors/PETSc_SAMRAIVectorReal.h
++++ b/source/solvers/vectors/PETSc_SAMRAIVectorReal.h
+@@ -21,18 +21,8 @@
+ 
+ #include "tbox/SAMRAI_MPI.h"
+ 
+-
+-/* petsc defines skip so avoid redefining */
+-#ifdef MPICH_SKIP_MPICXX
+-#undef MPICH_SKIP_MPICXX
+-#endif
+-
+ #include "petscvec.h"
+ 
+-#ifndef MPICH_SKIP_MPICXX
+-#define MPICH_SKIP_MPICXX
+-#endif
+-
+ #include "PETScAbstractVectorReal.h"
+ #include "SAMRAIVectorReal.h"
+ #include "tbox/Pointer.h"
+diff --git a/source/toolbox/inputdb/Grammar.C b/source/toolbox/inputdb/Grammar.C
+index 870343a..b2f7761 100644
+--- a/source/toolbox/inputdb/Grammar.C
++++ b/source/toolbox/inputdb/Grammar.C
+@@ -321,7 +321,7 @@ union yyalloc
+ #   define YYCOPY(To, From, Count)		\
+       do					\
+ 	{					\
+-	  register YYSIZE_T yyi;		\
++	  YYSIZE_T yyi;		\
+ 	  for (yyi = 0; yyi < (Count); yyi++)	\
+ 	    (To)[yyi] = (From)[yyi];		\
+ 	}					\
+@@ -836,7 +836,7 @@ yystrlen (yystr)
+      const char *yystr;
+ #   endif
+ {
+-  register const char *yys = yystr;
++  const char *yys = yystr;
+ 
+   while (*yys++ != '\0')
+     continue;
+@@ -861,8 +861,8 @@ yystpcpy (yydest, yysrc)
+      const char *yysrc;
+ #   endif
+ {
+-  register char *yyd = yydest;
+-  register const char *yys = yysrc;
++  char *yyd = yydest;
++  const char *yys = yysrc;
+ 
+   while ((*yyd++ = *yys++) != '\0')
+     continue;
+@@ -992,8 +992,8 @@ yyparse ()
+ #endif
+ {
+   
+-  register int yystate;
+-  register int yyn;
++  int yystate;
++  int yyn;
+   int yyresult;
+   /* Number of tokens to shift before error messages enabled.  */
+   int yyerrstatus;
+@@ -1011,12 +1011,12 @@ yyparse ()
+   /* The state stack.  */
+   short	yyssa[YYINITDEPTH];
+   short *yyss = yyssa;
+-  register short *yyssp;
++  short *yyssp;
+ 
+   /* The semantic value stack.  */
+   YYSTYPE yyvsa[YYINITDEPTH];
+   YYSTYPE *yyvs = yyvsa;
+-  register YYSTYPE *yyvsp;
++  YYSTYPE *yyvsp;
+ 
+ 
+ 
+diff --git a/source/toolbox/inputdb/Scanner.C b/source/toolbox/inputdb/Scanner.C
+index 25a6892..e7e895f 100644
+--- a/source/toolbox/inputdb/Scanner.C
++++ b/source/toolbox/inputdb/Scanner.C
+@@ -634,9 +634,9 @@ YY_MALLOC_DECL
+ 
+ YY_DECL
+ 	{
+-	register yy_state_type yy_current_state;
+-	register char *yy_cp = NULL, *yy_bp = NULL;
+-	register int yy_act;
++	yy_state_type yy_current_state;
++	char *yy_cp = NULL, *yy_bp = NULL;
++	int yy_act;
+ 
+ 
+ 
+@@ -683,7 +683,7 @@ YY_DECL
+ yy_match:
+ 		do
+ 			{
+-			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
++			YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
+ 			if ( yy_accept[yy_current_state] )
+ 				{
+ 				yy_last_accepting_state = yy_current_state;
+@@ -1164,9 +1164,9 @@ ECHO;
+ 
+ static int yy_get_next_buffer()
+ 	{
+-	register char *dest = yy_current_buffer->yy_ch_buf;
+-	register char *source = yytext_ptr;
+-	register int number_to_move, i;
++	char *dest = yy_current_buffer->yy_ch_buf;
++	char *source = yytext_ptr;
++	int number_to_move, i;
+ 	int ret_val;
+ 
+ 	if ( yy_c_buf_p > &yy_current_buffer->yy_ch_buf[yy_n_chars + 1] )
+@@ -1296,14 +1296,14 @@ static int yy_get_next_buffer()
+ 
+ static yy_state_type yy_get_previous_state()
+ 	{
+-	register yy_state_type yy_current_state;
+-	register char *yy_cp;
++	yy_state_type yy_current_state;
++	char *yy_cp;
+ 
+ 	yy_current_state = yy_start;
+ 
+ 	for ( yy_cp = yytext_ptr + YY_MORE_ADJ; yy_cp < yy_c_buf_p; ++yy_cp )
+ 		{
+-		register YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
++		YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 1);
+ 		if ( yy_accept[yy_current_state] )
+ 			{
+ 			yy_last_accepting_state = yy_current_state;
+@@ -1335,10 +1335,10 @@ static yy_state_type yy_try_NUL_trans( yy_current_state )
+ yy_state_type yy_current_state;
+ #endif
+ 	{
+-	register int yy_is_jam;
+-	register char *yy_cp = yy_c_buf_p;
++	int yy_is_jam;
++	char *yy_cp = yy_c_buf_p;
+ 
+-	register YY_CHAR yy_c = 1;
++	YY_CHAR yy_c = 1;
+ 	if ( yy_accept[yy_current_state] )
+ 		{
+ 		yy_last_accepting_state = yy_current_state;
+@@ -1359,14 +1359,14 @@ yy_state_type yy_current_state;
+ 
+ #ifndef YY_NO_UNPUT
+ #ifdef YY_USE_PROTOS
+-static void yyunput( int c, register char *yy_bp )
++static void yyunput( int c, char *yy_bp )
+ #else
+ static void yyunput( c, yy_bp )
+ int c;
+-register char *yy_bp;
++char *yy_bp;
+ #endif
+ 	{
+-	register char *yy_cp = yy_c_buf_p;
++	char *yy_cp = yy_c_buf_p;
+ 
+ 	/* undo effects of setting up yytext */
+ 	*yy_cp = yy_hold_char;
+@@ -1374,10 +1374,10 @@ register char *yy_bp;
+ 	if ( yy_cp < yy_current_buffer->yy_ch_buf + 2 )
+ 		{ /* need to shift things up to make room */
+ 		/* +2 for EOB chars. */
+-		register int number_to_move = yy_n_chars + 2;
+-		register char *dest = &yy_current_buffer->yy_ch_buf[
++		int number_to_move = yy_n_chars + 2;
++		char *dest = &yy_current_buffer->yy_ch_buf[
+ 					yy_current_buffer->yy_buf_size + 2];
+-		register char *source =
++		char *source =
+ 				&yy_current_buffer->yy_ch_buf[number_to_move];
+ 
+ 		while ( source > yy_current_buffer->yy_ch_buf )
+@@ -1834,7 +1834,7 @@ yyconst char *s2;
+ int n;
+ #endif
+ 	{
+-	register int i;
++	int i;
+ 	for ( i = 0; i < n; ++i )
+ 		s1[i] = s2[i];
+ 	}
+@@ -1848,7 +1848,7 @@ static int yy_flex_strlen( s )
+ yyconst char *s;
+ #endif
+ 	{
+-	register int n;
++	int n;
+ 	for ( n = 0; s[n]; ++n )
+ 	do {} while(0);
+ 
 diff --git a/source/toolbox/memory/MemoryUtilities.C b/source/toolbox/memory/MemoryUtilities.C
 index 6b8d185..c22f272 100644
 --- a/source/toolbox/memory/MemoryUtilities.C
@@ -1916,6 +2441,28 @@ index 6b8d185..c22f272 100644
 +   NULL_USE(os);
  #endif
  }
+ 
+diff --git a/source/toolbox/parallel/SAMRAI_MPI.h b/source/toolbox/parallel/SAMRAI_MPI.h
+index 016e684..cb6013c 100644
+--- a/source/toolbox/parallel/SAMRAI_MPI.h
++++ b/source/toolbox/parallel/SAMRAI_MPI.h
+@@ -18,17 +18,6 @@
+ /*
+  * Prevent inclusion of mpi C++ bindings in mpi.h includes
+  */
+-#ifndef MPI_NO_CPPBIND
+-#define MPI_NO_CPPBIND
+-#endif
+-
+-#ifndef MPICH_SKIP_MPICXX
+-#define MPICH_SKIP_MPICXX
+-#endif
+-
+-#ifndef OMPI_SKIP_MPICXX
+-#define OMPI_SKIP_MPICXX
+-#endif
+ 
+ #include "mpi.h"
  
 diff --git a/source/toolbox/restartdb/HDFDatabase.C b/source/toolbox/restartdb/HDFDatabase.C
 index 057fdd5..fe28930 100644
@@ -2909,6 +3456,3 @@ index 955f3fb..fed18f1 100644
        };
  
        template class Empty< NDIM >;
--- 
-2.34.1
-
