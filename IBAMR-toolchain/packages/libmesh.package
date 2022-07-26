@@ -19,6 +19,7 @@ CONFOPTS="
   --disable-capnproto
   --disable-cppunit
   --disable-eigen
+  --disable-fparser
   --disable-hdf5
   --disable-laspack
   --disable-metaphysicl
