@@ -14,18 +14,16 @@ INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
 #########################################################################
 
 # we need Fortran to compile LAPACK and BLAS
-CONFOPTS="
-  CC=${CC}
-  CXX=${CXX}
-  FC=${FC}
-  --force
-  --with-shared-libraries=1
-  --with-mpi=1
-  --with-x=0
-  --with-fortran-bindings=0
-  --with-64-bit-indices=0
-  --with-hdf5-dir=${HDF5_DIR}
-"
+CONFOPTS="--CC=${CC} \
+  --CXX=${CXX} \
+  --FC=${FC} \
+  --force \
+  --with-shared-libraries=1 \
+  --with-mpi=1 \
+  --with-x=0 \
+  --with-fortran-bindings=0 \
+  --with-64-bit-indices=0 \
+  --with-hdf5-dir=${HDF5_DIR}"
 
 # ignore ZLIB for now
 
@@ -33,12 +31,6 @@ if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} --with-debugging=1"
 else
     CONFOPTS="${CONFOPTS} --with-debugging=0"
-    if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
-        CONFOPTS="${CONFOPTS} \
-      COPTFLAGS='-O3 -march=native -mtune=native' \
-      CXXOPTFLAGS='-O3 -march=native -mtune=native' \
-      FOPTFLAGS='-O3 -march=native -mtune=native'"
-    fi
 fi
 
 for external_pkg in fblaslapack hypre metis parmetis; do
@@ -54,7 +46,16 @@ package_specific_setup () {
     # make sure no other invalid PETSC_DIR is set:
     unset PETSC_DIR
     
-    ${PYTHON_INTERPRETER} ./configure --prefix=${INSTALL_PATH} ${CONFOPTS}
+    # PETSc doesn't let us set optimization flags in a normal way due to
+    # how things get parsed. The string quoting is hard to get right so
+    # just implement this with two different configure calls
+    if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
+        OPTFLAGS='-O3 -march=native'
+        ${PYTHON_INTERPRETER} ./configure --prefix=${INSTALL_PATH} ${CONFOPTS} "COPTFLAGS=${OPTFLAGS}" "CXXOPTFLAGS=${OPTFLAGS}" "FOPTFLAGS=${OPTFLAGS}"
+    else
+        ${PYTHON_INTERPRETER} ./configure --prefix=${INSTALL_PATH} ${CONFOPTS}
+    fi
+
     quit_if_fail "petsc ./configure failed"
     
     make all install
