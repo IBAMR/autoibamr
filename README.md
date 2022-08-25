@@ -155,8 +155,3 @@ submit the installation to the queueing system of a cluster.
 
 By default both libMesh and SILO will be set up and used as dependencies. They
 can be disabled with `--disable-libmesh` and `--disable-silo` respectively.
-
-### Configuration file options
-
-Some less-used configuration options are available in `autoibamr.cfg`. In a
-future version of autoibamr these features will become command-line arguments.
