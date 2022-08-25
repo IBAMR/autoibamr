@@ -92,6 +92,7 @@ DEPENDENCIES_ONLY=OFF
 NATIVE_OPTIMIZATIONS=OFF
 IBAMR_VERSION=0.11.0
 CMAKE_LOAD_TARBALL=ON
+BUILD_NUMDIFF=OFF
 BUILD_LIBMESH=ON
 BUILD_SILO=ON
 CLEAN_BUILD=OFF
@@ -129,6 +130,9 @@ while [ -n "$1" ]; do
             echo "  --enable-debugging             build dependencies with assertions, optimizations, and debug symbols,"
             echo "                                 and build IBAMR with assertions, no optimizations, and debug symbols."
             echo "  --enable-native-optimizations  Build dependencies and IBAMR with platform-specific optimizations."
+            echo "  --enable-numdiff               Build the numdiff tool, which is required for IBAMR's test suite."
+            echo "                                 Numdiff depends on gettext (available through homebrew) on macOS and has no external"
+            echo "                                 dependencies on Linux."
             echo "  --ibamr-version                Version of IBAMR to install. Presently, only versions 0.10.1 and 0.11.0 are supported."
             echo "  --python-interpreter           Absolute path to a python interpreter. Defaults to the first of {python,python3,python2.7}"
             echo "                                 found on the present machine."
@@ -180,6 +184,12 @@ while [ -n "$1" ]; do
         # native optimization builds
         --enable-native-optimizations)
             NATIVE_OPTIMIZATIONS=ON
+        ;;
+
+        #####################################
+        # numdiff
+        --enable-numdiff)
+            BUILD_NUMDIFF=ON
         ;;
 
         #####################################
@@ -709,7 +719,10 @@ default PACKAGES_OFF=""
 
 # all packages are mandatory except Silo and libMesh. PETSc, SAMRAI, and SILO
 # all depend on HDF5. libMesh depends on PETSc.
-PACKAGES="cmake hdf5 numdiff petsc"
+PACKAGES="cmake hdf5 petsc"
+if [ ${BUILD_NUMDIFF} = "ON" ]; then
+    PACKAGES="${PACKAGES} numdiff"
+fi
 if [ ${BUILD_SILO} = "ON" ]; then
     PACKAGES="${PACKAGES} silo"
 fi
