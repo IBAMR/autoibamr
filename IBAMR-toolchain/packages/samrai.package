@@ -52,7 +52,7 @@ package_specific_patch () {
         cd ${UNPACK_PATH}/${EXTRACTSTO}
         quit_if_fail "cd failed"
         cecho ${WARN} "applying patch for building SAMRAI"
-        patch -p1 < ${ORIG_DIR}/${PROJECT}/patches/samrai-2.4.4-patch-ibamr-0.11.patch
+        patch -p1 < ${ORIG_DIR}/${PROJECT}/patches/samrai-2.4.4-patch-ibamr-0.12-pre.patch
         quit_if_fail "patch failed"
     else
         cecho ${ERROR} "unsupported version of SAMRAI"
