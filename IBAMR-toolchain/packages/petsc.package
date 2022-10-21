@@ -1,5 +1,5 @@
-VERSION=3.17.2
-CHECKSUM=2313dd1ca41bf0ace68671ea6f8d4abf90011ed899f5e1e08658d3f18478359d
+VERSION=3.17.5
+CHECKSUM=a1193e6c50a1676c3972a1edf0a06eec9fac8ecc2f3771f2689a8997423e4c71
 
 NAME=petsc-lite-${VERSION}
 SOURCE=http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/
