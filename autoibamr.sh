@@ -99,19 +99,11 @@ CLEAN_BUILD=OFF
 
 # Figure out which binary to use for python support. Note that older PETSc ./configure only supports python2. For now, prefer
 # using python2 but use what the user supplies as PYTHON_INTERPRETER.
-PYTHON_INTERPRETER="python"
-if builtin command -v python --version > /dev/null; then
-  PYTHON_INTERPRETER="python2"
-elif builtin command -v python3 --version > /dev/null; then
-  PYTHON_INTERPRETER="python3"
-elif builtin command -v python2 --version > /dev/null; then
-  PYTHON_INTERPRETER="python2"
-elif builtin command -v python2.7 --version > /dev/null; then
-  PYTHON_INTERPRETER="python2.7"
+if builtin command -v $(which python) --version > /dev/null; then
+  PYTHON_INTERPRETER="$(which python)"
+elif builtin command -v $(which python3) --version > /dev/null; then
+  PYTHON_INTERPRETER="$(which python3)"
 fi
-
-# Figure out the version of the existing python:
-PYTHONVER=$(${PYTHON_INTERPRETER} -c "import sys; print(sys.version[:3])")
 
 while [ -n "$1" ]; do
     param="$1"
@@ -201,6 +193,17 @@ while [ -n "$1" ]; do
 
         --ibamr-version=*)
             IBAMR_VERSION="${param#*=}"
+        ;;
+
+        #####################################
+        # python version
+        --python-interpreter)
+            shift
+            PYTHON_INTERPRETER="${1}"
+        ;;
+
+        --python-interpreter=*)
+            PYTHON_INTERPRETER="${param#*=}"
         ;;
 
         #####################################
@@ -1026,6 +1029,11 @@ do
     quit_if_fail "Unable to find ${APPLICATION} in default search directories - make sure this program is installed and run autoibamr again."
 done
 cecho ${GOOD} "The required command-line utilities work"
+
+cecho ${INFO} "Testing that the python interpreter ${PYTHON_INTERPRETER} works"
+PYTHONVER=$(${PYTHON_INTERPRETER} -c "import sys; print(sys.version[:3])")
+quit_if_fail "The provided python interpreter ${PYTHON_INTERPRETER} could not run a basic test program. Try rerunning autoibamr with a different python interpreter (specified by --python-interpreter)"
+cecho ${GOOD} "The python interpreter ${PYTHON_INTERPRETER} works and has detected version ${PYTHONVER}"
 
 ################################################################################
 # configuration script
