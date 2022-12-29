@@ -90,7 +90,7 @@ USER_INTERACTION=ON
 DEBUGGING=OFF
 DEPENDENCIES_ONLY=OFF
 NATIVE_OPTIMIZATIONS=OFF
-IBAMR_VERSION=0.11.0
+IBAMR_VERSION=0.12.0
 CMAKE_LOAD_TARBALL=ON
 BUILD_NUMDIFF=OFF
 BUILD_LIBMESH=ON
@@ -125,7 +125,7 @@ while [ -n "$1" ]; do
             echo "  --enable-numdiff               Build the numdiff tool, which is required for IBAMR's test suite."
             echo "                                 Numdiff depends on gettext (available through homebrew) on macOS and has no external"
             echo "                                 dependencies on Linux."
-            echo "  --ibamr-version                Version of IBAMR to install. Presently, only versions 0.10.1 and 0.11.0 are supported."
+            echo "  --ibamr-version                Version of IBAMR to install. Presently, versions 0.10.1, 0.11.0, and 0.12.0 are supported."
             echo "  --python-interpreter           Absolute path to a python interpreter. Defaults to the first of {python,python3,python2.7}"
             echo "                                 found on the present machine."
             echo "  -p <path>, --prefix=<path>     Set a different prefix path (default $PREFIX)"
@@ -251,12 +251,14 @@ if [ ${DEBUGGING} = "ON" ] && [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
   exit 1
 fi
 
-if [ "${IBAMR_VERSION}" = "0.11.0" ]; then
+if [ "${IBAMR_VERSION}" = "0.12.0" ]; then
+    : # OK
+elif [ "${IBAMR_VERSION}" = "0.11.0" ]; then
     : # OK
 elif [ "${IBAMR_VERSION}" = "0.10.1" ]; then
     : # OK
 else
-    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR versions 0.11.0 and 0.10.1"
+    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR versions 0.12.0, 0.11.0, and 0.10.1."
     exit 1
 fi
 
