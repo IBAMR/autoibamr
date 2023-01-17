@@ -5,6 +5,12 @@ The ``autoibamr.sh`` shell script downloads, configures, builds, and installs
 [ibamr](https://ibamr.github.io) with common dependencies on
 Linux and macOS computers.
 
+By default, autoibamr compiles everything with standard optimization flags
+(`-O2` for C++ and Fortran). To use hardware-dependent optimization flags or
+disable optimizations for debugging use `--enable-native-optimizations` or
+`--enable-debugging`, respectively. These flags (and more) are documented under
+'Advanced Configuration' below.
+
 `autoibamr` is based on candi: https://github.com/dealii/candi
 
 Dependencies
