@@ -95,7 +95,6 @@ CMAKE_LOAD_TARBALL=ON
 BUILD_NUMDIFF=OFF
 BUILD_LIBMESH=ON
 BUILD_SILO=ON
-CLEAN_BUILD=OFF
 
 # Figure out which binary to use for python support. Note that older PETSc ./configure only supports python2. For now, prefer
 # using python2 but use what the user supplies as PYTHON_INTERPRETER.
@@ -114,7 +113,6 @@ while [ -n "$1" ]; do
             echo ""
             echo "Usage: $0 [options]"
             echo "Options:"
-            echo "  --clean-build                  Delete all build directories before recompiling. By default build directories are kept."
             echo "  --dependencies-only            Compile everything but IBAMR itself."
             echo "  --disable-cmake-binary         Instead of trying to download a precompiled CMake binary, compile it."
             echo "  --disable-libmesh              Build IBAMR without libMesh. libMesh is on by default; this flag disables it."
@@ -140,12 +138,6 @@ while [ -n "$1" ]; do
         # CMake tarball
         --disable-cmake-binary)
             CMAKE_LOAD_TARBALL=OFF
-        ;;
-
-        #####################################
-        # clean build
-        --clean-build)
-            CLEAN_BUILD=ON
         ;;
 
         #####################################
@@ -578,8 +570,9 @@ package_build() {
     # Set the BUILDDIR if nothing else was specified
     default BUILDDIR=${BUILD_PATH}/${NAME}
 
-    # Clean the build directory if specified
-    if [ -d ${BUILDDIR} ] && [ ${CLEAN_BUILD} = ON ]; then
+    # Always remove the build directory
+    if [ -d ${BUILDDIR} ]; then
+        cecho ${INFO} "Deleting previously used build directory $(pwd)/${BUILDDIR}"
         rm -rf ${BUILDDIR}
     fi
 
