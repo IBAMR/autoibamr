@@ -1,4 +1,7 @@
-if [ "${IBAMR_VERSION}" = 0.12.0 ]
+if [ "${IBAMR_VERSION}" = 0.12.1 ]
+then
+    CHECKSUM=4f5266f34447de5afe48fe72fb4c3b59f4480248bc17d4ca0ac043c8358ec6ab
+elif [ "${IBAMR_VERSION}" = 0.12.0 ]
 then
     CHECKSUM=becf786c9d04fc9bc2ee5c9af2ffd0fb696692472a50895598ab81aad464e3cc
 elif [ "${IBAMR_VERSION}" = 0.11.0 ]

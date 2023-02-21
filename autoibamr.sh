@@ -90,12 +90,11 @@ USER_INTERACTION=ON
 DEBUGGING=OFF
 DEPENDENCIES_ONLY=OFF
 NATIVE_OPTIMIZATIONS=OFF
-IBAMR_VERSION=0.12.0
+IBAMR_VERSION=0.12.1
 CMAKE_LOAD_TARBALL=ON
 BUILD_NUMDIFF=OFF
 BUILD_LIBMESH=ON
 BUILD_SILO=ON
-CLEAN_BUILD=OFF
 
 # Figure out which binary to use for python support. Note that older PETSc ./configure only supports python2. For now, prefer
 # using python2 but use what the user supplies as PYTHON_INTERPRETER.
@@ -114,7 +113,6 @@ while [ -n "$1" ]; do
             echo ""
             echo "Usage: $0 [options]"
             echo "Options:"
-            echo "  --clean-build                  Delete all build directories before recompiling. By default build directories are kept."
             echo "  --dependencies-only            Compile everything but IBAMR itself."
             echo "  --disable-cmake-binary         Instead of trying to download a precompiled CMake binary, compile it."
             echo "  --disable-libmesh              Build IBAMR without libMesh. libMesh is on by default; this flag disables it."
@@ -140,12 +138,6 @@ while [ -n "$1" ]; do
         # CMake tarball
         --disable-cmake-binary)
             CMAKE_LOAD_TARBALL=OFF
-        ;;
-
-        #####################################
-        # clean build
-        --clean-build)
-            CLEAN_BUILD=ON
         ;;
 
         #####################################
@@ -251,14 +243,16 @@ if [ ${DEBUGGING} = "ON" ] && [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
   exit 1
 fi
 
-if [ "${IBAMR_VERSION}" = "0.12.0" ]; then
+if [ "${IBAMR_VERSION}" = "0.12.1" ]; then
+    : # OK
+elif [ "${IBAMR_VERSION}" = "0.12.0" ]; then
     : # OK
 elif [ "${IBAMR_VERSION}" = "0.11.0" ]; then
     : # OK
 elif [ "${IBAMR_VERSION}" = "0.10.1" ]; then
     : # OK
 else
-    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR versions 0.12.0, 0.11.0, and 0.10.1."
+    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR versions 0.12.1, 0.12.0, 0.11.0, and 0.10.1."
     exit 1
 fi
 
@@ -527,6 +521,7 @@ package_unpack() {
 
         # remove old unpack (this might be corrupted)
         if [ -d "${EXTRACTSTO}" ]; then
+            cecho ${INFO} "Deleting extracted directory $(pwd)/${EXTRACTSTO}"
             rm -rf "${EXTRACTSTO}"
             quit_if_fail "Removing of ${EXTRACTSTO} failed."
         fi
@@ -575,8 +570,9 @@ package_build() {
     # Set the BUILDDIR if nothing else was specified
     default BUILDDIR=${BUILD_PATH}/${NAME}
 
-    # Clean the build directory if specified
-    if [ -d ${BUILDDIR} ] && [ ${CLEAN_BUILD} = ON ]; then
+    # Always remove the build directory
+    if [ -d ${BUILDDIR} ]; then
+        cecho ${INFO} "Deleting previously used build directory $(pwd)/${BUILDDIR}"
         rm -rf ${BUILDDIR}
     fi
 
@@ -701,7 +697,7 @@ guess_ostype() {
 ################################################################################
 
 echo "*******************************************************************************"
-cecho ${GOOD} "This is autoibamr - automatically compile and install ibamr"
+cecho ${GOOD} "This is autoibamr - automatically compile and install IBAMR ${IBAMR_VERSION}"
 echo
 
 # Keep the current work directory of autoibamr.sh
@@ -1033,7 +1029,7 @@ done
 cecho ${GOOD} "The required command-line utilities work"
 
 cecho ${INFO} "Testing that the python interpreter ${PYTHON_INTERPRETER} works"
-PYTHONVER=$(${PYTHON_INTERPRETER} -c "import sys; print(sys.version[:3])")
+PYTHONVER=$(${PYTHON_INTERPRETER} -c "import sys; print('{}.{}'.format(sys.version_info.major, sys.version_info.minor))")
 quit_if_fail "The provided python interpreter ${PYTHON_INTERPRETER} could not run a basic test program. Try rerunning autoibamr with a different python interpreter (specified by --python-interpreter)"
 cecho ${GOOD} "The python interpreter ${PYTHON_INTERPRETER} works and has detected version ${PYTHONVER}"
 
