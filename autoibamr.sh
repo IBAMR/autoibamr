@@ -529,6 +529,7 @@ package_unpack() {
 
         # remove old unpack (this might be corrupted)
         if [ -d "${EXTRACTSTO}" ]; then
+            cecho ${INFO} "Deleting extracted directory $(pwd)/${EXTRACTSTO}"
             rm -rf "${EXTRACTSTO}"
             quit_if_fail "Removing of ${EXTRACTSTO} failed."
         fi
@@ -703,7 +704,7 @@ guess_ostype() {
 ################################################################################
 
 echo "*******************************************************************************"
-cecho ${GOOD} "This is autoibamr - automatically compile and install ibamr"
+cecho ${GOOD} "This is autoibamr - automatically compile and install IBAMR ${IBAMR_VERSION}"
 echo
 
 # Keep the current work directory of autoibamr.sh
@@ -1035,7 +1036,7 @@ done
 cecho ${GOOD} "The required command-line utilities work"
 
 cecho ${INFO} "Testing that the python interpreter ${PYTHON_INTERPRETER} works"
-PYTHONVER=$(${PYTHON_INTERPRETER} -c "import sys; print(sys.version[:3])")
+PYTHONVER=$(${PYTHON_INTERPRETER} -c "import sys; print('{}.{}'.format(sys.version_info.major, sys.version_info.minor))")
 quit_if_fail "The provided python interpreter ${PYTHON_INTERPRETER} could not run a basic test program. Try rerunning autoibamr with a different python interpreter (specified by --python-interpreter)"
 cecho ${GOOD} "The python interpreter ${PYTHON_INTERPRETER} works and has detected version ${PYTHONVER}"
 
