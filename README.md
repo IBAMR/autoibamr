@@ -30,6 +30,11 @@ available:
   work.
 - The standard Unix build tools: i.e., awk, sed, grep, make, and m4. These
   packages are typically installed automatically.
+- If you want to use libMesh, an optional IBAMR dependency, then you need to
+  have a system copy of XDR available. This library is typically installed by
+  the command line tools SDK for macOS or by a package named something like
+  `libtirpc` (Arch Linux), `libtirpc-dev` (Debian and Ubuntu), or
+  `libtirpc-devel` (Read Hat).
 
 Quickstart
 ----
