@@ -123,7 +123,7 @@ while [ -n "$1" ]; do
             echo "  --enable-numdiff               Build the numdiff tool, which is required for IBAMR's test suite."
             echo "                                 Numdiff depends on gettext (available through homebrew) on macOS and has no external"
             echo "                                 dependencies on Linux."
-            echo "  --ibamr-version                Version of IBAMR to install. Presently, versions 0.10.1, 0.11.0, and 0.12.0 are supported."
+            echo "  --ibamr-version                Version of IBAMR to install. Presently, versions 0.10.1, 0.11.0, 0.12.0, and 0.12.1 are supported."
             echo "  --python-interpreter           Absolute path to a python interpreter. Defaults to the first of {python,python3,python2.7}"
             echo "                                 found on the present machine."
             echo "  -p <path>, --prefix=<path>     Set a different prefix path (default $PREFIX)"
