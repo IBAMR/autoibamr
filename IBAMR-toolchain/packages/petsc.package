@@ -40,12 +40,17 @@ done
 #########################################################################
 
 package_specific_setup () {
+    # Make sure we don't pick up any environment copies of PETSc variables.
+    # This duplicates the same unset commands in autoibamr.sh to ensure that,
+    # should this function run as a shell script (i.e., not with the source 
+    # command), they are not reset by .bash_profile or some other shell 
+    # initialization script.
+    unset PETSC_DIR
+    unset PETSC_ARCH
+
     cd ${BUILDDIR}
     cp -rf ${UNPACK_PATH}/${EXTRACTSTO}/* .
 
-    # make sure no other invalid PETSC_DIR is set:
-    unset PETSC_DIR
-    
     # PETSc doesn't let us set optimization flags in a normal way due to
     # how things get parsed. The string quoting is hard to get right so
     # just implement this with two different configure calls
@@ -64,6 +69,7 @@ package_specific_setup () {
 
 package_specific_register () {
     export PETSC_DIR=${INSTALL_PATH}
+    export PETSC_ARCH=""
 }
 
 package_specific_conf () {

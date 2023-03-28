@@ -51,6 +51,11 @@ WARN="\033[1;35m"
 INFO="\033[1;34m"
 
 ################################################################################
+# Ensure that no PETSc environment variables are set.
+unset PETSC_DIR
+unset PETSC_ARCH
+
+################################################################################
 # Define autoibamr helper functions
 
 prettify_dir() {
