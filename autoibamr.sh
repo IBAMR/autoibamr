@@ -95,7 +95,7 @@ USER_INTERACTION=ON
 DEBUGGING=OFF
 DEPENDENCIES_ONLY=OFF
 NATIVE_OPTIMIZATIONS=OFF
-IBAMR_VERSION=0.12.1
+IBAMR_VERSION=0.13.0
 CMAKE_LOAD_TARBALL=ON
 BUILD_NUMDIFF=OFF
 BUILD_LIBMESH=ON
@@ -248,7 +248,9 @@ if [ ${DEBUGGING} = "ON" ] && [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
   exit 1
 fi
 
-if [ "${IBAMR_VERSION}" = "0.12.1" ]; then
+if [ "${IBAMR_VERSION}" = "0.13.0" ]; then
+    : # OK
+elif [ "${IBAMR_VERSION}" = "0.12.1" ]; then
     : # OK
 elif [ "${IBAMR_VERSION}" = "0.12.0" ]; then
     : # OK
@@ -257,7 +259,7 @@ elif [ "${IBAMR_VERSION}" = "0.11.0" ]; then
 elif [ "${IBAMR_VERSION}" = "0.10.1" ]; then
     : # OK
 else
-    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR versions 0.12.1, 0.12.0, 0.11.0, and 0.10.1."
+    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR versions 0.13.0, 0.12.1, 0.12.0, 0.11.0, and 0.10.1."
     exit 1
 fi
 
