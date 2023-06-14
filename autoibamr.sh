@@ -103,9 +103,9 @@ BUILD_SILO=ON
 
 # Figure out which binary to use for python support. Note that older PETSc ./configure only supports python2. For now, prefer
 # using python2 but use what the user supplies as PYTHON_INTERPRETER.
-if builtin command -v $(which python) --version > /dev/null; then
+if builtin command -v $(which python) --version >/dev/null 2>/dev/null; then
   PYTHON_INTERPRETER="$(which python)"
-elif builtin command -v $(which python3) --version > /dev/null; then
+elif builtin command -v $(which python3) --version >/dev/null 2>/dev/null; then
   PYTHON_INTERPRETER="$(which python3)"
 fi
 
