@@ -464,11 +464,10 @@ package_fetch () {
     cecho ${GOOD} "Fetching ${PACKAGE} ${VERSION}"
 
     # Fetch the package appropriately from its source
-    if [ ${PACKING} = ".tar.bz2" ] || [ ${PACKING} = ".tar.gz" ] || [ ${PACKING} = ".tbz2" ] || [ ${PACKING} = ".tgz" ] || [ ${PACKING} = ".tar.xz" ] || [ ${PACKING} = ".zip" ]; then
+    if [ ${PACKING} = ".tar.gz" ] || [ ${PACKING} = ".tgz" ] || [ ${PACKING} = ".tar.xz" ] || [ ${PACKING} = ".zip" ]; then
         cd "${DOWNLOAD_PATH}"
         download_archive "${NAME}${PACKING}"
         quit_if_fail "autoibamr: download_archive ${NAME}${PACKING} failed"
-
     elif [ "${PACKING}" = "git" ]; then
         # Go into the unpack dir
         cd "${UNPACK_PATH}"
@@ -506,6 +505,9 @@ package_fetch () {
             svn up
             cd ..
         fi
+    else
+        cecho "${BAD}" "autoibamr: internal error: PACKING=${PACKING} for ${PACKAGE} unknown."
+        return 1
     fi
 
     # Quit with a useful message if something goes wrong
