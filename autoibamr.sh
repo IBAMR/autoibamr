@@ -1000,7 +1000,7 @@ int main(int argc, char **argv)
 EOF
 
 ${CC} test.c -o test.c.out
-quit_if_fail "The provided C compiler ${CC} could not compile and link a basic test program."
+quit_if_fail "The provided C compiler ${CC} could not compile and link a basic test program. One possible problem is that some Linux distributions install the MPI compiler wrappers without installing the actual compilers (e.g., gcc)."
 
 cat > ./test.cpp <<"EOF"
 #include <mpi.h>
@@ -1015,7 +1015,7 @@ int main(int argc, char **argv)
 }
 EOF
 ${CXX} test.cpp -o test.cpp.out
-quit_if_fail "The provided C++ compiler ${CXX} could not compile and link a basic test program. A common cause of this error is forgetting to install a C++ compiler."
+quit_if_fail "The provided C++ compiler ${CXX} could not compile and link a basic test program. A common cause of this error is forgetting to install a C++ compiler. One possible problem is that some Linux distributions install the MPI compiler wrappers without installing the actual compilers (e.g., g++)."
 
 cat > ./test.f <<"EOF"
        PROGRAM MAIN
@@ -1023,7 +1023,7 @@ cat > ./test.f <<"EOF"
        END PROGRAM
 EOF
 ${FC} test.f -o test.f.out
-quit_if_fail "The provided Fortran compiler ${FC} could not compile and link a basic test program. A common cause of this error is forgetting to install a Fortran compiler."
+quit_if_fail "The provided Fortran compiler ${FC} could not compile and link a basic test program. A common cause of this error is forgetting to install a Fortran compiler. One possible problem is that some Linux distributions install the MPI compiler wrappers without installing the actual compilers (e.g., gfortran)."
 
 cecho ${GOOD} "The provided MPI compiler wrappers work"
 
