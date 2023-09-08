@@ -457,7 +457,7 @@ download_archive () {
 
     # Unfortunately it seems that (all) download tryouts finally failed for some reason:
     verify_archive ${ARCHIVE_FILE}
-    quit_if_fail "Error verifying checksum for ${ARCHIVE_FILE}\nMake sure that you are connected to the internet."
+    quit_if_fail "Error verifying checksum for ${ARCHIVE_FILE}\nMake sure that you are connected to the internet. If you are connected to the internet then this is a bug - please report it on the GitHub page."
 }
 
 package_fetch () {
