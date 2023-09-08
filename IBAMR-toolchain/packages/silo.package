@@ -1,7 +1,7 @@
 VERSION=4.11
 NAME=silo-${VERSION}-bsd
-PACKING=.tgz
-SOURCE=https://wci.llnl.gov/sites/wci/files/2021-09/
+PACKING=.tar.gz
+SOURCE=https://github.com/LLNL/Silo/releases/download/v4.11/
 CHECKSUM=6d0a85a079d48fcdcc0084ecb5fc4cfdcc64852edee780c60cb244d16f4bc4ec
 BUILDCHAIN=autotools
 
