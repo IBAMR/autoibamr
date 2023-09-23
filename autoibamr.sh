@@ -89,17 +89,19 @@ quit_if_fail() {
 
 ################################################################################
 # Parse command line input parameters
-PREFIX=~/autoibamr
-JOBS=1
-USER_INTERACTION=ON
+BUILD_LIBMESH=ON
+BUILD_NUMDIFF=OFF
+BUILD_SILO=ON
+CMAKE_LOAD_TARBALL=ON
 DEBUGGING=OFF
 DEPENDENCIES_ONLY=OFF
-NATIVE_OPTIMIZATIONS=OFF
+EXTERNAL_BOOST=OFF
+EXTERNAL_BOOST_DIR=
 IBAMR_VERSION=0.13.0
-CMAKE_LOAD_TARBALL=ON
-BUILD_NUMDIFF=OFF
-BUILD_LIBMESH=ON
-BUILD_SILO=ON
+JOBS=1
+NATIVE_OPTIMIZATIONS=OFF
+PREFIX=~/autoibamr
+USER_INTERACTION=ON
 
 # Figure out which binary to use for python support. Note that older PETSc ./configure only supports python2. For now, prefer
 # using python2 but use what the user supplies as PYTHON_INTERPRETER.
@@ -120,22 +122,23 @@ while [ -n "$1" ]; do
             echo "Options:"
             echo "  --dependencies-only            Compile everything but IBAMR itself."
             echo "  --disable-cmake-binary         Instead of trying to download a precompiled CMake binary, compile it."
-            echo "  --disable-libmesh              Build IBAMR without libMesh. libMesh is on by default; this flag disables it."
+            echo "  --disable-libmesh              Build IBAMR without libMesh. libMesh is on by default; this flag disables"
+            echo "                                 it."
             echo "  --disable-silo                 Build IBAMR without SILO. SILO is on by default; this flag disables it."
             echo "  --enable-debugging             build dependencies with assertions, optimizations, and debug symbols,"
             echo "                                 and build IBAMR with assertions, no optimizations, and debug symbols."
             echo "  --enable-native-optimizations  Build dependencies and IBAMR with platform-specific optimizations."
             echo "  --enable-numdiff               Build the numdiff tool, which is required for IBAMR's test suite."
-            echo "                                 Numdiff depends on gettext (available through homebrew) on macOS and has no external"
-            echo "                                 dependencies on Linux."
-            echo "  --ibamr-version                Version of IBAMR to install. Presently, versions 0.10.1, 0.11.0, 0.12.0, and 0.12.1 are supported."
-            echo "  --python-interpreter           Absolute path to a python interpreter. Defaults to the first of {python,python3,python2.7}"
-            echo "                                 found on the present machine."
+            echo "                                 Numdiff depends on gettext (available through homebrew) on macOS and has"
+            echo "                                 no external dependencies on Linux."
+            echo "  --external-boost=<path>        Use an external copy of boost instead of the one bundled with IBAMR."
+            echo "  --ibamr-version                Version of IBAMR to install. Presently, versions 0.10.1, 0.11.0, 0.12.0,"
+            echo "                                 and 0.12.1 are supported."
+            echo "  --python-interpreter           Absolute path to a python interpreter. Defaults to the first of"
+            echo "                                 {python,python3,python2.7} found on the present machine."
             echo "  -p <path>, --prefix=<path>     Set a different prefix path (default $PREFIX)"
             echo "  -j <N>, -j<N>, --jobs=<N>      Compile with N processes in parallel (default ${JOBS})"
-            echo "  -y, --yes, --assume-yes        Automatic yes to prompts"
-            echo ""
-            echo "The configuration including the choice of packages to install is stored in autoibamr.cfg, see README.md for more information."
+            echo "  -y, --yes, --assume-yes        Automatic yes to prompts."
             exit 0
         ;;
 
@@ -179,6 +182,19 @@ while [ -n "$1" ]; do
         # numdiff
         --enable-numdiff)
             BUILD_NUMDIFF=ON
+        ;;
+
+        #####################################
+        # external boost
+        --external-boost)
+            EXTERNAL_BOOST=ON
+            shift
+            EXTERNAL_BOOST_DIR="${1}"
+        ;;
+
+        --external-boost=*)
+            EXTERNAL_BOOST=ON
+            EXTERNAL_BOOST_DIR="${param#*=}"
         ;;
 
         #####################################
@@ -708,6 +724,27 @@ guess_ostype() {
 echo "*******************************************************************************"
 cecho ${GOOD} "This is autoibamr - automatically compile and install IBAMR ${IBAMR_VERSION}"
 echo
+
+# do some very minimal checking of the external boost, should it be provided
+if [ ${EXTERNAL_BOOST} = "ON" ]; then
+    if [ ! -d "${EXTERNAL_BOOST_DIR}" ]; then
+        cecho ${BAD} "The provided boost directory ${EXTERNAL_BOOST_DIR} is not a directory."
+        exit 1
+    fi
+    if [ ! -e "${EXTERNAL_BOOST_DIR}/include/boost/multi_array.hpp" ]; then
+        cecho ${BAD} "The provided external boost does not have the multi_array.hpp header required by IBAMR."
+        exit 1
+    fi
+    if [ ! -e "${EXTERNAL_BOOST_DIR}/include/boost/math/special_functions/round.hpp" ]; then
+        cecho ${BAD} "The provided external boost does not have the round.hpp header required by IBAMR."
+        exit 1
+    fi
+    if [ ! -e "${EXTERNAL_BOOST_DIR}/include/boost/math/tools/roots.hpp" ]; then
+        cecho ${BAD} "The provided external boost does not have the roots.hpp header required by IBAMR."
+        exit 1
+    fi
+    cecho ${INFO} "External boost in ${EXTERNAL_BOOST_DIR} passed basic checks."
+fi
 
 # Keep the current work directory of autoibamr.sh
 # WARNING: You should NEVER override this variable!
