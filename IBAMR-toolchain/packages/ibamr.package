@@ -44,10 +44,16 @@ CONFOPTS="
 -DHYPRE_ROOT=${PETSC_DIR}
 -DSAMRAI_ROOT=${SAMRAI_DIR}
 -DPETSC_ROOT=${PETSC_DIR}
--DIBAMR_FORCE_BUNDLED_Boost=ON
 -DIBAMR_FORCE_BUNDLED_Eigen3=ON
 -DIBAMR_FORCE_BUNDLED_muParser=ON
 "
+
+# external boost is optional
+if [ "${EXTERNAL_BOOST}" = "ON" ]; then
+    CONFOPTS="${CONFOPTS} -DBOOST_ROOT=${EXTERNAL_BOOST_DIR}"
+else
+    CONFOPTS="${CONFOPTS} -DIBAMR_FORCE_BUNDLED_Boost=ON"
+fi
 
 # numdiff is optional
 if [ -n "${NUMDIFF_DIR}" ]; then
