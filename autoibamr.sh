@@ -170,6 +170,7 @@ while [ -n "$1" ]; do
         # debug builds
         --enable-debugging)
             DEBUGGING=ON
+	    PREFIX=~/autoibamr-dbg
         ;;
 
         #####################################
