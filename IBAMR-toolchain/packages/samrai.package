@@ -1,12 +1,30 @@
-VERSION=2.4.4
-CHECKSUM=69711b574f9a39429248c6718b974318
+#!/usr/bin/bash
+# old versions of IBAMR need old versions of SAMRAI due to a version check in
+# IBTK_MPI
+if [ "${SAMRAI_VERSION}" = "2.4.4" ]; then
+    VERSION=2.4.4
+    CHECKSUM=69711b574f9a39429248c6718b974318
 
-NAME=${VERSION}
-PACKING=.tar.gz
-SOURCE=https://github.com/LLNL/SAMRAI/archive/refs/tags/
-EXTRACTSTO=SAMRAI-${VERSION}
-BUILDCHAIN=autotools
-INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
+    NAME=${VERSION}
+    PACKING=.tar.gz
+    SOURCE=https://github.com/LLNL/SAMRAI/archive/refs/tags/
+    EXTRACTSTO=SAMRAI-${VERSION}
+    BUILDCHAIN=autotools
+    INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
+elif [ "${SAMRAI_VERSION}" = "2024.01.24" ]; then
+    VERSION=2024.01.24
+    CHECKSUM=ba1d0b6444355609fc98cdbfcbe686c194fdeecb
+
+    NAME=${VERSION}
+    PACKING=.tar.gz
+    SOURCE=https://github.com/IBAMR/IBSAMRAI2/archive/refs/tags/
+    EXTRACTSTO=IBSAMRAI2-$VERSION/
+    BUILDCHAIN=autotools
+    INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
+else
+    cecho ${BAD} "ERROR: at the present time autoibamr only supports SAMRAI/IBSAMRAI2 versions 2.4.4 and 2024.01.24."
+    exit 1
+fi
 
 # We default to shared-object files in IBAMR so compile SAMRAI accordingly
 samrai_compiler_flags="-fPIC"
@@ -54,9 +72,6 @@ package_specific_patch () {
         cecho ${WARN} "applying patch for building SAMRAI"
         patch -p1 < ${ORIG_DIR}/${PROJECT}/patches/samrai-2.4.4-patch-ibamr-0.13.0.patch
         quit_if_fail "patch failed"
-    else
-        cecho ${ERROR} "unsupported version of SAMRAI"
-        exit 1
     fi
 }
 
