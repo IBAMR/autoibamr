@@ -954,6 +954,8 @@ if [ -n "${CC}" ]; then
     export CC=$(which ${CC})
 else
     cecho ${BAD} "CC  variable not set. Please set it with \$export CC=<(MPI) C compiler>"
+    cecho ${BAD} ""
+    cecho ${BAD} "    export CC=<MPI C compiler>"
 fi
 
 # CXX test
@@ -969,6 +971,8 @@ if [ -n "${CXX}" ]; then
     export CXX=$(which ${CXX})
 else
     cecho ${BAD} "CXX variable not set. Please set it with \$export CXX=<(MPI) C++ compiler>"
+    cecho ${BAD} ""
+    cecho ${BAD} "    export CXX=<MPI C++ compiler>"
 fi
 
 # FC test
@@ -983,17 +987,26 @@ if [ -n "${FC}" ]; then
     cecho ${INFO} "FC  = $(which ${FC})"
     export FC=$(which ${FC})
 else
-    cecho ${BAD} "FC  variable not set. Please set it with \$export FC=<(MPI) F90 compiler>"
+    cecho ${BAD} "FC  variable not set. Please set it with"
+    cecho ${BAD} ""
+    cecho ${BAD} "    export FC=<MPI F90 compiler>"
 fi
 
 echo
 
 # Final test for compiler variables
 if [ -z "${CC}" ] || [ -z "${CXX}" ] || [ -z "${FC}" ]; then
-    cecho ${BAD} "One or multiple compiler variables (CC,CXX,FC) were not set"
-    cecho ${BAD} "and could not be automatically found. Rerun autoibamr after"
-    cecho ${BAD} "exporting paths to the specified compilers in the manner"
-    cecho ${BAD} "specified above."
+    cecho ${BAD} "One or multiple compiler variables (CC, CXX, and FC) were not set"
+    cecho ${BAD} "and could not be automatically found. If you are using a cluster,"
+    cecho ${BAD} "A common cause of this problem is loading a compiler module"
+    cecho ${BAD} "instead of loading an MPI module: e.g., you should run a command"
+    cecho ${BAD} "similar to"
+    cecho ${BAD} ""
+    cecho ${BAD} "    module load openmpi_4.0.1/gcc_11.2.0"
+    cecho ${BAD} ""
+    cecho ${BAD} "to correctly set up the MPI environment with that version of GCC."
+    cecho ${BAD} "Otherwise, set CC, CXX, and FC to their correct values and rerun"
+    cecho ${BAD} "autoibamr."
     echo
     exit 1
 fi
