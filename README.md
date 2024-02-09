@@ -11,6 +11,9 @@ disable optimizations for debugging use `--enable-native-optimizations` or
 `--enable-debugging`, respectively. These flags (and more) are documented under
 'Advanced Configuration' below.
 
+The default installation location is `~/autoibamr/`. If you enable debugging
+then the default installation location is `~/autoibamr-debug/`.
+
 `autoibamr` is based on candi: https://github.com/dealii/candi
 
 Dependencies
@@ -74,6 +77,10 @@ This can be done in two ways:
 ```bash
    source ~/autoibamr/configuration/enable.sh
 ```
+   or, with a debug build:
+```bash
+   source ~/autoibamr-debug/configuration/enable.sh
+```
 
    This sets up the environment variables for each package. For example, this
    will set `IBAMR_ROOT` to the full path to the IBAMR installation. You can then
@@ -92,6 +99,11 @@ This can be done in two ways:
 ```bash
    $HOME/autoibamr/packages/cmake-3.20.5/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.14.0/" .
 ```
+   or, with a debug build
+```bash
+   $HOME/autoibamr-debug/packages/cmake-3.20.5/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.14.0/" .
+```
+
    in the normal way. That command uses the version of CMake installed by
    autoibamr - you can use another installed version if you wish (that is at
    least version 3.15).
@@ -100,10 +112,12 @@ Working with IBAMR examples
 ----
 autoibamr sets up IBAMR and its dependencies for use in external projects. It
 can be used to develop IBAMR itself in two different ways:
-1. The IBAMR source directory, is, by default, `autoibamr/tmp/unpack/IBAMR-0.14.0/`
-   and the build directory is `autoibamr/tmp/build/v0.14.0/`. While this is not
-   the intended way to use autoibamr, you can compile and run examples from the
-   build directory after installation.
+1. The IBAMR source directory, is, by default,
+   `autoibamr/tmp/unpack/IBAMR-0.14.0/` and the build directory is
+   `autoibamr/tmp/build/v0.14.0/`. As usual, the by default the prefix is
+   `autoibamr-debug` when compiled in debug mode. While this is not the intended
+   way to use autoibamr, you can compile and run examples from the build
+   directory after installation.
 2. You can install your own development copy of IBAMR that uses the dependencies
    installed by autoibamr. To do this you should provide the `--dependencies-only`
    flag when running the script (`./autoibamr.sh --dependencies-only`) and then download and compile IBAMR yourself after autoibamr finishes.
@@ -146,7 +160,8 @@ You can combine the command line options given below.
 ```
 Sets up a debug build, where dependencies are compiled with assertion checking,
 debug symbols, and optimizations and IBAMR is compiled with assertions, no
-optimizations, and debug symbols.
+optimizations, and debug symbols. In this case autoibamr is installed into
+`~/autoibamr-debug` by default (though this may be overridden with `--prefix`).
 
 #### Platform-specific optimizations: `--enable-native-optimizations`
 ```bash

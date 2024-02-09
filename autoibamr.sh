@@ -101,6 +101,7 @@ IBAMR_VERSION=0.14.0
 JOBS=1
 NATIVE_OPTIMIZATIONS=OFF
 PREFIX=~/autoibamr
+USER_PREFIX_SET=OFF
 USER_INTERACTION=ON
 
 # Figure out which binary to use for python support. Note that older PETSc ./configure only supports python2. For now, prefer
@@ -224,9 +225,11 @@ while [ -n "$1" ]; do
         -p)
             shift
             PREFIX="${1}"
+            USER_PREFIX_SET=ON
         ;;
         -p=*|--prefix=*)
             PREFIX="${param#*=}"
+            USER_PREFIX_SET=ON
         ;;
 
         #####################################
@@ -284,6 +287,13 @@ fi
 # Check the input argument of the install path and (if used) replace the tilde
 # character '~' by the users home directory ${HOME}. Afterwards clear the
 # PREFIX input variable.
+#
+# Special case: if the user did not set a prefix and enabled debugging then use
+# ~/autoibamr-debug so that we don't install debug and release things in the
+# same directory tree
+if [ "${USER_PREFIX_SET}" = "OFF" ] && [ "${DEBUGGING}" = "ON" ]; then
+    PREFIX=~/autoibamr-debug
+fi
 PREFIX_PATH=${PREFIX/#~\//$HOME\/}
 unset PREFIX
 
