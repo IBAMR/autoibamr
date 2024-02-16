@@ -50,8 +50,7 @@ CONFOPTS="
   --without-kinsol
   --without-sundials
   --without-x
-  --with-doxygen
-  --with-dot
+  --enable-dcomplex
   --enable-implicit-template-instantiation
   --disable-deprecated
   CFLAGS='${samrai_compiler_flags}'
