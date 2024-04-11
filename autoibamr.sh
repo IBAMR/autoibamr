@@ -89,6 +89,7 @@ quit_if_fail() {
 
 ################################################################################
 # Parse command line input parameters
+BUILD_EXODUSII=OFF
 BUILD_LIBMESH=ON
 BUILD_NUMDIFF=OFF
 BUILD_SILO=ON
@@ -126,6 +127,9 @@ while [ -n "$1" ]; do
             echo "  --disable-libmesh              Build IBAMR without libMesh. libMesh is on by default; this flag disables"
             echo "                                 it."
             echo "  --disable-silo                 Build IBAMR without SILO. SILO is on by default; this flag disables it."
+            echo "  --enable-exodusii              Build netcdf and ExodusII. These are not used directly by IBAMR but"
+            echo "                                 are included here for convenience since both depend on HDF5 and some"
+            echo "                                 downstream packages require these. Disabled by default."
             echo "  --enable-debugging             build dependencies with assertions, optimizations, and debug symbols,"
             echo "                                 and build IBAMR with assertions, no optimizations, and debug symbols."
             echo "  --enable-native-optimizations  Build dependencies and IBAMR with platform-specific optimizations."
@@ -165,6 +169,12 @@ while [ -n "$1" ]; do
         # SILO
         --disable-silo)
             BUILD_SILO=OFF
+        ;;
+
+        #####################################
+        # ExodusII and netcdf
+        --enable-exodusii)
+            BUILD_EXODUSII=ON
         ;;
 
         #####################################
@@ -787,6 +797,15 @@ if [ ${BUILD_SILO} = "ON" ]; then
 fi
 if [ ${BUILD_LIBMESH} = "ON" ]; then
     PACKAGES="${PACKAGES} libmesh"
+fi
+
+# ExodusII depends on netcdf and netcdf depends on HDF5.
+#
+# Note that even though these are libMesh dependencies, libMesh does not support
+# external installations of these so these installations are completely
+# independent of that.
+if [ ${BUILD_EXODUSII} = "ON" ]; then
+    PACKAGES="${PACKAGES} netcdf exodusii"
 fi
 
 # samrai optionally depends on SILO so add it afterwards

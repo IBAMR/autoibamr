@@ -1,0 +1,37 @@
+VERSION=4.9.2
+NAME=v${VERSION}
+SOURCE=https://github.com/Unidata/netcdf-c/archive/refs/tags/
+PACKING=.tar.gz
+CHECKSUM=bc104d101278c68b303359b3dc4192f81592ae8640f1aee486921138f7f88cb7
+
+EXTRACTSTO=netcdf-c-${VERSION}
+BUILDCHAIN=cmake
+
+INSTALL_PATH="${INSTALL_PATH}/netcdf-c-${VERSION}"
+
+# when upgrading netcdf in the future, make sure that we disable as many
+# optional packages as possible. See also netcdf-c issue 2855.
+CONFOPTS="
+-DCMAKE_BUILD_TYPE=Release
+-DHDF5_ROOT=\"${HDF5_DIR}\"
+-DENABLE_DAP=OFF
+-DENABLE_NCZARR=OFF
+-DENABLE_LIBXML2=OFF
+-DBUILD_TESTING=OFF
+-DENABLE_TESTS=OFF
+-DENABLE_BYTERANGE=OFF
+-DENABLE_EXAMPLES=OFF
+"
+
+package_specific_register () {
+    export NETCDF_DIR=${INSTALL_PATH}
+}
+
+package_specific_conf () {
+    # Generate configuration file
+    CONFIG_FILE=${CONFIGURATION_PATH}/${NAME}
+    rm -f $CONFIG_FILE
+    echo "
+export NETCDF_DIR=${INSTALL_PATH}
+" >> $CONFIG_FILE
+}
