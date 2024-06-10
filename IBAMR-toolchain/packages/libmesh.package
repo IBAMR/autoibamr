@@ -1,5 +1,5 @@
-VERSION=1.6.2
-CHECKSUM=745874f2b19f9345aac1676ea11deba8ac7f18b3
+VERSION=1.7.1
+CHECKSUM=df13cc53f149d3378b90064fd46eeddf75e0ea45b39f38e55c65faddf7f5b060
 
 NAME=libmesh-${VERSION}
 SOURCE=https://github.com/libMesh/libmesh/releases/download/v${VERSION}/
@@ -18,11 +18,13 @@ CONFOPTS="
   --disable-boost
   --disable-capnproto
   --disable-cppunit
+  --disable-curl
   --disable-eigen
   --disable-fparser
   --disable-hdf5
   --disable-laspack
   --disable-metaphysicl
+  --disable-nlopt
   --disable-openmp
   --disable-perflog
   --disable-pthreads
@@ -32,6 +34,7 @@ CONFOPTS="
   --disable-tbb
   --disable-tecio
   --disable-trilinos
+  --disable-vtk
   --enable-curl=no
   --enable-exodus=yes
   --enable-glpk=no
