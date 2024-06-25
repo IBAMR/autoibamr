@@ -66,7 +66,12 @@ prettify_dir() {
 cecho() {
     # Display messages in a specified color and also log them
     COL=$1; shift
-    echo -e "${COL}$*\033[0m"
+    # Do not print color codes to non-terminal output
+    if [ -t 1 ]; then
+        echo -e "${COL}$*\033[0m"
+    else
+        echo -e "$*"
+    fi
     echo "$*" >> "${AUTOIBAMR_LOGFILE}"
 }
 
