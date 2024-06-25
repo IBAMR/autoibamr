@@ -66,7 +66,12 @@ prettify_dir() {
 cecho() {
     # Display messages in a specified color and also log them
     COL=$1; shift
-    echo -e "${COL}$*\033[0m"
+    # Do not print color codes to non-terminal output
+    if [ -t 1 ]; then
+        echo -e "${COL}$*\033[0m"
+    else
+        echo -e "$*"
+    fi
     echo "$*" >> "${AUTOIBAMR_LOGFILE}"
 }
 
@@ -472,12 +477,41 @@ download_archive () {
         # Download.
         # If curl or wget is failing, continue this loop for trying an other mirror.
         if [ ${DOWNLOADER} = "curl" ]; then
-            curl -f -L -k -O ${url} || continue
+            if [ -t 1 ]; then
+               curl -f -L -k -O ${url}
+               download_code=$?
+            else
+               curl --silent --show-error -f -L -k -O ${url}
+               download_code=$?
+            fi
         elif [ ${DOWNLOADER} = "wget" ]; then
-            wget --no-check-certificate ${url} -O ${ARCHIVE_FILE} || continue
+            if [ -t 1 ]; then
+                wget --no-check-certificate ${url} -O ${ARCHIVE_FILE}
+               download_code=$?
+            else
+                wget --quiet --no-check-certificate ${url} -O ${ARCHIVE_FILE}
+               download_code=$?
+            fi
         else
             cecho ${BAD} "autoibamr: Unknown downloader: ${DOWNLOADER}"
             exit 1
+        fi
+
+        if [ ${download_code} -ne 0 ]; then
+           rm -f ${ARCHIVE_FILE}
+           cecho ${BAD} "Unable to download"
+           cecho ${BAD} ""
+           cecho ${BAD} "${url}"
+           cecho ${BAD} ""
+           cecho ${BAD} "Typical causes of problem are a loss of connectivity to"
+           cecho ${BAD} "the Internet and insufficient disk space. One possible fix"
+           cecho ${BAD} "to the second problem is to set the --prefix option to"
+           cecho ${BAD} "to a directory on a larger disk (e.g., a workspace drive"
+           cecho ${BAD} "on a cluster)."
+           cecho ${BAD} ""
+           cecho ${BAD} "The error code was ${download_code} and the downloader"
+           cecho ${BAD} "was ${DOWNLOADER}."
+           exit 1
         fi
 
         unset url
