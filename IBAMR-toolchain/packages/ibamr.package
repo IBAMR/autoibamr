@@ -1,5 +1,7 @@
-#!/usr/bin/bash
-if [ "${IBAMR_VERSION}" = 0.14.0 ]
+if [ "${IBAMR_VERSION}" = 0.15.0 ]
+then
+    CHECKSUM=4af5bd79cd01916a564e5fbb424377c00bb5d682808fddbb5934dc20f64c96f5
+elif [ "${IBAMR_VERSION}" = 0.14.0 ]
 then
     CHECKSUM=2442b19da8b0fcd9ef20fa17b4f68f87c9a323e28b8b46dc0623ed28ec88d364
 elif [ "${IBAMR_VERSION}" = 0.13.0 ]
