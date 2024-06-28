@@ -103,7 +103,7 @@ DEBUGGING=OFF
 DEPENDENCIES_ONLY=OFF
 EXTERNAL_BOOST=OFF
 EXTERNAL_BOOST_DIR=
-IBAMR_VERSION=0.14.0
+IBAMR_VERSION=0.15.0
 JOBS=1
 NATIVE_OPTIMIZATIONS=OFF
 PREFIX=~/autoibamr
@@ -143,7 +143,7 @@ while [ -n "$1" ]; do
             echo "                                 no external dependencies on Linux."
             echo "  --external-boost=<path>        Use an external copy of boost instead of the one bundled with IBAMR."
             echo "  --ibamr-version                Version of IBAMR to install. Presently, versions 0.10.1, 0.11.0, 0.12.0,"
-            echo "                                 0.12.1, 0.13.0, and 0.14.0 are supported."
+            echo "                                 0.12.1, 0.13.0, 0.14.0, and 0.15.0 are supported."
             echo "  --python-interpreter           Absolute path to a python interpreter. Defaults to the first of"
             echo "                                 {python,python3,python2.7} found on the present machine."
             echo "  -p <path>, --prefix=<path>     Set a different prefix path (default $PREFIX)"
@@ -282,8 +282,10 @@ if [ ${DEBUGGING} = "ON" ] && [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
   exit 1
 fi
 
-if [ "${IBAMR_VERSION}" = "0.14.0" ]; then
-    SAMRAI_VERSION=2024.01.24
+if [ "${IBAMR_VERSION}" = "0.15.0" ]; then
+    SAMRAI_VERSION=2024.06.28
+elif [ "${IBAMR_VERSION}" = "0.14.0" ]; then
+    SAMRAI_VERSION=2024.06.28
 elif [ "${IBAMR_VERSION}" = "0.13.0" ]; then
     SAMRAI_VERSION=2.4.4
 elif [ "${IBAMR_VERSION}" = "0.12.1" ]; then
@@ -295,7 +297,7 @@ elif [ "${IBAMR_VERSION}" = "0.11.0" ]; then
 elif [ "${IBAMR_VERSION}" = "0.10.1" ]; then
     SAMRAI_VERSION=2.4.4
 else
-    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR versions 0.14.0, 0.13.0, 0.12.1, 0.12.0, 0.11.0, and 0.10.1."
+    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR versions 0.15.0, 0.14.0, 0.13.0, 0.12.1, 0.12.0, 0.11.0, and 0.10.1."
     exit 1
 fi
 
