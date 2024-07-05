@@ -26,7 +26,7 @@ CONFOPTS="
 "
 
 package_specific_register () {
-    export EXODUSII_DIR=${INSTALL_PATH}
+    export EXODUS_II_DIR=${INSTALL_PATH}
 }
 
 package_specific_conf () {
@@ -34,6 +34,6 @@ package_specific_conf () {
     CONFIG_FILE=${CONFIGURATION_PATH}/${NAME}
     rm -f $CONFIG_FILE
     echo "
-export EXODUSII_DIR=${INSTALL_PATH}
+export EXODUS_II_DIR=${INSTALL_PATH}
 " >> $CONFIG_FILE
 }

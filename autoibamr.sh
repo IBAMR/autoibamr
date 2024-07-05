@@ -94,7 +94,8 @@ quit_if_fail() {
 
 ################################################################################
 # Parse command line input parameters
-BUILD_EXODUSII=OFF
+BUILD_DEAL_II=OFF
+BUILD_EXODUS_II=OFF
 BUILD_LIBMESH=ON
 BUILD_NUMDIFF=OFF
 BUILD_SILO=ON
@@ -132,6 +133,8 @@ while [ -n "$1" ]; do
             echo "  --disable-libmesh              Build IBAMR without libMesh. libMesh is on by default; this flag disables"
             echo "                                 it."
             echo "  --disable-silo                 Build IBAMR without SILO. SILO is on by default; this flag disables it."
+            echo "  --enable-dealii                Build deal.II. This library is not directly used by IBAMR but is a required"
+            echo "                                 dependency of some IBAMR projects. Disabled by default."
             echo "  --enable-exodusii              Build netcdf and ExodusII. These are not used directly by IBAMR but"
             echo "                                 are included here for convenience since both depend on HDF5 and some"
             echo "                                 downstream packages require these. Disabled by default."
@@ -177,9 +180,15 @@ while [ -n "$1" ]; do
         ;;
 
         #####################################
+        # deal.II
+        --enable-dealii)
+            BUILD_DEAL_II=ON
+        ;;
+
+        #####################################
         # ExodusII and netcdf
         --enable-exodusii)
-            BUILD_EXODUSII=ON
+            BUILD_EXODUS_II=ON
         ;;
 
         #####################################
@@ -840,15 +849,18 @@ fi
 # Note that even though these are libMesh dependencies, libMesh does not support
 # external installations of these so these installations are completely
 # independent of that.
-if [ ${BUILD_EXODUSII} = "ON" ]; then
+if [ ${BUILD_EXODUS_II} = "ON" ]; then
     PACKAGES="${PACKAGES} netcdf exodusii"
 fi
 
-# samrai optionally depends on SILO so add it afterwards
-if [ ${DEPENDENCIES_ONLY} = "ON" ]; then
-    PACKAGES="${PACKAGES} samrai"
-else
-    PACKAGES="${PACKAGES} samrai ibamr"
+PACKAGES="${PACKAGES} samrai"
+
+if [ ${BUILD_DEAL_II} = "ON" ]; then
+    PACKAGES="${PACKAGES} dealii"
+fi
+
+if [ ${DEPENDENCIES_ONLY} = "OFF" ]; then
+    PACKAGES="${PACKAGES} ibamr"
 fi
 
 ################################################################################

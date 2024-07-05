@@ -33,7 +33,7 @@ else
     CONFOPTS="${CONFOPTS} --with-debugging=0"
 fi
 
-for external_pkg in fblaslapack hypre metis parmetis; do
+for external_pkg in openblas hypre metis parmetis; do
     CONFOPTS="${CONFOPTS} --download-${external_pkg}=1"
 done
 
