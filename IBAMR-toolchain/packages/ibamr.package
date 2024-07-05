@@ -57,8 +57,8 @@ CONFOPTS="
 # external boost is optional
 if [ "${EXTERNAL_BOOST}" = "ON" ]; then
     CONFOPTS="${CONFOPTS} -DBOOST_ROOT=${EXTERNAL_BOOST_DIR}"
-else
-    CONFOPTS="${CONFOPTS} -DIBAMR_FORCE_BUNDLED_Boost=ON"
+elif [ "${BUILD_DEAL_II}" = "ON" ]; then
+    CONFOPTS="${CONFOPTS} -DBOOST_ROOT=${DEAL_II_DIR}/include/deal.II/bundled"
 fi
 
 # numdiff is optional
