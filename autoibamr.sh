@@ -94,7 +94,7 @@ quit_if_fail() {
 
 ################################################################################
 # Parse command line input parameters
-BUILD_EXODUSII=OFF
+BUILD_EXODUS_II=OFF
 BUILD_LIBMESH=ON
 BUILD_NUMDIFF=OFF
 BUILD_SILO=ON
@@ -179,7 +179,7 @@ while [ -n "$1" ]; do
         #####################################
         # ExodusII and netcdf
         --enable-exodusii)
-            BUILD_EXODUSII=ON
+            BUILD_EXODUS_II=ON
         ;;
 
         #####################################
@@ -840,7 +840,7 @@ fi
 # Note that even though these are libMesh dependencies, libMesh does not support
 # external installations of these so these installations are completely
 # independent of that.
-if [ ${BUILD_EXODUSII} = "ON" ]; then
+if [ ${BUILD_EXODUS_II} = "ON" ]; then
     PACKAGES="${PACKAGES} netcdf exodusii"
 fi
 
