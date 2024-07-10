@@ -36,8 +36,13 @@ else
 fi
 # Start global timer
 TIC_GLOBAL="$(${DATE_CMD} +%s)"
+
+# Keep the current work directory of autoibamr.sh
+# WARNING: You should NEVER override this variable!
+export ORIG_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
 # Start logging
-AUTOIBAMR_LOGFILE=$(pwd)/autoibamr.log
+AUTOIBAMR_LOGFILE="$ORIG_DIR/autoibamr.log"
 if [ -f autoibamr.log ]; then
     mv "${AUTOIBAMR_LOGFILE}" "${AUTOIBAMR_LOGFILE}.previous"
 fi
@@ -813,10 +818,6 @@ if [ ${EXTERNAL_BOOST} = "ON" ]; then
     cecho ${INFO} "External boost in ${EXTERNAL_BOOST_DIR} passed basic checks."
 fi
 
-# Keep the current work directory of autoibamr.sh
-# WARNING: You should NEVER override this variable!
-export ORIG_DIR=`pwd`
-
 # If any variables are missing, set them to defaults
 default PROJECT=IBAMR-toolchain
 
@@ -1208,7 +1209,8 @@ for PACKAGE in ${PACKAGES[@]}; do
     TIC="$(${DATE_CMD} +%s)"
 
     # Return to the original autoibamr directory
-    cd ${ORIG_DIR}
+    cd "$ORIG_DIR"
+    quit_if_fail "Unable to return to the original autoibamr directory <${ORIG_DIR}>."
 
     # Skip building this package if the user requests it
     SKIP=false
