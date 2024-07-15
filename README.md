@@ -39,6 +39,19 @@ available:
   `libtirpc` (Arch Linux), `libtirpc-dev` (Debian and Ubuntu), or
   `libtirpc-devel` (Read Hat).
 
+If you are running on a mac then you may need to install Xcode's command-line
+tools. If you have not done this before then run
+
+``` bash
+xcode-select --install
+```
+in the terminal. If you have already installed the command-line tools then we
+recommend ensuring the latest version is installed by checking with
+``` bash
+softwareupdate --list
+```
+and installing any listed Xcode updates.
+
 Quickstart
 ----
 
