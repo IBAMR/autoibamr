@@ -70,18 +70,18 @@ FE_EVAL_FLAG="-DFE_EVAL_FACTORY_DEGREE_MAX=2"
 if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Debug \
-      -DCMAKE_CXX_FLAGS=' $FE_EVAL_FLAG' \
+      -DCMAKE_CXX_FLAGS='-std=c++17 $FE_EVAL_FLAG' \
       -DDEAL_II_CXX_FLAGS_DEBUG='-O1'"
 else
     if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
         CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_FLAGS='$FE_EVAL_FLAG' \
+      -DCMAKE_CXX_FLAGS='-std=c++17 $FE_EVAL_FLAG' \
       -DDEAL_II_CXX_FLAGS_RELEASE='-O3 -march=native'"
     else
         CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_FLAGS='$FE_EVAL_FLAG'"
+      -DCMAKE_CXX_FLAGS='-std=c++17 $FE_EVAL_FLAG'"
     fi
 fi
 
