@@ -1,0 +1,58 @@
+diff --git a/source/dofs/dof_renumbering.inst.in b/source/dofs/dof_renumbering.inst.in
+index 9cfda527fd0..7d141aa3434 100644
+--- a/source/dofs/dof_renumbering.inst.in
++++ b/source/dofs/dof_renumbering.inst.in
+@@ -67,6 +67,11 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
+       support_point_wise(
+         DoFHandler<deal_II_dimension, deal_II_space_dimension> &);
+ 
++      template void
++      compute_support_point_wise(
++        std::vector<types::global_dof_index> &,
++        const DoFHandler<deal_II_dimension, deal_II_space_dimension> &);
++
+     \}
+ #endif
+   }
+@@ -160,6 +165,15 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
+         const Tensor<1, DoFHandler<deal_II_dimension>::space_dimension> &,
+         const bool);
+ 
++      template void
++      compute_downstream<deal_II_dimension>(
++        std::vector<types::global_dof_index> &,
++        std::vector<types::global_dof_index> &,
++        const DoFHandler<deal_II_dimension> &,
++        const unsigned int,
++        const Tensor<1, DoFHandler<deal_II_dimension>::space_dimension> &,
++        const bool);
++
+       template void
+       clockwise_dg<deal_II_dimension>(DoFHandler<deal_II_dimension> &,
+                                       const Point<deal_II_dimension> &,
+@@ -219,12 +233,25 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
+         DoFHandler<deal_II_dimension> &,
+         const std::vector<bool> &);
+ 
++      template void
++      sort_selected_dofs_back<deal_II_dimension>(
++        DoFHandler<deal_II_dimension> &,
++        const std::vector<bool> &,
++        const unsigned int);
++
+       template void
+       compute_sort_selected_dofs_back<deal_II_dimension>(
+         std::vector<types::global_dof_index> &,
+         const DoFHandler<deal_II_dimension> &,
+         const std::vector<bool> &);
+ 
++      template void
++      compute_sort_selected_dofs_back<deal_II_dimension>(
++        std::vector<types::global_dof_index> &,
++        const DoFHandler<deal_II_dimension> &,
++        const std::vector<bool> &,
++        const unsigned int);
++
+       template void
+       Cuthill_McKee<deal_II_dimension>(
+         DoFHandler<deal_II_dimension> &,
