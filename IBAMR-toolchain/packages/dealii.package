@@ -1,10 +1,9 @@
 # https://github.com/dealii/dealii/releases/download/v9.5.2/dealii-9.5.2.tar.gz
 VERSION=9.5.2
-NAME=v${VERSION}
-SOURCE=https://github.com/dealii/dealii/archive/refs/tags/
+NAME=dealii-${VERSION}
+SOURCE=https://github.com/dealii/dealii/releases/download/v$VERSION/
 PACKING=.tar.gz
 CHECKSUM=7930e5218a9807d60cc05c300a3b70f36f4af22c3551a2cd1141fbab013bbaf1
-EXTRACTSTO=dealii-${VERSION}
 BUILDCHAIN=cmake
 
 INSTALL_PATH="${INSTALL_PATH}/dealii-${VERSION}"
@@ -71,20 +70,29 @@ FE_EVAL_FLAG="-DFE_EVAL_FACTORY_DEGREE_MAX=2"
 if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Debug \
-      -DCMAKE_CXX_FLAGS=' $FE_EVAL_FLAG' \
+      -DCMAKE_CXX_FLAGS='-std=c++17 $FE_EVAL_FLAG' \
       -DDEAL_II_CXX_FLAGS_DEBUG='-O1'"
 else
     if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
         CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_FLAGS='$FE_EVAL_FLAG' \
+      -DCMAKE_CXX_FLAGS='-std=c++17 $FE_EVAL_FLAG' \
       -DDEAL_II_CXX_FLAGS_RELEASE='-O3 -march=native'"
     else
         CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_FLAGS='$FE_EVAL_FLAG'"
+      -DCMAKE_CXX_FLAGS='-std=c++17 $FE_EVAL_FLAG'"
     fi
 fi
+
+package_specific_patch () {
+    cd ${UNPACK_PATH}/${EXTRACTSTO}
+    quit_if_fail "cd failed"
+
+    cecho ${INFO} "Applying patches to deal.II"
+    find "${ORIG_DIR}/${PROJECT}/patches/" -name "${NAME}-*.patch" -exec patch -p1 --input={} \;
+    quit_if_fail "Failed to apply a deal.II patch."
+}
 
 package_specific_register () {
     export DEAL_II_DIR=${INSTALL_PATH}

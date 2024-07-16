@@ -1147,6 +1147,23 @@ EOF
 ${CXX} test.cpp -o test.cpp.out
 quit_if_fail "The provided C++ compiler ${CXX} could not compile and link a basic test program. A common cause of this error is forgetting to install a C++ compiler. One possible problem is that some Linux distributions install the MPI compiler wrappers without installing the actual compilers (e.g., g++)."
 
+if [ ${BUILD_DEAL_II} = "ON" ]; then
+    cat > ./test17.cpp <<"EOF"
+#include <mpi.h>
+
+#include <optional>
+
+int main(int argc, char **argv)
+{
+std::optional<int> maybe_int;
+MPI_Init(&argc, &argv);
+MPI_Finalize();
+}
+EOF
+    ${CXX} -std=c++17 test17.cpp -o test.cpp.out
+    quit_if_fail "To use deal.II, the provided C++ compiler ${CXX} must support the C++17 flag -std=c++17."
+fi
+
 cat > ./test.f <<"EOF"
        PROGRAM MAIN
          WRITE (*,*) "HELLO WORLD"
