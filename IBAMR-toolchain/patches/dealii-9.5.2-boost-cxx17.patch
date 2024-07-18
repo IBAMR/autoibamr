@@ -1,0 +1,92 @@
+diff --git a/bundled/boost-1.70.0/include/boost/archive/impl/basic_text_oprimitive.ipp b/bundled/boost-1.70.0/include/boost/archive/impl/basic_text_oprimitive.ipp
+index 6030fd44c5..f4a7fa2945 100644
+--- a/bundled/boost-1.70.0/include/boost/archive/impl/basic_text_oprimitive.ipp
++++ b/bundled/boost-1.70.0/include/boost/archive/impl/basic_text_oprimitive.ipp
+@@ -106,7 +106,7 @@ basic_text_oprimitive<OStream>::basic_text_oprimitive(
+ template<class OStream>
+ BOOST_ARCHIVE_OR_WARCHIVE_DECL
+ basic_text_oprimitive<OStream>::~basic_text_oprimitive(){
+-    if(std::uncaught_exception())
++    if(std::uncaught_exceptions())
+         return;
+     os << std::endl;
+ }
+diff --git a/bundled/boost-1.70.0/include/boost/archive/impl/xml_iarchive_impl.ipp b/bundled/boost-1.70.0/include/boost/archive/impl/xml_iarchive_impl.ipp
+index efc32e0163..0c15eb3580 100644
+--- a/bundled/boost-1.70.0/include/boost/archive/impl/xml_iarchive_impl.ipp
++++ b/bundled/boost-1.70.0/include/boost/archive/impl/xml_iarchive_impl.ipp
+@@ -189,7 +189,7 @@ xml_iarchive_impl<Archive>::xml_iarchive_impl(
+ template<class Archive>
+ BOOST_ARCHIVE_DECL
+ xml_iarchive_impl<Archive>::~xml_iarchive_impl(){
+-    if(std::uncaught_exception())
++    if(std::uncaught_exceptions())
+         return;
+     if(0 == (this->get_flags() & no_header)){
+         gimpl->windup(is);
+diff --git a/bundled/boost-1.70.0/include/boost/archive/impl/xml_oarchive_impl.ipp b/bundled/boost-1.70.0/include/boost/archive/impl/xml_oarchive_impl.ipp
+index 5ebd454e72..5a1454c29d 100644
+--- a/bundled/boost-1.70.0/include/boost/archive/impl/xml_oarchive_impl.ipp
++++ b/bundled/boost-1.70.0/include/boost/archive/impl/xml_oarchive_impl.ipp
+@@ -132,7 +132,7 @@ xml_oarchive_impl<Archive>::save_binary(const void *address, std::size_t count){
+ template<class Archive>
+ BOOST_ARCHIVE_DECL
+ xml_oarchive_impl<Archive>::~xml_oarchive_impl(){
+-    if(std::uncaught_exception())
++    if(std::uncaught_exceptions())
+         return;
+     if(0 == (this->get_flags() & no_header))
+         this->windup();
+diff --git a/bundled/boost-1.70.0/include/boost/archive/impl/xml_wiarchive_impl.ipp b/bundled/boost-1.70.0/include/boost/archive/impl/xml_wiarchive_impl.ipp
+index f572b76220..77f09b95a1 100644
+--- a/bundled/boost-1.70.0/include/boost/archive/impl/xml_wiarchive_impl.ipp
++++ b/bundled/boost-1.70.0/include/boost/archive/impl/xml_wiarchive_impl.ipp
+@@ -176,7 +176,7 @@ xml_wiarchive_impl<Archive>::xml_wiarchive_impl(
+ template<class Archive>
+ BOOST_WARCHIVE_DECL
+ xml_wiarchive_impl<Archive>::~xml_wiarchive_impl(){
+-    if(std::uncaught_exception())
++    if(std::uncaught_exceptions())
+         return;
+     if(0 == (this->get_flags() & no_header)){
+         gimpl->windup(is);
+diff --git a/bundled/boost-1.70.0/include/boost/archive/impl/xml_woarchive_impl.ipp b/bundled/boost-1.70.0/include/boost/archive/impl/xml_woarchive_impl.ipp
+index 630898b86a..396b95fd76 100644
+--- a/bundled/boost-1.70.0/include/boost/archive/impl/xml_woarchive_impl.ipp
++++ b/bundled/boost-1.70.0/include/boost/archive/impl/xml_woarchive_impl.ipp
+@@ -139,7 +139,7 @@ xml_woarchive_impl<Archive>::xml_woarchive_impl(
+ template<class Archive>
+ BOOST_WARCHIVE_DECL
+ xml_woarchive_impl<Archive>::~xml_woarchive_impl(){
+-    if(std::uncaught_exception())
++    if(std::uncaught_exceptions())
+         return;
+     if(0 == (this->get_flags() & no_header)){
+         os << L"</boost_serialization>";
+diff --git a/bundled/boost-1.70.0/include/boost/container_hash/hash.hpp b/bundled/boost-1.70.0/include/boost/container_hash/hash.hpp
+index 76de7939eb..e2d8f73beb 100644
+--- a/bundled/boost-1.70.0/include/boost/container_hash/hash.hpp
++++ b/bundled/boost-1.70.0/include/boost/container_hash/hash.hpp
+@@ -118,7 +118,7 @@ namespace boost
+ {
+     namespace hash_detail
+     {
+-#if defined(_HAS_AUTO_PTR_ETC) && !_HAS_AUTO_PTR_ETC
++#if 1
+         template <typename T>
+         struct hash_base
+         {
+diff --git a/bundled/boost-1.70.0/include/boost/smart_ptr/detail/sp_counted_base_clang.hpp b/bundled/boost-1.70.0/include/boost/smart_ptr/detail/sp_counted_base_clang.hpp
+index 90b6f224ca..aaf5a0665e 100644
+--- a/bundled/boost-1.70.0/include/boost/smart_ptr/detail/sp_counted_base_clang.hpp
++++ b/bundled/boost-1.70.0/include/boost/smart_ptr/detail/sp_counted_base_clang.hpp
+@@ -20,6 +20,9 @@
+ #include <boost/config.hpp>
+ #include <boost/cstdint.hpp>
+ 
++// _Atomic is a C11 feature - suppress pedantic warnings by marking this as a system header
++#pragma GCC system_header
++
+ namespace boost
+ {
+ 
