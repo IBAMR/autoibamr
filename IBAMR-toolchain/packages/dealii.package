@@ -1,15 +1,16 @@
-# https://github.com/dealii/dealii/releases/download/v9.5.2/dealii-9.5.2.tar.gz
-VERSION=9.5.2
+# https://github.com/dealii/dealii/releases/download/v9.6.0/dealii-9.6.0.tar.gz
+VERSION=9.6.0
 NAME=dealii-${VERSION}
 SOURCE=https://github.com/dealii/dealii/releases/download/v$VERSION/
 PACKING=.tar.gz
-CHECKSUM=7930e5218a9807d60cc05c300a3b70f36f4af22c3551a2cd1141fbab013bbaf1
+CHECKSUM=675323f0eb8eed2cfc93e2ced07a0ec5727c6a566ff9e7786c01a2ddcde17bed
 BUILDCHAIN=cmake
 
 INSTALL_PATH="${INSTALL_PATH}/dealii-${VERSION}"
 
 # Be a little paranoid and explicitly set all dependency flags
 CONFOPTS="
+-DDEAL_II_WITH_64BIT_INDICES=OFF
 -DDEAL_II_WITH_ADOLC=OFF
 -DDEAL_II_WITH_ARBORX=OFF
 -DDEAL_II_WITH_ARPACK=OFF
@@ -33,11 +34,12 @@ CONFOPTS="
 -DDEAL_II_WITH_OPENCASCADE=OFF
 -DDEAL_II_WITH_P4EST=OFF
 -DDEAL_II_WITH_PETSC=ON
--DPETSC_ROOT=\"${PETSC_DIR}\"
+-DPETSC_DIR=\"${PETSC_DIR}\"
 -DDEAL_II_WITH_SCALAPACK=OFF
 -DDEAL_II_WITH_SLEPC=OFF
 -DDEAL_II_WITH_SUNDIALS=OFF
 -DDEAL_II_WITH_SYMENGINE=OFF
+-DDEAL_II_WITH_TASKFLOW=OFF
 -DDEAL_II_WITH_TBB=OFF
 -DDEAL_II_WITH_TRILINOS=OFF
 -DDEAL_II_WITH_UMFPACK=ON
@@ -70,18 +72,18 @@ FE_EVAL_FLAG="-DFE_EVAL_FACTORY_DEGREE_MAX=2"
 if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Debug \
-      -DCMAKE_CXX_FLAGS='-std=c++17 $FE_EVAL_FLAG' \
+      -DCMAKE_CXX_FLAGS='$FE_EVAL_FLAG' \
       -DDEAL_II_CXX_FLAGS_DEBUG='-O1'"
 else
     if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
         CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_FLAGS='-std=c++17 $FE_EVAL_FLAG' \
+      -DCMAKE_CXX_FLAGS='$FE_EVAL_FLAG' \
       -DDEAL_II_CXX_FLAGS_RELEASE='-O3 -march=native'"
     else
         CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_FLAGS='-std=c++17 $FE_EVAL_FLAG'"
+      -DCMAKE_CXX_FLAGS='$FE_EVAL_FLAG'"
     fi
 fi
 
