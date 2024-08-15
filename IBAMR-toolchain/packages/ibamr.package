@@ -88,9 +88,9 @@ fi
 if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Debug \
-      -DCMAKE_C_FLAGS='-g' \
-      -DCMAKE_CXX_FLAGS='-g' \
-      -DCMAKE_Fortran_FLAGS='-g'"
+      -DCMAKE_C_FLAGS='-g -O2' \
+      -DCMAKE_CXX_FLAGS='-g -O2' \
+      -DCMAKE_Fortran_FLAGS='-g -O2'"
 else
     if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
         CONFOPTS="${CONFOPTS} \
