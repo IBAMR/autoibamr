@@ -39,7 +39,7 @@ fi
 # We default to shared-object files in IBAMR so compile SAMRAI accordingly
 samrai_compiler_flags="-fPIC"
 if [ ${DEBUGGING} = ON ]; then
-    samrai_compiler_flags="${samrai_compiler_flags} -g -O2"
+    samrai_compiler_flags="${samrai_compiler_flags} --enable-debug=yes --enable-opt=yes -g -O2"
 else
     if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
         samrai_compiler_flags="${samrai_compiler_flags} -O3 -march=native"
