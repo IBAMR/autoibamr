@@ -116,6 +116,11 @@ PREFIX=~/autoibamr
 USER_PREFIX_SET=OFF
 USER_INTERACTION=ON
 
+# ensure some shell variables (which may or may not have default values set in
+# packages) are cleared at this point
+unset EXTRACTSTO
+unset BUILDDIR
+
 # Figure out which binary to use for python support. Note that older PETSc ./configure only supports python2. For now, prefer
 # using python2 but use what the user supplies as PYTHON_INTERPRETER.
 if builtin command -v $(which python) --version >/dev/null 2>/dev/null; then
@@ -818,19 +823,16 @@ if [ ${EXTERNAL_BOOST} = "ON" ]; then
     cecho ${INFO} "External boost in ${EXTERNAL_BOOST_DIR} passed basic checks."
 fi
 
-# If any variables are missing, set them to defaults
-default PROJECT=IBAMR-toolchain
+DOWNLOAD_PATH=${PREFIX_PATH}/tmp/src
+UNPACK_PATH=${PREFIX_PATH}/tmp/unpack
+BUILD_PATH=${PREFIX_PATH}/tmp/build
+INSTALL_PATH=${PREFIX_PATH}/packages
+CONFIGURATION_PATH=${PREFIX_PATH}/configuration
 
-default DOWNLOAD_PATH=${PREFIX_PATH}/tmp/src
-default UNPACK_PATH=${PREFIX_PATH}/tmp/unpack
-default BUILD_PATH=${PREFIX_PATH}/tmp/build
-default INSTALL_PATH=${PREFIX_PATH}/packages
-default CONFIGURATION_PATH=${PREFIX_PATH}/configuration
-
-default DEVELOPER_MODE=OFF
+DEVELOPER_MODE=OFF
 
 # TODO - we can probably remove this
-default PACKAGES_OFF=""
+PACKAGES_OFF=""
 
 # all packages are mandatory except Silo and libMesh. PETSc, SAMRAI, and SILO
 # all depend on HDF5. libMesh depends on PETSc.
@@ -862,27 +864,6 @@ fi
 
 if [ ${DEPENDENCIES_ONLY} = "OFF" ]; then
     PACKAGES="${PACKAGES} ibamr"
-fi
-
-################################################################################
-# Check if project was specified correctly
-if [ -d ${PROJECT} ]; then
-    if [ -d ${PROJECT}/packages ]; then
-        cecho ${INFO} "Project: ${PROJECT}: Found configuration."
-    else
-        cecho ${BAD} "Please contact the authors, if you have not changed autoibamr!"
-        cecho ${INFO} "autoibamr: Internal error:"
-        cecho ${INFO} "No subdirectory 'packages' in ${PROJECT}."
-        exit 1
-    fi
-else
-    cecho ${BAD} "Please contact the authors, if you have not changed autoibamr!"
-    cecho ${INFO} "autoibamr: Internal error:"
-    cecho ${INFO} "Error: No project configuration directory found for project ${PROJECT}."
-    echo "Please check if you have specified right project name in autoibamr.cfg"
-    echo "Please check if you have directory called ${PROJECT}"
-    echo "with subdirectory ${PROJECT}/packages"
-    exit 1
 fi
 
 ################################################################################
@@ -952,7 +933,7 @@ fi
 if [ ${USER_INTERACTION} = ON ]; then
     echo "--------------------------------------------------------------------------------"
     cecho ${GOOD} "Please make sure you've read the instructions above and your system"
-    cecho ${GOOD} "is ready for installing ${PROJECT}."
+    cecho ${GOOD} "is ready for installing IBAMR."
     cecho ${BAD} "If not, please abort the installer by pressing <CTRL> + <C> !"
     cecho ${INFO} "Then copy and paste these instructions into this terminal."
     echo
@@ -965,8 +946,6 @@ fi
 # Output configuration details
 echo "*******************************************************************************"
 cecho ${GOOD} "autoibamr tries now to download, configure, build and install:"
-echo
-cecho ${GOOD} "Project:  ${PROJECT}"
 echo
 echo "-------------------------------------------------------------------------------"
 
@@ -1101,8 +1080,6 @@ fi
 # Output configuration details
 echo "*******************************************************************************"
 cecho ${GOOD} "autoibamr tries now to download, configure, build and install:"
-echo
-cecho ${GOOD} "Project:  ${PROJECT}"
 echo
 
 # Create necessary directories and set appropriate variables
@@ -1246,8 +1223,8 @@ for PACKAGE in ${PACKAGES[@]}; do
     esac
 
     # Check if the package exists
-    if [ ! -e ${PROJECT}/packages/${PACKAGE}.package ]; then
-        cecho ${BAD} "${PROJECT}/packages/${PACKAGE}.package does not exist yet. Please create it."
+    if [ ! -e IBAMR-toolchain/packages/${PACKAGE}.package ]; then
+        cecho ${BAD} "IBAMR-toolchain/packages/${PACKAGE}.package does not exist yet. Please create it."
         exit 1
     fi
 
@@ -1278,7 +1255,7 @@ for PACKAGE in ${PACKAGES[@]}; do
     package_specific_conf() { true; }
 
     # Fetch information pertinent to the package
-    source ${PROJECT}/packages/${PACKAGE}.package
+    source IBAMR-toolchain/packages/${PACKAGE}.package
 
     # Ensure that the package file is sanely constructed
     if [ ! "${BUILDCHAIN}" ]; then
