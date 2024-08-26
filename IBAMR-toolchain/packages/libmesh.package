@@ -73,7 +73,7 @@ package_specific_patch () {
     quit_if_fail "cd failed"
 
     cecho ${INFO} "Applying patches to libMesh"
-    find "${ORIG_DIR}/${PROJECT}/patches/" -name "${NAME}-*.patch" -exec patch -p1 --input={} \;
+    find "${ORIG_DIR}/IBAMR-toolchain/patches/" -name "${NAME}-*.patch" -exec patch -p1 --input={} \;
     quit_if_fail "Failed to apply a libMesh patch."
 }
 
