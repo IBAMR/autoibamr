@@ -1166,6 +1166,17 @@ PYTHONVER=$(${PYTHON_INTERPRETER} -c "import sys; print('{}.{}'.format(sys.versi
 quit_if_fail "The provided python interpreter ${PYTHON_INTERPRETER} could not run a basic test program. Try rerunning autoibamr with a different python interpreter (specified by --python-interpreter)"
 cecho ${GOOD} "The python interpreter ${PYTHON_INTERPRETER} works and has detected version ${PYTHONVER}"
 
+PYTHON_VERSION_MAJOR=$(${PYTHON_INTERPRETER} -c "import sys; print('{}'.format(sys.version_info.major))")
+PYTHON_VERSION_MINOR=$(${PYTHON_INTERPRETER} -c "import sys; print('{}'.format(sys.version_info.minor))")
+if [ ${PYTHON_VERSION_MAJOR} -lt 3 ]; then
+    cecho ${BAD} "The provided python interpreter ${PYTHON_INTERPRETER} implements Python ${PYTHONVER}, but PETSc (an IBAMR dependency) requires Python 3.4 or newer."
+    exit 1
+fi
+if [ ${PYTHON_VERSION_MINOR} -lt 4 ]; then
+    cecho ${BAD} "The provided python interpreter ${PYTHON_INTERPRETER} implements Python ${PYTHONVER}, but PETSc (an IBAMR dependency) requires Python 3.4 or newer."
+    exit 1
+fi
+
 ################################################################################
 # configuration script
 cat > ${CONFIGURATION_PATH}/enable.sh <<"EOF"
