@@ -76,7 +76,7 @@ fi
 # libMesh is optional
 if [ -n "${LIBMESH_DIR}" ]; then
     cecho ${INFO} "IBAMR: configuration with libmesh=${LIBMESH_DIR}"
-    if [ ${DEBUGGING} = ON ]; then
+    if [ ${DEBUGGING} = ON ] || [ ${ASSERTIONS_WITH_OPTIMIZATIONS} = ON ]; then
         _method="DEVEL"
     else
         _method="OPT"

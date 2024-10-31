@@ -27,7 +27,7 @@ CONFOPTS="--CC=${CC} \
 
 # ignore ZLIB for now
 
-if [ ${DEBUGGING} = ON ]; then
+if [ ${DEBUGGING} = ON ] || [ ${ASSERTIONS_WITH_OPTIMIZATIONS} = ON ]; then
     CONFOPTS="${CONFOPTS} --with-debugging=1"
 else
     CONFOPTS="${CONFOPTS} --with-debugging=0"

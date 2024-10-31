@@ -13,10 +13,13 @@ BUILDCHAIN=autotools
 # Even though we don't use it, PETSc may try to pick up the HDF5 Fortran
 # interface, so turn it on to prevent PETSc from accidentally linking against
 # two different copies of HDF5
-CONFOPTS="--enable-shared --disable-parallel --enable-fortran"
+CONFOPTS="--enable-shared --enable-build-mode=production --disable-parallel --enable-fortran"
 
 if [ ${DEBUGGING} = ON ]; then
-    CONFOPTS="${CONFOPTS} --enable-symbols=yes --enable-asserts"
+    CONFOPTS="${CONFOPTS} --enable-asserts"
+fi
+if [ ${ASSERTIONS_WITH_OPTIMIZATIONS} = ON ]; then
+    CONFOPTS="${CONFOPTS} --enable-asserts"
 fi
 
 INSTALL_PATH=${INSTALL_PATH}/${NAME}

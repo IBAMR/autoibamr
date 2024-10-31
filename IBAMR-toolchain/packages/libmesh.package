@@ -51,7 +51,11 @@ CONFOPTS="
 if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} --with-methods=devel"
 else
-    CONFOPTS="${CONFOPTS} --with-methods=opt"
+    if [ ${ASSERTIONS_WITH_OPTIMIZATIONS} = ON ]; then
+        CONFOPTS="${CONFOPTS} --with-methods=devel"
+    else
+        CONFOPTS="${CONFOPTS} --with-methods=opt"
+    fi
     if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
         CONFOPTS="${CONFOPTS} \
       COPTFLAGS='-O3 -march=native' \
