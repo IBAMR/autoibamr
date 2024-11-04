@@ -70,23 +70,32 @@ fi
 
 # deal.II + IBAMR apps are a long way from using higher-order elements so don't
 # bother generating optimized codepaths for them
-FE_EVAL_FLAG="-DFE_EVAL_FACTORY_DEGREE_MAX=2"
+CONFOPTS="${CONFOPTS} -DCMAKE_CXX_FLAGS='-DFE_EVAL_FACTORY_DEGREE_MAX=2'"
 
 if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Debug \
-      -DCMAKE_CXX_FLAGS='$FE_EVAL_FLAG' \
       -DDEAL_II_CXX_FLAGS_DEBUG='-O1'"
 else
-    if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
-        CONFOPTS="${CONFOPTS} \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_FLAGS='$FE_EVAL_FLAG' \
-      -DDEAL_II_CXX_FLAGS_RELEASE='-O3 -march=native'"
+    if [ ${ASSERTIONS_WITH_OPTIMIZATIONS} = ON ]; then
+        if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
+            CONFOPTS="${CONFOPTS} \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DDEAL_II_CXX_FLAGS_RELEASE='-DDEBUG -O3 -march=native'"
+        else
+            CONFOPTS="${CONFOPTS} \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DDEAL_II_CXX_FLAGS_RELEASE='-O2 -DDEBUG'"
+        fi
     else
-        CONFOPTS="${CONFOPTS} \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_FLAGS='$FE_EVAL_FLAG'"
+        if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
+            CONFOPTS="${CONFOPTS} \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DDEAL_II_CXX_FLAGS_RELEASE='-O3 -march=native'"
+        else
+            CONFOPTS="${CONFOPTS} \
+          -DCMAKE_BUILD_TYPE=Release"
+        fi
     fi
 fi
 

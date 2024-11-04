@@ -41,6 +41,9 @@ samrai_compiler_flags="-fPIC"
 if [ ${DEBUGGING} = ON ]; then
     samrai_compiler_flags="${samrai_compiler_flags} -g -O2"
 else
+    if [ ${ASSERTIONS_WITH_OPTIMIZATIONS} = ON ]; then
+        samrai_compiler_flags="${samrai_compiler_flags}"
+    fi
     if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
         samrai_compiler_flags="${samrai_compiler_flags} -O3 -march=native"
     else
@@ -72,6 +75,10 @@ CONFOPTS="
 if [ ! -z "${SILO_DIR}" ]; then
     cecho ${INFO} "samrai: configuration with silo=${SILO_DIR}"
     CONFOPTS="${CONFOPTS} --with-silo=${SILO_DIR}"
+fi
+
+if [ ${DEBUGGING} = ON ] || [ ${ASSERTIONS_WITH_OPTIMIZATIONS} = ON ]; then
+    CONFOPTS="${CONFOPTS} --enable-debug"
 fi
 
 package_specific_patch () {

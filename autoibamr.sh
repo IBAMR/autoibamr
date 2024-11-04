@@ -106,6 +106,7 @@ BUILD_NUMDIFF=OFF
 BUILD_SILO=ON
 CMAKE_LOAD_TARBALL=ON
 DEBUGGING=OFF
+ASSERTIONS_WITH_OPTIMIZATIONS=OFF
 DEPENDENCIES_ONLY=OFF
 EXTERNAL_BOOST=OFF
 EXTERNAL_BOOST_DIR=
@@ -138,30 +139,38 @@ while [ -n "$1" ]; do
             echo ""
             echo "Usage: $0 [options]"
             echo "Options:"
-            echo "  --dependencies-only            Compile everything but IBAMR itself."
-            echo "  --disable-cmake-binary         Instead of trying to download a precompiled CMake binary, compile it."
-            echo "  --disable-libmesh              Build IBAMR without libMesh. libMesh is on by default; this flag disables"
-            echo "                                 it."
-            echo "  --disable-silo                 Build IBAMR without SILO. SILO is on by default; this flag disables it."
-            echo "  --enable-dealii                Build deal.II. This library is not directly used by IBAMR but is a required"
-            echo "                                 dependency of some IBAMR projects. Disabled by default."
-            echo "  --enable-exodusii              Build netcdf and ExodusII. These are not used directly by IBAMR but"
-            echo "                                 are included here for convenience since both depend on HDF5 and some"
-            echo "                                 downstream packages require these. Disabled by default."
-            echo "  --enable-debugging             build dependencies with assertions, optimizations, and debug symbols,"
-            echo "                                 and build IBAMR with assertions, no optimizations, and debug symbols."
-            echo "  --enable-native-optimizations  Build dependencies and IBAMR with platform-specific optimizations."
-            echo "  --enable-numdiff               Build the numdiff tool, which is required for IBAMR's test suite."
-            echo "                                 Numdiff depends on gettext (available through homebrew) on macOS and has"
-            echo "                                 no external dependencies on Linux."
-            echo "  --external-boost=<path>        Use an external copy of boost instead of the one bundled with IBAMR."
-            echo "  --ibamr-version                Version of IBAMR to install. Presently, versions 0.10.1, 0.11.0, 0.12.0,"
-            echo "                                 0.12.1, 0.13.0, 0.14.0, and 0.15.0 are supported."
-            echo "  --python-interpreter           Absolute path to a python interpreter. Defaults to the first of"
-            echo "                                 {python,python3,python2.7} found on the present machine."
-            echo "  -p <path>, --prefix=<path>     Set a different prefix path (default $PREFIX)"
-            echo "  -j <N>, -j<N>, --jobs=<N>      Compile with N processes in parallel (default ${JOBS})"
-            echo "  -y, --yes, --assume-yes        Automatic yes to prompts."
+            echo "  --dependencies-only                    Compile everything but IBAMR itself."
+            echo "  --disable-cmake-binary                 Instead of trying to download a precompiled CMake binary, compile it."
+            echo "  --disable-libmesh                      Build IBAMR without libMesh. libMesh is on by default; this flag disables"
+            echo "                                         it."
+            echo "  --disable-silo                         Build IBAMR without SILO. SILO is on by default; this flag disables it."
+            echo "  --enable-dealii                        Build deal.II. This library is not directly used by IBAMR but is a required"
+            echo "                                         dependency of some IBAMR projects. Disabled by default."
+            echo "  --enable-exodusii                      Build netcdf and ExodusII. These are not used directly by IBAMR but"
+            echo "                                         are included here for convenience since both depend on HDF5 and some"
+            echo "                                         downstream packages require these. Disabled by default."
+            echo "  --enable-debugging                     build dependencies with assertions, optimizations, and debug symbols,"
+            echo "                                         and build IBAMR with assertions, no optimizations, and debug symbols."
+            echo "  --enable-assertions-with-optimizations Build with assertions, debug symbols, and optimizations. This build type"
+            echo "                                         is not suitable for use with the debugger (since optimizations will"
+            echo "                                         make most variables unreadable in that context) but is useful for"
+            echo "                                         development since since, with optimizations, the performance penalty of"
+            echo "                                         running all assertions is perhaps 10-20% (instead of the order of magnitude"
+            echo "                                         slowdown when using a debugging build)."
+            echo "                                         and build IBAMR with assertions, no optimizations, and debug symbols."
+            echo "  --enable-native-optimizations          Build dependencies and IBAMR with platform-specific optimizations."
+            echo "                                         This option is compatible with --enable-assertions-with-optimizations."
+            echo "  --enable-numdiff                       Build the numdiff tool, which is required for IBAMR's test suite."
+            echo "                                         Numdiff depends on gettext (available through homebrew) on macOS and has"
+            echo "                                         no external dependencies on Linux."
+            echo "  --external-boost=<path>                Use an external copy of boost instead of the one bundled with IBAMR."
+            echo "  --ibamr-version                        Version of IBAMR to install. Presently, versions 0.10.1, 0.11.0, 0.12.0,"
+            echo "                                         0.12.1, 0.13.0, 0.14.0, and 0.15.0 are supported."
+            echo "  --python-interpreter                   Absolute path to a python interpreter. Defaults to the first of"
+            echo "                                         {python,python3,python2.7} found on the present machine."
+            echo "  -p <path>, --prefix=<path>             Set a different prefix path (default $PREFIX)"
+            echo "  -j <N>, -j<N>, --jobs=<N>              Compile with N processes in parallel (default ${JOBS})"
+            echo "  -y, --yes, --assume-yes                Automatic yes to prompts."
             exit 0
         ;;
 
@@ -205,6 +214,12 @@ while [ -n "$1" ]; do
         # debug builds
         --enable-debugging)
             DEBUGGING=ON
+        ;;
+
+        #####################################
+        # developer builds
+        --enable-assertions-with-optimizations)
+            ASSERTIONS_WITH_OPTIMIZATIONS=ON
         ;;
 
         #####################################
@@ -298,6 +313,10 @@ done
 # Don't permit things that don't make sense
 if [ ${DEBUGGING} = "ON" ] && [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
   cecho ${BAD} "ERROR: --enable-debugging and --enable-native-optimizations are mutually incompatible features."
+  exit 1
+fi
+if [ ${DEBUGGING} = "ON" ] && [ ${ASSERTIONS_WITH_OPTIMIZATIONS} = "ON" ]; then
+  cecho ${BAD} "ERROR: --enable-debugging and --enable-assertions-with-optimizations are mutually incompatible features."
   exit 1
 fi
 
