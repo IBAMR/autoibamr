@@ -21,7 +21,6 @@ CONFOPTS="
   --disable-curl
   --disable-eigen
   --disable-fparser
-  --disable-hdf5
   --disable-laspack
   --disable-metaphysicl
   --disable-nlopt
@@ -38,14 +37,16 @@ CONFOPTS="
   --enable-curl=no
   --enable-exodus=yes
   --enable-glpk=no
+  --enable-hdf5=yes
   --enable-nanoflann=no
   --enable-qhull=no
   --enable-tecplot=no
   --enable-timestamps=no
   --enable-petsc-required
+  --enable-unique-id
+  --with-hdf5=${HDF5_DIR}
   --with-metis=PETSc
   --with-parmetis=PETSc
-  --enable-unique-id
 "
 
 if [ ${DEBUGGING} = ON ]; then
