@@ -103,6 +103,7 @@ BUILD_DEAL_II=OFF
 BUILD_EXODUS_II=OFF
 BUILD_LIBMESH=ON
 BUILD_NUMDIFF=OFF
+BUILD_P4EST=OFF
 BUILD_SILO=ON
 CMAKE_LOAD_TARBALL=ON
 DEBUGGING=OFF
@@ -149,6 +150,8 @@ while [ -n "$1" ]; do
             echo "  --enable-exodusii                      Build netcdf and ExodusII. These are not used directly by IBAMR but"
             echo "                                         are included here for convenience since both depend on HDF5 and some"
             echo "                                         downstream packages require these. Disabled by default."
+            echo "  --enable-p4est                         Build with p4est. This package is not used by IBAMR but may be used by"
+            echo "                                         deal.II."
             echo "  --enable-debugging                     build dependencies with assertions, optimizations, and debug symbols,"
             echo "                                         and build IBAMR with assertions, no optimizations, and debug symbols."
             echo "  --enable-assertions-with-optimizations Build with assertions, debug symbols, and optimizations. This build type"
@@ -208,6 +211,12 @@ while [ -n "$1" ]; do
         # ExodusII and netcdf
         --enable-exodusii)
             BUILD_EXODUS_II=ON
+        ;;
+
+        #####################################
+        # p4est
+        --enable-p4est)
+            BUILD_P4EST=ON
         ;;
 
         #####################################
@@ -876,6 +885,10 @@ if [ ${BUILD_EXODUS_II} = "ON" ]; then
 fi
 
 PACKAGES="${PACKAGES} samrai"
+
+if [ ${BUILD_P4EST} = "ON" ]; then
+    PACKAGES="${PACKAGES} p4est"
+fi
 
 if [ ${BUILD_DEAL_II} = "ON" ]; then
     PACKAGES="${PACKAGES} dealii"
