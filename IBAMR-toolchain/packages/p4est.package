@@ -1,0 +1,37 @@
+VERSION=2.8.6
+NAME=p4est-$VERSION
+SOURCE=https://p4est.github.io/release/
+PACKING=.tar.gz
+CHECKSUM=089cc13e0596bf221bbb508318c58c12fa7b9d6f
+EXTRACTSTO=p4est-${VERSION}
+BUILDCHAIN=autotools
+
+INSTALL_PATH="${INSTALL_PATH}/p4est-${VERSION}"
+
+CONFOPTS="
+--without-petsc
+--without-metis
+--without-blas
+--without-lint
+--enable-mpi
+--enable-shared
+--disable-vtk-binary
+--disable-mpithread
+--enable-static=no
+--prefix=
+CFLAGS='-O2 -g'
+CPPFLAGS=-DSC_LOG_PRIORITITY=SC_LP_ESSENTIAL
+"
+
+package_specific_register () {
+    export P4EST_DIR=${INSTALL_PATH}
+}
+
+package_specific_conf () {
+    # Generate configuration file
+    CONFIG_FILE=${CONFIGURATION_PATH}/${NAME}
+    rm -f $CONFIG_FILE
+    echo "
+export P4EST_DIR=${INSTALL_PATH}
+" >> $CONFIG_FILE
+}
