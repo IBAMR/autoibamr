@@ -82,6 +82,32 @@ up the correct MPI environment. After that you can run
   ./autoibamr.sh
 ```
 
+### Fixing Common Problems with macOS
+
+The most common sources of problem with macOS are:
+1. Anaconda installs a conflicting and sometimes broken set of command-line tools
+2. The operating system was updated but Xcode was not.
+
+We highly recommend uninstalling anaconda (and related packages, like miniconda)
+since anaconda tries to replace the system-level development tools with its own.
+You may need to modify `.bashrc` to ensure no lingering references to conda
+remain after uninstalling it.
+
+If you encounter problems such as
+``` bash
+ld: library not found for -ld_classic
+```
+
+or things appear to stop working while compiling PETSc, then we recommend making
+sure that Xcode is up-to-date by running
+
+``` bash
+xcode-select --install
+softwareupdate --install xcode
+```
+
+or, alternatively, install and then update the full Xcode system from the App store.
+
 ### Using the installed copy of IBAMR
 
 This can be done in two ways:
