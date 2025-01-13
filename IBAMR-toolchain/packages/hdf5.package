@@ -12,8 +12,9 @@ BUILDCHAIN=autotools
 #
 # Even though we don't use it, PETSc may try to pick up the HDF5 Fortran
 # interface, so turn it on to prevent PETSc from accidentally linking against
-# two different copies of HDF5
-CONFOPTS="--enable-shared --enable-build-mode=production --disable-parallel --enable-fortran"
+# two different copies of HDF5. Similarly, libMesh will try to link against the C++
+# version so we have to enable it.
+CONFOPTS="--enable-shared --enable-build-mode=production --disable-parallel --enable-fortran --enable-cxx"
 
 if [ ${DEBUGGING} = ON ]; then
     CONFOPTS="${CONFOPTS} --enable-asserts"
