@@ -1,0 +1,1761 @@
+diff --git a/include/base/libmesh_common.h b/include/base/libmesh_common.h
+index 590f32aa0..4bfe84696 100644
+--- a/include/base/libmesh_common.h
++++ b/include/base/libmesh_common.h
+@@ -640,7 +640,7 @@ inline Tnew libmesh_cast_int (Told oldvar)
+ 
+ // libmesh_final is simply a synonym for 'final' as we now require
+ // a C++11 compiler that supports this keyword.
+-#define libmesh_final final
++#define libmesh_final
+ 
+ // Define backwards-compatible fallthrough attribute.  We could
+ // eventually also add support for other compiler-specific fallthrough
+diff --git a/include/geom/cell_hex.h b/include/geom/cell_hex.h
+index d4e0049ab..04caac314 100644
+--- a/include/geom/cell_hex.h
++++ b/include/geom/cell_hex.h
+@@ -59,7 +59,7 @@ public:
+    * \returns The \p Point associated with local \p Node \p i,
+    * in master element rather than physical coordinates.
+    */
+-  virtual Point master_point (const unsigned int i) const override final
++  virtual Point master_point (const unsigned int i) const override
+   {
+     libmesh_assert_less(i, this->n_nodes());
+     return Point(_master_points[i][0],
+@@ -70,45 +70,45 @@ public:
+   /**
+    * \returns 6.
+    */
+-  virtual unsigned int n_sides() const override final { return 6; }
++  virtual unsigned int n_sides() const override { return 6; }
+ 
+   /**
+    * \returns 8.  All hexahedra have 8 vertices.
+    */
+-  virtual unsigned int n_vertices() const override final { return 8; }
++  virtual unsigned int n_vertices() const override { return 8; }
+ 
+   /**
+    * \returns 12.  All hexahedra have 12 edges.
+    */
+-  virtual unsigned int n_edges() const override final { return 12; }
++  virtual unsigned int n_edges() const override { return 12; }
+ 
+   /**
+    * \returns 6.  All hexahedra have 6 faces.
+    */
+-  virtual unsigned int n_faces() const override final { return 6; }
++  virtual unsigned int n_faces() const override { return 6; }
+ 
+   /**
+    * \returns 8.
+    */
+-  virtual unsigned int n_children() const override final { return 8; }
++  virtual unsigned int n_children() const override { return 8; }
+ 
+   /**
+    * \returns \p true if the specified child is on the specified side.
+    */
+   virtual bool is_child_on_side(const unsigned int c,
+-                                const unsigned int s) const override final;
++                                const unsigned int s) const override;
+ 
+   /**
+    * \returns \p true if the specified edge is on the specified side.
+    */
+   virtual bool is_edge_on_side(const unsigned int e,
+-                               const unsigned int s) const override final;
++                               const unsigned int s) const override;
+ 
+   /**
+    * \returns The side number opposite to \p s (for a tensor product
+    * element), or throws an error otherwise.
+    */
+-  virtual unsigned int opposite_side(const unsigned int s) const override final;
++  virtual unsigned int opposite_side(const unsigned int s) const override;
+ 
+   /**
+    * \returns The local node number for the node opposite to node n
+@@ -116,7 +116,7 @@ public:
+    * throws an error otherwise.
+    */
+   virtual unsigned int opposite_node(const unsigned int n,
+-                                     const unsigned int s) const override final;
++                                     const unsigned int s) const override;
+ 
+   /**
+    * Don't hide Elem::key() defined in the base class.
+@@ -145,12 +145,12 @@ public:
+   /**
+    * \returns A primitive (4-noded) quad for face i.
+    */
+-  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override final;
++  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override;
+ 
+   /**
+    * Rebuilds a primitive (4-noded) quad for face i.
+    */
+-  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override final;
++  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override;
+ 
+   /**
+    * \returns A quantitative assessment of element quality based on
+@@ -165,12 +165,12 @@ public:
+    */
+   virtual std::pair<Real, Real> qual_bounds (const ElemQuality q) const override;
+ 
+-  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override final;
++  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override;
+ 
+   /**
+    * Six sides, four orientations per side.
+    */
+-  virtual unsigned int n_permutations() const override final { return 24; }
++  virtual unsigned int n_permutations() const override { return 24; }
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_hex20.h b/include/geom/cell_hex20.h
+index 6d6724aee..ff3c7a386 100644
+--- a/include/geom/cell_hex20.h
++++ b/include/geom/cell_hex20.h
+@@ -67,7 +67,7 @@ namespace libMesh
+  * \date 2002
+  * \brief A 3D hexahedral element with 20 nodes.
+  */
+-class Hex20 final : public Hex
++class Hex20 : public Hex
+ {
+ public:
+ 
+@@ -239,7 +239,7 @@ public:
+    */
+   virtual Real volume () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_hex27.h b/include/geom/cell_hex27.h
+index dd0876ae7..4a457036e 100644
+--- a/include/geom/cell_hex27.h
++++ b/include/geom/cell_hex27.h
+@@ -67,7 +67,7 @@ namespace libMesh
+  * \date 2002
+  * \brief A 3D hexahedral element with 27 nodes.
+  */
+-class Hex27 final : public Hex
++class Hex27 : public Hex
+ {
+ public:
+ 
+@@ -255,9 +255,9 @@ public:
+    */
+   virtual Real volume () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+-  unsigned int center_node_on_side(const unsigned short side) const override final;
++  unsigned int center_node_on_side(const unsigned short side) const override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_hex8.h b/include/geom/cell_hex8.h
+index 7b3c7fa75..95a3f1dab 100644
+--- a/include/geom/cell_hex8.h
++++ b/include/geom/cell_hex8.h
+@@ -52,7 +52,7 @@ namespace libMesh
+  * \date 2002
+  * \brief A 3D hexahedral element with 8 nodes.
+  */
+-class Hex8 final : public Hex
++class Hex8 : public Hex
+ {
+ public:
+ 
+@@ -214,7 +214,7 @@ public:
+    */
+   virtual BoundingBox loose_bounding_box () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_inf_hex.h b/include/geom/cell_inf_hex.h
+index b9c856b73..734a577b9 100644
+--- a/include/geom/cell_inf_hex.h
++++ b/include/geom/cell_inf_hex.h
+@@ -69,7 +69,7 @@ public:
+    * \returns The \p Point associated with local \p Node \p i,
+    * in master element rather than physical coordinates.
+    */
+-  virtual Point master_point (const unsigned int i) const override final
++  virtual Point master_point (const unsigned int i) const override
+   {
+     libmesh_assert_less(i, this->n_nodes());
+     return Point(_master_points[i][0],
+@@ -82,51 +82,51 @@ public:
+    * than their conventional counterparts, since one
+    * side is supposed to be located at infinity.
+    */
+-  virtual unsigned int n_sides() const override final { return 5; }
++  virtual unsigned int n_sides() const override { return 5; }
+ 
+   /**
+    * \returns 8.  All infinite hexahedra (in our
+    * setting) have 8 vertices.
+    */
+-  virtual unsigned int n_vertices() const override final { return 8; }
++  virtual unsigned int n_vertices() const override { return 8; }
+ 
+   /**
+    * \returns \p true if the specified (local) node number is a
+    * "mid-edge" node on an infinite element edge.
+    */
+   virtual bool is_mid_infinite_edge_node(const unsigned int i) const
+-    override final { return (i > 3 && i < 8); }
++    override { return (i > 3 && i < 8); }
+ 
+   /**
+    * \returns 8.  All infinite hexahedra have 8 edges,
+    * 4 lying in the base, and 4 perpendicular to the base.
+    */
+-  virtual unsigned int n_edges() const override final { return 8; }
++  virtual unsigned int n_edges() const override { return 8; }
+ 
+   /**
+    * \returns 5.  All infinite hexahedra have 5 faces.
+    */
+-  virtual unsigned int n_faces() const override final { return 5; }
++  virtual unsigned int n_faces() const override { return 5; }
+ 
+   /**
+    * \returns 4.
+    */
+-  virtual unsigned int n_children() const override final { return 4; }
++  virtual unsigned int n_children() const override { return 4; }
+ 
+   /**
+    * \returns \p true if the specified child is on the
+    * specified side.
+    */
+   virtual bool is_child_on_side(const unsigned int c,
+-                                const unsigned int s) const override final;
++                                const unsigned int s) const override;
+ 
+   /**
+    * \returns \p true if the specified edge is on the specified side.
+    */
+   virtual bool is_edge_on_side(const unsigned int e,
+-                               const unsigned int s) const override final;
++                               const unsigned int s) const override;
+ 
+-  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override final;
++  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override;
+ 
+   /**
+    * Don't hide Elem::key() defined in the base class.
+@@ -155,12 +155,12 @@ public:
+   /**
+    * \returns A primitive (4-noded) quad or infquad for face i.
+    */
+-  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override final;
++  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override;
+ 
+   /**
+    * Rebuilds a primitive (4-noded) quad or infquad for face i.
+    */
+-  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override final;
++  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override;
+ 
+   /**
+    * \returns A quantitative assessment of element quality based on
+@@ -185,7 +185,7 @@ public:
+   /**
+    * One non-infinite side, four orientations.
+    */
+-  virtual unsigned int n_permutations() const override final { return 4; }
++  virtual unsigned int n_permutations() const override { return 4; }
+ 
+   /**
+    * This maps each edge to the sides that contain said edge.
+diff --git a/include/geom/cell_inf_hex16.h b/include/geom/cell_inf_hex16.h
+index c8df10349..cfaf2af5c 100644
+--- a/include/geom/cell_inf_hex16.h
++++ b/include/geom/cell_inf_hex16.h
+@@ -67,7 +67,7 @@ namespace libMesh
+  * \date 2002
+  * \brief A 3D infinite hexahedral element with 16 nodes.
+  */
+-class InfHex16 final : public InfHex
++class InfHex16 : public InfHex
+ {
+ public:
+ 
+@@ -232,7 +232,7 @@ public:
+    */
+   static const unsigned int edge_nodes_map[num_edges][nodes_per_edge];
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_inf_hex18.h b/include/geom/cell_inf_hex18.h
+index fceec78e0..19f89c624 100644
+--- a/include/geom/cell_inf_hex18.h
++++ b/include/geom/cell_inf_hex18.h
+@@ -67,7 +67,7 @@ namespace libMesh
+  * \date 2002
+  * \brief A 3D infinite hexahedral element with 18 nodes.
+  */
+-class InfHex18 final : public InfHex
++class InfHex18 : public InfHex
+ {
+ public:
+ 
+@@ -247,7 +247,7 @@ public:
+    */
+   static const unsigned int edge_nodes_map[num_edges][nodes_per_edge];
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_inf_hex8.h b/include/geom/cell_inf_hex8.h
+index c461a0fd9..43ad60738 100644
+--- a/include/geom/cell_inf_hex8.h
++++ b/include/geom/cell_inf_hex8.h
+@@ -52,7 +52,7 @@ namespace libMesh
+  * \date 2002
+  * \brief A 3D infinite hexahedral element with 8 nodes.
+  */
+-class InfHex8 final : public InfHex
++class InfHex8 : public InfHex
+ {
+ public:
+ 
+@@ -182,7 +182,7 @@ public:
+    */
+   static const unsigned int edge_nodes_map[num_edges][nodes_per_edge];
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_inf_prism.h b/include/geom/cell_inf_prism.h
+index a303312ad..62ecb5ae1 100644
+--- a/include/geom/cell_inf_prism.h
++++ b/include/geom/cell_inf_prism.h
+@@ -65,7 +65,7 @@ public:
+    * \returns The \p Point associated with local \p Node \p i,
+    * in master element rather than physical coordinates.
+    */
+-  virtual Point master_point (const unsigned int i) const override final
++  virtual Point master_point (const unsigned int i) const override
+   {
+     libmesh_assert_less(i, this->n_nodes());
+     return Point(_master_points[i][0],
+@@ -78,48 +78,48 @@ public:
+    * than their conventional counterparts, since one
+    * side is supposed to be located at infinity.
+    */
+-  virtual unsigned int n_sides() const override final { return 4; }
++  virtual unsigned int n_sides() const override { return 4; }
+ 
+   /**
+    * \returns 6.  All infinite prisms (in our
+    * setting) have 6 vertices.
+    */
+-  virtual unsigned int n_vertices() const override final { return 6; }
++  virtual unsigned int n_vertices() const override { return 6; }
+ 
+   /**
+    * \returns 6.  All infinite prisms have 6 edges,
+    * 3 lying in the base, and 3 perpendicular to the base.
+    */
+-  virtual unsigned int n_edges() const override final { return 6; }
++  virtual unsigned int n_edges() const override { return 6; }
+ 
+   /**
+    * \returns 4.  All prisms have 4 faces.
+    */
+-  virtual unsigned int n_faces() const override final { return 4; }
++  virtual unsigned int n_faces() const override { return 4; }
+ 
+   /**
+    * \returns 4.
+    */
+-  virtual unsigned int n_children() const override final { return 4; }
++  virtual unsigned int n_children() const override { return 4; }
+ 
+   /**
+    * \returns \p true if the specified (local) node number is a
+    * "mid-edge" node on an infinite element edge.
+    */
+   virtual bool is_mid_infinite_edge_node(const unsigned int i) const
+-    override final { return (i > 2 && i < 6); }
++    override { return (i > 2 && i < 6); }
+ 
+   /**
+    * \returns \p true if the specified child is on the specified side.
+    */
+   virtual bool is_child_on_side(const unsigned int c,
+-                                const unsigned int s) const override final;
++                                const unsigned int s) const override;
+ 
+   /**
+    * \returns \p true if the specified edge is on the specified side.
+    */
+   virtual bool is_edge_on_side(const unsigned int e,
+-                               const unsigned int s) const override final;
++                               const unsigned int s) const override;
+ 
+   /**
+    * Don't hide Elem::key() defined in the base class.
+@@ -149,13 +149,13 @@ public:
+    * \returns A primitive (3-noded) tri or (4-noded) infquad for
+    * face i.
+    */
+-  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override final;
++  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override;
+ 
+   /**
+    * Rebuilds a primitive (3-noded) tri or (4-noded) infquad for face
+    * i.
+    */
+-  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override final;
++  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override;
+ 
+   /**
+    * @returns \p true when this element contains the point
+@@ -167,7 +167,7 @@ public:
+   /**
+    * One non-infinite side, three orientations.
+    */
+-  virtual unsigned int n_permutations() const override final { return 3; }
++  virtual unsigned int n_permutations() const override { return 3; }
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_inf_prism12.h b/include/geom/cell_inf_prism12.h
+index 69d5b1bc0..d768ffcbc 100644
+--- a/include/geom/cell_inf_prism12.h
++++ b/include/geom/cell_inf_prism12.h
+@@ -58,7 +58,7 @@ namespace libMesh
+  * \date 2002
+  * \brief A 3D infinite prismatic element with 12 nodes.
+  */
+-class InfPrism12 final : public InfPrism
++class InfPrism12 : public InfPrism
+ {
+ public:
+ 
+@@ -227,7 +227,7 @@ public:
+    */
+   static const unsigned int edge_sides_map[num_edges][2];
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_inf_prism6.h b/include/geom/cell_inf_prism6.h
+index b8696cf05..96d1de42c 100644
+--- a/include/geom/cell_inf_prism6.h
++++ b/include/geom/cell_inf_prism6.h
+@@ -54,7 +54,7 @@ namespace libMesh
+  * \date 2002
+  * \brief A 3D infinite prismatic element with 6 nodes.
+  */
+-class InfPrism6 final : public InfPrism
++class InfPrism6 : public InfPrism
+ {
+ public:
+ 
+@@ -188,7 +188,7 @@ public:
+    */
+   static const unsigned int edge_sides_map[num_edges][2];
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_prism.h b/include/geom/cell_prism.h
+index efe36723a..7a75ccee6 100644
+--- a/include/geom/cell_prism.h
++++ b/include/geom/cell_prism.h
+@@ -59,7 +59,7 @@ public:
+    * \returns The \p Point associated with local \p Node \p i,
+    * in master element rather than physical coordinates.
+    */
+-  virtual Point master_point (const unsigned int i) const override final
++  virtual Point master_point (const unsigned int i) const override
+   {
+     libmesh_assert_less(i, this->n_nodes());
+     return Point(_master_points[i][0],
+@@ -76,39 +76,39 @@ public:
+   /**
+    * \returns 5.
+    */
+-  virtual unsigned int n_sides() const override final { return 5; }
++  virtual unsigned int n_sides() const override { return 5; }
+ 
+   /**
+    * \returns 6.  All prisms have 6 vertices.
+    */
+-  virtual unsigned int n_vertices() const override final { return 6; }
++  virtual unsigned int n_vertices() const override { return 6; }
+ 
+   /**
+    * \returns 9.  All prisms have 9 edges.
+    */
+-  virtual unsigned int n_edges() const override final { return 9; }
++  virtual unsigned int n_edges() const override { return 9; }
+ 
+   /**
+    * \returns 5.  All prisms have 5 faces.
+    */
+-  virtual unsigned int n_faces() const override final { return 5; }
++  virtual unsigned int n_faces() const override { return 5; }
+ 
+   /**
+    * \returns 8.
+    */
+-  virtual unsigned int n_children() const override final { return 8; }
++  virtual unsigned int n_children() const override { return 8; }
+ 
+   /**
+    * \returns \p true if the specified child is on the specified side.
+    */
+   virtual bool is_child_on_side(const unsigned int c,
+-                                const unsigned int s) const override final;
++                                const unsigned int s) const override;
+ 
+   /**
+    * \returns \p true if the specified edge is on the specified side.
+    */
+   virtual bool is_edge_on_side(const unsigned int e,
+-                               const unsigned int s) const override final;
++                               const unsigned int s) const override;
+ 
+   /**
+    * Don't hide Elem::key() defined in the base class.
+@@ -137,19 +137,19 @@ public:
+   /**
+    * \returns A primitive triangle or quad for face i.
+    */
+-  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override final;
++  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override;
+ 
+   /**
+    * Rebuilds a primitive triangle or quad for face i.
+    */
+-  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override final;
++  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override;
+ 
+-  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override final;
++  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override;
+ 
+   /**
+    * Two triangular sides, three orientations.
+    */
+-  virtual unsigned int n_permutations() const override final { return 6; }
++  virtual unsigned int n_permutations() const override { return 6; }
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_prism15.h b/include/geom/cell_prism15.h
+index 029792622..d70a35af0 100644
+--- a/include/geom/cell_prism15.h
++++ b/include/geom/cell_prism15.h
+@@ -72,7 +72,7 @@ namespace libMesh
+  * \date 2003
+  * \brief A 3D prismatic element with 15 nodes.
+  */
+-class Prism15 final : public Prism
++class Prism15 : public Prism
+ {
+ public:
+ 
+@@ -244,7 +244,7 @@ public:
+    */
+   virtual Real volume () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_prism18.h b/include/geom/cell_prism18.h
+index 365e0ac6a..998625257 100644
+--- a/include/geom/cell_prism18.h
++++ b/include/geom/cell_prism18.h
+@@ -72,7 +72,7 @@ namespace libMesh
+  * \date 2003
+  * \brief A 3D prismatic element with 18 nodes.
+  */
+-class Prism18 final : public Prism
++class Prism18 : public Prism
+ {
+ public:
+ 
+@@ -260,9 +260,9 @@ public:
+    */
+   virtual Real volume () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+-  unsigned int center_node_on_side(const unsigned short side) const override final;
++  unsigned int center_node_on_side(const unsigned short side) const override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_prism6.h b/include/geom/cell_prism6.h
+index eaa88e69a..0772a35d6 100644
+--- a/include/geom/cell_prism6.h
++++ b/include/geom/cell_prism6.h
+@@ -55,7 +55,7 @@ namespace libMesh
+  * \date 2002
+  * \brief A 3D prismatic element with 6 nodes.
+  */
+-class Prism6 final : public Prism
++class Prism6 : public Prism
+ {
+ public:
+ 
+@@ -204,7 +204,7 @@ public:
+    */
+   virtual BoundingBox loose_bounding_box () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_pyramid.h b/include/geom/cell_pyramid.h
+index 85e94a1e4..8c3e6fa61 100644
+--- a/include/geom/cell_pyramid.h
++++ b/include/geom/cell_pyramid.h
+@@ -149,7 +149,7 @@ public:
+    */
+   virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override;
+ 
+-  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override final;
++  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override;
+ 
+   /**
+   * \returns Node 4 (the apex) if \p is at the apex within the tolerance
+@@ -162,18 +162,18 @@ public:
+   * and return the correct point without failure if it is the apex.
+   * This behavior _does_ require exceptions to be enabled.
+   */
+-  unsigned int local_singular_node(const Point & p, const Real tol = TOLERANCE*TOLERANCE) const override final;
++  unsigned int local_singular_node(const Point & p, const Real tol = TOLERANCE*TOLERANCE) const override;
+ 
+   /**
+    * \returns true iff the node at the given index has a singular
+    * mapping; i.e. is the degree-4 node on a Pyramid.
+    */
+-  virtual bool is_singular_node(unsigned int node_idx) const override final { return (node_idx == 4); }
++  virtual bool is_singular_node(unsigned int node_idx) const override { return (node_idx == 4); }
+ 
+   /**
+    * One quad side, four orientations.
+    */
+-  virtual unsigned int n_permutations() const override final { return 4; }
++  virtual unsigned int n_permutations() const override { return 4; }
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_pyramid13.h b/include/geom/cell_pyramid13.h
+index d494fd622..9c1ac230c 100644
+--- a/include/geom/cell_pyramid13.h
++++ b/include/geom/cell_pyramid13.h
+@@ -70,7 +70,7 @@ namespace libMesh
+  * \date 2014
+  * \brief A 3D pyramid element with 13 nodes.
+  */
+-class Pyramid13 final : public Pyramid
++class Pyramid13 : public Pyramid
+ {
+ public:
+ 
+@@ -232,7 +232,7 @@ public:
+    */
+   virtual Real volume () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_pyramid14.h b/include/geom/cell_pyramid14.h
+index 41f85d204..666fe474e 100644
+--- a/include/geom/cell_pyramid14.h
++++ b/include/geom/cell_pyramid14.h
+@@ -73,7 +73,7 @@ namespace libMesh
+  * \date 2013
+  * \brief A 3D pyramid element with 14 nodes.
+  */
+-class Pyramid14 final : public Pyramid
++class Pyramid14 : public Pyramid
+ {
+ public:
+ 
+@@ -251,9 +251,9 @@ public:
+    */
+   virtual Real volume () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+-  unsigned int center_node_on_side(const unsigned short side) const override final;
++  unsigned int center_node_on_side(const unsigned short side) const override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_pyramid5.h b/include/geom/cell_pyramid5.h
+index 5cce59f73..7d0faaaea 100644
+--- a/include/geom/cell_pyramid5.h
++++ b/include/geom/cell_pyramid5.h
+@@ -54,7 +54,7 @@ namespace libMesh
+  * \date 2002
+  * \brief A 3D pyramid element with 5 nodes.
+  */
+-class Pyramid5 final : public Pyramid
++class Pyramid5 : public Pyramid
+ {
+ public:
+ 
+@@ -197,7 +197,7 @@ public:
+    */
+   virtual BoundingBox loose_bounding_box () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_tet.h b/include/geom/cell_tet.h
+index a5dc197e9..b755a1c51 100644
+--- a/include/geom/cell_tet.h
++++ b/include/geom/cell_tet.h
+@@ -60,7 +60,7 @@ public:
+    * \returns The \p Point associated with local \p Node \p i,
+    * in master element rather than physical coordinates.
+    */
+-  virtual Point master_point (const unsigned int i) const override final
++  virtual Point master_point (const unsigned int i) const override
+   {
+     libmesh_assert_less(i, this->n_nodes());
+     return Point(_master_points[i][0],
+@@ -71,33 +71,33 @@ public:
+   /**
+    * \returns 4.
+    */
+-  virtual unsigned int n_sides() const override final { return 4; }
++  virtual unsigned int n_sides() const override { return 4; }
+ 
+   /**
+    * \returns 4.  All tetrahedra have 4 vertices.
+    */
+-  virtual unsigned int n_vertices() const override final { return 4; }
++  virtual unsigned int n_vertices() const override { return 4; }
+ 
+   /**
+    * \returns 6.  All tetrahedra have 6 edges.
+    */
+-  virtual unsigned int n_edges() const override final { return 6; }
++  virtual unsigned int n_edges() const override { return 6; }
+ 
+   /**
+    * \returns 4.  All tetrahedra have 4 faces.
+    */
+-  virtual unsigned int n_faces() const override final { return 4; }
++  virtual unsigned int n_faces() const override { return 4; }
+ 
+   /**
+    * \returns 8.
+    */
+-  virtual unsigned int n_children() const override final { return 8; }
++  virtual unsigned int n_children() const override { return 8; }
+ 
+   /**
+    * \returns \p true if the specified edge is on the specified side.
+    */
+   virtual bool is_edge_on_side(const unsigned int e,
+-                               const unsigned int s) const override final;
++                               const unsigned int s) const override;
+ 
+   /**
+    * Don't hide Elem::key() defined in the base class.
+@@ -126,12 +126,12 @@ public:
+   /**
+    * \returns A primitive (3-noded) triangle for face i.
+    */
+-  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override final;
++  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override;
+ 
+   /**
+    * Rebuilds a primitive (3-noded) triangle for face i.
+    */
+-  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override final;
++  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override;
+ 
+   /**
+    * \returns A quantitative assessment of element quality based on
+@@ -171,7 +171,7 @@ public:
+    */
+   void select_diagonal (const Diagonal diag) const;
+ 
+-  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override final;
++  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override;
+ 
+ 
+ #ifdef LIBMESH_ENABLE_AMR
+@@ -183,7 +183,7 @@ public:
+    * But we want to cache topology data based on that matrix.  So we return a
+    * "version number" based on the diagonal selection.
+    */
+-  virtual unsigned int embedding_matrix_version () const override final
++  virtual unsigned int embedding_matrix_version () const override
+   {
+     this->choose_diagonal();
+     return this->diagonal_selection();
+@@ -194,7 +194,7 @@ public:
+   /**
+    * Four sides, three orientations.
+    */
+-  virtual unsigned int n_permutations() const override final { return 12; }
++  virtual unsigned int n_permutations() const override { return 12; }
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_tet10.h b/include/geom/cell_tet10.h
+index 025b01037..a20760993 100644
+--- a/include/geom/cell_tet10.h
++++ b/include/geom/cell_tet10.h
+@@ -61,7 +61,7 @@ namespace libMesh
+  * \date 2002
+  * \brief A 3D tetrahedral element with 10 nodes.
+  */
+-class Tet10 final : public Tet
++class Tet10 : public Tet
+ {
+ public:
+ 
+@@ -240,7 +240,7 @@ public:
+    */
+   virtual Real volume () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/cell_tet4.h b/include/geom/cell_tet4.h
+index 351e6b09e..c5ddd7d32 100644
+--- a/include/geom/cell_tet4.h
++++ b/include/geom/cell_tet4.h
+@@ -56,7 +56,7 @@ namespace libMesh
+  * \date 2002
+  * \brief A 3D tetrahedral element with 4 nodes.
+  */
+-class Tet4 final : public Tet
++class Tet4 : public Tet
+ {
+ public:
+ 
+@@ -247,7 +247,7 @@ public:
+    */
+   virtual bool contains_point (const Point & p, Real tol) const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/edge.h b/include/geom/edge.h
+index 328669690..288fadfcc 100644
+--- a/include/geom/edge.h
++++ b/include/geom/edge.h
+@@ -61,7 +61,7 @@ public:
+   /**
+    * \returns 1, the dimensionality of the object.
+    */
+-  virtual unsigned short dim () const override final { return 1; }
++  virtual unsigned short dim () const override { return 1; }
+ 
+   /**
+    * \returns 2. Every edge is guaranteed to have at least 2 nodes.
+@@ -71,46 +71,46 @@ public:
+   /**
+    * \returns 2.
+    */
+-  virtual unsigned int n_sides() const override final { return 2; }
++  virtual unsigned int n_sides() const override { return 2; }
+ 
+   /**
+    * \returns 2.  Every edge has exactly two vertices.
+    */
+-  virtual unsigned int n_vertices() const override final { return 2; }
++  virtual unsigned int n_vertices() const override { return 2; }
+ 
+   /**
+    * \returns 0.  All 1D elements have no edges.
+    */
+-  virtual unsigned int n_edges() const override final { return 0; }
++  virtual unsigned int n_edges() const override { return 0; }
+ 
+   /**
+    * \returns 0.  All 1D elements have no faces.
+    */
+-  virtual unsigned int n_faces() const override final { return 0; }
++  virtual unsigned int n_faces() const override { return 0; }
+ 
+   /**
+    * \returns 2.
+    */
+-  virtual unsigned int n_children() const override final { return 2; }
++  virtual unsigned int n_children() const override { return 2; }
+ 
+   /**
+    * \returns \p true if the specified child is on the specified side.
+    */
+   virtual bool is_child_on_side(const unsigned int c,
+-                                const unsigned int s) const override final;
++                                const unsigned int s) const override;
+ 
+   /**
+    * \returns \p true if the specified edge is on the specified side.
+    */
+   virtual bool is_edge_on_side(const unsigned int,
+-                               const unsigned int) const override final
++                               const unsigned int) const override
+   { return false; }
+ 
+   /**
+    * \returns The side number opposite to \p s (for a tensor product
+    * element), or throws an error otherwise.
+    */
+-  virtual unsigned int opposite_side(const unsigned int s) const override final;
++  virtual unsigned int opposite_side(const unsigned int s) const override;
+ 
+   /**
+    * \returns The local node number for the node opposite to node n
+@@ -118,7 +118,7 @@ public:
+    * throws an error otherwise.
+    */
+   virtual unsigned int opposite_node(const unsigned int n,
+-                                     const unsigned int s) const override final;
++                                     const unsigned int s) const override;
+ 
+   /**
+    * Don't hide Elem::key() defined in the base class.
+@@ -130,69 +130,69 @@ public:
+    * The id is not necessarily unique, but should be close.  This is
+    * particularly useful in the \p MeshBase::find_neighbors() routine.
+    */
+-  virtual dof_id_type key (const unsigned int s) const override final
++  virtual dof_id_type key (const unsigned int s) const override
+   { return this->compute_key(this->node_id(s)); }
+ 
+   /**
+    * \returns \p side after doing some range checking. \p side_node is ignored.
+    */
+   virtual unsigned int local_side_node(unsigned int side,
+-                                       unsigned int /*side_node*/) const override final;
++                                       unsigned int /*side_node*/) const override;
+ 
+   /**
+    * Throws an error. Edge elems have n_edges() == 0, so it does not
+    * make sense to call local_edge_node().
+    */
+   virtual unsigned int local_edge_node(unsigned int edge,
+-                                       unsigned int edge_node) const override final;
++                                       unsigned int edge_node) const override;
+ 
+   /**
+    * \returns A pointer to a NodeElem for the specified node.
+    */
+-  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override final;
++  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override;
+ 
+   /**
+    * Rebuilds a pointer to a NodeElem for the specified node.
+    */
+-  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override final;
++  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override;
+ 
+   /**
+    * \returns A pointer to a NodeElem for the specified node.
+    */
+   virtual std::unique_ptr<Elem> build_side_ptr (const unsigned int i,
+-                                                bool proxy=false) override final;
++                                                bool proxy=false) override;
+ 
+   /**
+    * Rebuilds a NODEELEM for the specified node.
+    */
+   virtual void build_side_ptr (std::unique_ptr<Elem> & elem,
+-                               const unsigned int i) override final;
++                               const unsigned int i) override;
+ 
+   /**
+    * The \p Elem::build_edge_ptr() member makes no sense for edges.
+    */
+-  virtual std::unique_ptr<Elem> build_edge_ptr (const unsigned int) override final
++  virtual std::unique_ptr<Elem> build_edge_ptr (const unsigned int) override
+   { libmesh_not_implemented(); return std::unique_ptr<Elem>(); }
+ 
+   /**
+    * The \p Elem::build_edge_ptr() member makes no sense for edges.
+    */
+-  virtual void build_edge_ptr (std::unique_ptr<Elem> &, const unsigned int) override final
++  virtual void build_edge_ptr (std::unique_ptr<Elem> &, const unsigned int) override
+   { libmesh_not_implemented(); }
+ 
+   virtual std::vector<unsigned int> nodes_on_side(const unsigned int s) const override;
+ 
+   virtual std::vector<unsigned int> nodes_on_edge(const unsigned int e) const override;
+ 
+-  virtual std::vector<unsigned int> sides_on_edge(const unsigned int) const override final
++  virtual std::vector<unsigned int> sides_on_edge(const unsigned int) const override
+   { return {}; }
+ 
+   // Any edge permutation flips the mapping Jacobian negative
+-  virtual unsigned int n_permutations() const override final { return 0; }
++  virtual unsigned int n_permutations() const override { return 0; }
+ 
+-  virtual void permute(unsigned int) override final { libmesh_error(); }
++  virtual void permute(unsigned int) override { libmesh_error(); }
+ 
+-  unsigned int center_node_on_side(const unsigned short side) const override final;
++  unsigned int center_node_on_side(const unsigned short side) const override;
+ 
+ protected:
+ 
+diff --git a/include/geom/edge_edge4.h b/include/geom/edge_edge4.h
+index 98ebdf315..48a8efd9c 100644
+--- a/include/geom/edge_edge4.h
++++ b/include/geom/edge_edge4.h
+@@ -44,7 +44,7 @@ namespace libMesh
+  * \date 2005
+  * \brief A 1D geometric element with 4 nodes.
+  */
+-class Edge4 final : public Edge
++class Edge4 : public Edge
+ {
+ public:
+ 
+diff --git a/include/geom/face.h b/include/geom/face.h
+index ffe6c050f..3aba52a44 100644
+--- a/include/geom/face.h
++++ b/include/geom/face.h
+@@ -58,37 +58,37 @@ public:
+   /**
+    * \returns 2, the dimensionality of the object.
+    */
+-  virtual unsigned short dim () const override final { return 2; }
++  virtual unsigned short dim () const override { return 2; }
+ 
+   /**
+    * \returns 0.  All 2D elements have no faces, just
+    * edges.
+    */
+-  virtual unsigned int n_faces() const override final { return 0; }
++  virtual unsigned int n_faces() const override { return 0; }
+ 
+   /**
+    * build_side and build_edge are identical for faces.
+    */
+-  virtual std::unique_ptr<Elem> build_edge_ptr (const unsigned int i) override final
++  virtual std::unique_ptr<Elem> build_edge_ptr (const unsigned int i) override
+   { return build_side_ptr(i); }
+ 
+   /**
+    * build_side and build_edge are identical for faces.
+    */
+-  virtual void build_edge_ptr (std::unique_ptr<Elem> & edge, const unsigned int i) override final
++  virtual void build_edge_ptr (std::unique_ptr<Elem> & edge, const unsigned int i) override
+   { build_side_ptr(edge, i); }
+ 
+  /**
+    * is_edge_on_side is trivial in 2D.
+    */
+   virtual bool is_edge_on_side(const unsigned int e,
+-                               const unsigned int s) const override final
++                               const unsigned int s) const override
+   { return (e == s); }
+ 
+   /**
+    * sides_on_edge is trivial in 2D.
+    */
+-  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override final
++  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override
+   { return {e}; }
+ 
+ #ifdef LIBMESH_ENABLE_INFINITE_ELEMENTS
+@@ -97,7 +97,7 @@ public:
+    * \returns \p false.  All classes derived from \p Face
+    * are finite elements.
+    */
+-  virtual bool infinite () const override final { return false; }
++  virtual bool infinite () const override { return false; }
+ 
+ #endif
+ 
+diff --git a/include/geom/face_inf_quad.h b/include/geom/face_inf_quad.h
+index a8ead11ed..bb51d588a 100644
+--- a/include/geom/face_inf_quad.h
++++ b/include/geom/face_inf_quad.h
+@@ -81,7 +81,7 @@ public:
+    * \returns The \p Point associated with local \p Node \p i,
+    * in master element rather than physical coordinates.
+    */
+-  virtual Point master_point (const unsigned int i) const override final
++  virtual Point master_point (const unsigned int i) const override
+   {
+     libmesh_assert_less(i, this->n_nodes());
+     return Point(_master_points[i][0],
+@@ -92,48 +92,48 @@ public:
+   /**
+    * \returns 2, the dimensionality of the object.
+    */
+-  virtual unsigned short dim() const override final { return 2; }
++  virtual unsigned short dim() const override { return 2; }
+ 
+   /**
+    * \returns 3.  Infinite faces have one side less
+    * than their conventional counterparts, since one
+    * side is supposed to be located at infinity.
+    */
+-  virtual unsigned int n_sides() const override final { return 3; }
++  virtual unsigned int n_sides() const override { return 3; }
+ 
+   /**
+    * \returns 4.  All infinite quads (in our setting) have 4 vertices.
+    */
+-  virtual unsigned int n_vertices() const override final { return 4; }
++  virtual unsigned int n_vertices() const override { return 4; }
+ 
+   /**
+    * \returns 3.  All infinite quads have 1 edge in the
+    * base, and 2 perpendicular to the base.
+    */
+-  virtual unsigned int n_edges() const override final { return 3; }
++  virtual unsigned int n_edges() const override { return 3; }
+ 
+   /**
+    * \returns 0.  All 2D elements have no faces, just edges.
+    */
+-  virtual unsigned int n_faces() const override final { return 0; }
++  virtual unsigned int n_faces() const override { return 0; }
+ 
+   /**
+    * \returns 2.
+    */
+-  virtual unsigned int n_children() const override final { return 2; }
++  virtual unsigned int n_children() const override { return 2; }
+ 
+   /**
+    * \returns \p true if the specified (local) node number is a
+    * "mid-edge" node on an infinite element edge.
+    */
+   virtual bool is_mid_infinite_edge_node(const unsigned int i) const
+-    override final { return (i > 2 && i < 4); }
++    override { return (i > 2 && i < 4); }
+ 
+   /**
+    * \returns \p true if the specified child is on the specified side.
+    */
+   virtual bool is_child_on_side(const unsigned int c,
+-                                const unsigned int s) const override final;
++                                const unsigned int s) const override;
+ 
+   /**
+    * Don't hide Elem::key() defined in the base class.
+@@ -164,36 +164,36 @@ public:
+   /**
+    * \returns A primitive (2-noded) edge or infedge for edge \p i.
+    */
+-  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override final;
++  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override;
+ 
+   /**
+    * Rebuilds a primitive (2-noded) edge or infedge for edge \p i.
+    */
+-  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override final;
++  virtual void side_ptr (std::unique_ptr<Elem> & side, const unsigned int i) override;
+ 
+   /**
+    * build_edge_ptr() and build_side_ptr() are identical in 2D.
+    */
+-  virtual std::unique_ptr<Elem> build_edge_ptr (const unsigned int i) override final
++  virtual std::unique_ptr<Elem> build_edge_ptr (const unsigned int i) override
+   { return build_side_ptr(i); }
+ 
+   /**
+    * side and edge are identical for faces.
+    */
+-  virtual void build_edge_ptr (std::unique_ptr<Elem> & edge, const unsigned int i) override final
++  virtual void build_edge_ptr (std::unique_ptr<Elem> & edge, const unsigned int i) override
+   { build_side_ptr(edge, i); }
+ 
+   /**
+    * is_edge_on_side is trivial in 2D.
+    */
+   virtual bool is_edge_on_side(const unsigned int e,
+-                               const unsigned int s) const override final
++                               const unsigned int s) const override
+   { return (e == s); }
+ 
+   /**
+    * sides_on_edge is trivial in 2D.
+    */
+-  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override final
++  virtual std::vector<unsigned int> sides_on_edge(const unsigned int e) const override
+   { return {e}; }
+ 
+   /**
+@@ -213,12 +213,12 @@ public:
+    * \returns \p true.  All classes derived from \p InfQuad
+    * are infinite elements.
+    */
+-  virtual bool infinite () const override final { return true; }
++  virtual bool infinite () const override { return true; }
+ 
+   /**
+    * \returns The origin of this infinite element.
+    */
+-  virtual Point origin () const override final
++  virtual Point origin () const override
+   {
+     return ( this->point(0)*2 - this->point(this->n_vertices()/2) );
+   }
+@@ -227,9 +227,9 @@ public:
+    * One non-infinite side; any orientation change flips the mapping
+    * Jacobian negative.
+    */
+-  virtual unsigned int n_permutations() const override final { return 0; }
++  virtual unsigned int n_permutations() const override { return 0; }
+ 
+-  virtual void permute(unsigned int) override final { libmesh_error(); }
++  virtual void permute(unsigned int) override { libmesh_error(); }
+ 
+ protected:
+ 
+diff --git a/include/geom/face_quad.h b/include/geom/face_quad.h
+index 3adc72eb0..dc1d50790 100644
+--- a/include/geom/face_quad.h
++++ b/include/geom/face_quad.h
+@@ -71,7 +71,7 @@ public:
+    * \returns The \p Point associated with local \p Node \p i,
+    * in master element rather than physical coordinates.
+    */
+-  virtual Point master_point (const unsigned int i) const override final
++  virtual Point master_point (const unsigned int i) const override
+   {
+     libmesh_assert_less(i, this->n_nodes());
+     return Point(_master_points[i][0],
+@@ -88,35 +88,35 @@ public:
+   /**
+    * \returns 4.
+    */
+-  virtual unsigned int n_sides() const override final { return 4; }
++  virtual unsigned int n_sides() const override { return 4; }
+ 
+   /**
+    * \returns 4.  All quadrilaterals have 4 vertices.
+    */
+-  virtual unsigned int n_vertices() const override final { return 4; }
++  virtual unsigned int n_vertices() const override { return 4; }
+ 
+   /**
+    * \returns 4.  All quadrilaterals have 4 edges.
+    */
+-  virtual unsigned int n_edges() const override final { return 4; }
++  virtual unsigned int n_edges() const override { return 4; }
+ 
+   /**
+    * \returns 4.
+    */
+-  virtual unsigned int n_children() const override final { return 4; }
++  virtual unsigned int n_children() const override { return 4; }
+ 
+   /**
+    * \returns \p true if the specified child is on the
+    * specified side.
+    */
+   virtual bool is_child_on_side(const unsigned int c,
+-                                const unsigned int s) const override final;
++                                const unsigned int s) const override;
+ 
+   /**
+    * \returns The side number opposite to \p s (for a tensor product
+    * element), or throws an error otherwise.
+    */
+-  virtual unsigned int opposite_side(const unsigned int s) const override final;
++  virtual unsigned int opposite_side(const unsigned int s) const override;
+ 
+   /**
+    * \returns The local node number for the node opposite to node n
+@@ -124,7 +124,7 @@ public:
+    * throws an error otherwise.
+    */
+   virtual unsigned int opposite_node(const unsigned int n,
+-                                     const unsigned int s) const override final;
++                                     const unsigned int s) const override;
+ 
+   /**
+    * Don't hide Elem::key() defined in the base class.
+@@ -162,13 +162,13 @@ public:
+   /**
+    * \returns A primitive (2-noded) edge for edge i.
+    */
+-  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override final;
++  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override;
+ 
+   /**
+    * Rebuilds an EDGE2 coincident with face i.
+    */
+   virtual void side_ptr (std::unique_ptr<Elem> & elem,
+-                         const unsigned int i) override final;
++                         const unsigned int i) override;
+ 
+   /**
+    * \returns A quantitative assessment of element quality based on
+@@ -186,7 +186,7 @@ public:
+   /**
+    * Four sides, one orientation each.
+    */
+-  virtual unsigned int n_permutations() const override final { return 4; }
++  virtual unsigned int n_permutations() const override { return 4; }
+ 
+ protected:
+ 
+diff --git a/include/geom/face_quad4.h b/include/geom/face_quad4.h
+index 0a75775ce..0d910f881 100644
+--- a/include/geom/face_quad4.h
++++ b/include/geom/face_quad4.h
+@@ -172,7 +172,7 @@ public:
+    */
+   virtual BoundingBox loose_bounding_box () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/face_quad8.h b/include/geom/face_quad8.h
+index a81343358..21714afd6 100644
+--- a/include/geom/face_quad8.h
++++ b/include/geom/face_quad8.h
+@@ -209,9 +209,9 @@ public:
+    */
+   virtual BoundingBox loose_bounding_box () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+-  unsigned int center_node_on_side(const unsigned short side) const override final;
++  unsigned int center_node_on_side(const unsigned short side) const override;
+ 
+ protected:
+ 
+diff --git a/include/geom/face_quad9.h b/include/geom/face_quad9.h
+index 815fe177d..c25098e61 100644
+--- a/include/geom/face_quad9.h
++++ b/include/geom/face_quad9.h
+@@ -216,9 +216,9 @@ public:
+    */
+   virtual BoundingBox loose_bounding_box () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+-  unsigned int center_node_on_side(const unsigned short side) const override final;
++  unsigned int center_node_on_side(const unsigned short side) const override;
+ 
+ protected:
+ 
+diff --git a/include/geom/face_tri.h b/include/geom/face_tri.h
+index 98847aa87..a927e6f74 100644
+--- a/include/geom/face_tri.h
++++ b/include/geom/face_tri.h
+@@ -72,7 +72,7 @@ public:
+    * \returns The \p Point associated with local \p Node \p i,
+    * in master element rather than physical coordinates.
+    */
+-  virtual Point master_point (const unsigned int i) const override final
++  virtual Point master_point (const unsigned int i) const override
+   {
+     libmesh_assert_less(i, this->n_nodes());
+     return Point(_master_points[i][0],
+@@ -89,29 +89,29 @@ public:
+   /**
+    * \returns 3.
+    */
+-  virtual unsigned int n_sides() const override final { return 3; }
++  virtual unsigned int n_sides() const override { return 3; }
+ 
+   /**
+    * \returns 3.  All triangles have 3 vertices.
+    */
+-  virtual unsigned int n_vertices() const override final { return 3; }
++  virtual unsigned int n_vertices() const override { return 3; }
+ 
+   /**
+    * \returns 3.  All triangles have 3 edges.
+    */
+-  virtual unsigned int n_edges() const override final { return 3; }
++  virtual unsigned int n_edges() const override { return 3; }
+ 
+   /**
+    * \returns 4.
+    */
+-  virtual unsigned int n_children() const override final { return 4; }
++  virtual unsigned int n_children() const override { return 4; }
+ 
+   /**
+    * \returns \p true if the specified child is on the
+    * specified side.
+    */
+   virtual bool is_child_on_side(const unsigned int c,
+-                                const unsigned int s) const override final;
++                                const unsigned int s) const override;
+ 
+   /**
+    * Don't hide Elem::key() defined in the base class.
+@@ -130,7 +130,7 @@ public:
+    * element.  The id is not necessarily unique, but should be
+    * close.
+    */
+-  virtual dof_id_type key () const override final;
++  virtual dof_id_type key () const override;
+ 
+   /**
+    * \returns \p Tri3::side_nodes_map[side][side_node] after doing some range checking.
+@@ -149,13 +149,13 @@ public:
+   /**
+    * \returns A primitive (2-noded) edge for edge i.
+    */
+-  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override final;
++  virtual std::unique_ptr<Elem> side_ptr (const unsigned int i) override;
+ 
+   /**
+    * Rebuilds an EDGE2 coincident with face i.
+    */
+   virtual void side_ptr (std::unique_ptr<Elem> & elem,
+-                         const unsigned int i) override final;
++                         const unsigned int i) override;
+ 
+   /**
+    * \returns A quantitative assessment of element quality based on
+@@ -173,7 +173,7 @@ public:
+   /**
+    * Three sides, one orientation each.
+    */
+-  virtual unsigned int n_permutations() const override final { return 3; }
++  virtual unsigned int n_permutations() const override { return 3; }
+ 
+ protected:
+ 
+diff --git a/include/geom/face_tri3.h b/include/geom/face_tri3.h
+index 1e9bf1e44..426a9d81d 100644
+--- a/include/geom/face_tri3.h
++++ b/include/geom/face_tri3.h
+@@ -197,7 +197,7 @@ public:
+    */
+   virtual BoundingBox loose_bounding_box () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+ protected:
+ 
+diff --git a/include/geom/face_tri3_subdivision.h b/include/geom/face_tri3_subdivision.h
+index 4f8b073d0..dedaaf7cb 100644
+--- a/include/geom/face_tri3_subdivision.h
++++ b/include/geom/face_tri3_subdivision.h
+@@ -37,7 +37,7 @@ namespace libMesh
+  * \date 2014
+  * \brief A surface shell element used in mechanics calculations.
+  */
+-class Tri3Subdivision final : public Tri3
++class Tri3Subdivision : public Tri3
+ {
+ public:
+ 
+diff --git a/include/geom/face_tri6.h b/include/geom/face_tri6.h
+index 0ce8daa92..888e4ce84 100644
+--- a/include/geom/face_tri6.h
++++ b/include/geom/face_tri6.h
+@@ -219,9 +219,9 @@ public:
+    */
+   virtual BoundingBox loose_bounding_box () const override;
+ 
+-  virtual void permute(unsigned int perm_num) override final;
++  virtual void permute(unsigned int perm_num) override;
+ 
+-  unsigned int center_node_on_side(const unsigned short side) const override final;
++  unsigned int center_node_on_side(const unsigned short side) const override;
+ 
+ protected:
+ 
+diff --git a/include/geom/node_elem.h b/include/geom/node_elem.h
+index 42fc7fc0c..d91f6b9a3 100644
+--- a/include/geom/node_elem.h
++++ b/include/geom/node_elem.h
+@@ -252,9 +252,9 @@ public:
+   /**
+    * No way to reorient a single node.
+    */
+-  virtual unsigned int n_permutations() const override final { return 0; }
++  virtual unsigned int n_permutations() const override { return 0; }
+ 
+-  virtual void permute(unsigned int) override final { libmesh_error(); }
++  virtual void permute(unsigned int) override { libmesh_error(); }
+ 
+ protected:
+ 
+diff --git a/include/numerics/distributed_vector.h b/include/numerics/distributed_vector.h
+index 413e957c3..a7a921f7c 100644
+--- a/include/numerics/distributed_vector.h
++++ b/include/numerics/distributed_vector.h
+@@ -50,7 +50,7 @@ namespace libMesh
+  * \date 2003
+  */
+ template <typename T>
+-class DistributedVector final : public NumericVector<T>
++class DistributedVector : public NumericVector<T>
+ {
+ public:
+ 
+diff --git a/include/numerics/eigen_sparse_matrix.h b/include/numerics/eigen_sparse_matrix.h
+index fc4bab632..2f4b3abb1 100644
+--- a/include/numerics/eigen_sparse_matrix.h
++++ b/include/numerics/eigen_sparse_matrix.h
+@@ -51,7 +51,7 @@ template <typename T> class EigenSparseLinearSolver;
+  * \date 2013
+  */
+ template <typename T>
+-class EigenSparseMatrix final : public SparseMatrix<T>
++class EigenSparseMatrix : public SparseMatrix<T>
+ {
+ 
+ public:
+diff --git a/include/numerics/eigen_sparse_vector.h b/include/numerics/eigen_sparse_vector.h
+index 407315851..a337de192 100644
+--- a/include/numerics/eigen_sparse_vector.h
++++ b/include/numerics/eigen_sparse_vector.h
+@@ -51,7 +51,7 @@ template <typename T> class SparseMatrix;
+  * \date 2002
+  */
+ template <typename T>
+-class EigenSparseVector final : public NumericVector<T>
++class EigenSparseVector : public NumericVector<T>
+ {
+ public:
+ 
+diff --git a/include/numerics/laspack_matrix.h b/include/numerics/laspack_matrix.h
+index 8f47bb6dc..93b5dc2bb 100644
+--- a/include/numerics/laspack_matrix.h
++++ b/include/numerics/laspack_matrix.h
+@@ -53,7 +53,7 @@ template <typename T> class LaspackLinearSolver;
+  * \date 2003
+  */
+ template <typename T>
+-class LaspackMatrix final : public SparseMatrix<T>
++class LaspackMatrix : public SparseMatrix<T>
+ {
+ 
+ public:
+diff --git a/include/numerics/laspack_vector.h b/include/numerics/laspack_vector.h
+index 9e09b1d62..cda30aa5b 100644
+--- a/include/numerics/laspack_vector.h
++++ b/include/numerics/laspack_vector.h
+@@ -54,7 +54,7 @@ template <typename T> class SparseMatrix;
+  * \date 2002
+  */
+ template <typename T>
+-class LaspackVector final : public NumericVector<T>
++class LaspackVector : public NumericVector<T>
+ {
+ public:
+ 
+diff --git a/include/numerics/petsc_matrix.h b/include/numerics/petsc_matrix.h
+index 152c33654..1d9c94620 100644
+--- a/include/numerics/petsc_matrix.h
++++ b/include/numerics/petsc_matrix.h
+@@ -84,7 +84,7 @@ enum PetscMatrixType : int {
+  * \brief SparseMatrix interface to PETSc Mat.
+  */
+ template <typename T>
+-class PetscMatrix final : public SparseMatrix<T>
++class PetscMatrix : public SparseMatrix<T>
+ {
+ public:
+   /**
+@@ -181,7 +181,7 @@ public:
+ 
+   virtual numeric_index_type m () const override;
+ 
+-  virtual numeric_index_type local_m () const final;
++  virtual numeric_index_type local_m () const;
+ 
+   virtual numeric_index_type n () const override;
+ 
+diff --git a/include/numerics/petsc_vector.h b/include/numerics/petsc_vector.h
+index a5aa6ed7b..fcd58b930 100644
+--- a/include/numerics/petsc_vector.h
++++ b/include/numerics/petsc_vector.h
+@@ -71,7 +71,7 @@ template <typename T> class SparseMatrix;
+  * \brief NumericVector interface to PETSc Vec.
+  */
+ template <typename T>
+-class PetscVector final : public NumericVector<T>
++class PetscVector : public NumericVector<T>
+ {
+ public:
+ 
+diff --git a/include/numerics/trilinos_epetra_matrix.h b/include/numerics/trilinos_epetra_matrix.h
+index f7fc6742e..00671e3ed 100644
+--- a/include/numerics/trilinos_epetra_matrix.h
++++ b/include/numerics/trilinos_epetra_matrix.h
+@@ -60,7 +60,7 @@ template <typename T> class DenseMatrix;
+  * \date 2008
+  */
+ template <typename T>
+-class EpetraMatrix final : public SparseMatrix<T>
++class EpetraMatrix : public SparseMatrix<T>
+ {
+ public:
+   /**
+diff --git a/include/numerics/trilinos_epetra_vector.h b/include/numerics/trilinos_epetra_vector.h
+index 2dd92c753..4dabfae6e 100644
+--- a/include/numerics/trilinos_epetra_vector.h
++++ b/include/numerics/trilinos_epetra_vector.h
+@@ -61,7 +61,7 @@ template <typename T> class SparseMatrix;
+  * \date 2008
+  */
+ template <typename T>
+-class EpetraVector final : public NumericVector<T>
++class EpetraVector : public NumericVector<T>
+ {
+ public:
+ 
+diff --git a/include/quadrature/quadrature_clough.h b/include/quadrature/quadrature_clough.h
+index a2ba7dd52..326c53bdf 100644
+--- a/include/quadrature/quadrature_clough.h
++++ b/include/quadrature/quadrature_clough.h
+@@ -34,7 +34,7 @@ namespace libMesh
+  * \date 2005
+  * \brief Implements quadrature rules for Clough-Tocher macroelements.
+  */
+-class QClough final : public QBase
++class QClough : public QBase
+ {
+ public:
+ 
+diff --git a/include/quadrature/quadrature_composite.h b/include/quadrature/quadrature_composite.h
+index dfa89217e..febf5093c 100644
+--- a/include/quadrature/quadrature_composite.h
++++ b/include/quadrature/quadrature_composite.h
+@@ -48,7 +48,7 @@ namespace libMesh
+  * \brief A quadrature rule for subdivided elements.
+  */
+ template <class QSubCell>
+-class QComposite final : public QSubCell
++class QComposite : public QSubCell
+ {
+ public:
+ 
+diff --git a/include/quadrature/quadrature_conical.h b/include/quadrature/quadrature_conical.h
+index 2c1d485cd..350130e3a 100644
+--- a/include/quadrature/quadrature_conical.h
++++ b/include/quadrature/quadrature_conical.h
+@@ -40,7 +40,7 @@ namespace libMesh
+  * \date 2008
+  * \brief Conical product quadrature rules for Tri and Tet elements.
+  */
+-class QConical final : public QBase
++class QConical : public QBase
+ {
+ public:
+ 
+diff --git a/include/quadrature/quadrature_gauss_lobatto.h b/include/quadrature/quadrature_gauss_lobatto.h
+index ccfef90b0..09ee4e527 100644
+--- a/include/quadrature/quadrature_gauss_lobatto.h
++++ b/include/quadrature/quadrature_gauss_lobatto.h
+@@ -38,7 +38,7 @@ namespace libMesh
+  * \date 2014
+  * \brief Implements 1D and 2/3D tensor product Gauss-Lobatto quadrature rules.
+  */
+-class QGaussLobatto final : public QBase
++class QGaussLobatto : public QBase
+ {
+ public:
+ 
+diff --git a/include/quadrature/quadrature_gm.h b/include/quadrature/quadrature_gm.h
+index 38434ed25..3f9665a5c 100644
+--- a/include/quadrature/quadrature_gm.h
++++ b/include/quadrature/quadrature_gm.h
+@@ -93,7 +93,7 @@ namespace libMesh
+  * \date 2008
+  * \brief Implements the quadrature rules of Grundmann and Moller in 2D and 3D.
+  */
+-class QGrundmann_Moller final : public QBase
++class QGrundmann_Moller : public QBase
+ {
+ public:
+ 
+diff --git a/include/quadrature/quadrature_grid.h b/include/quadrature/quadrature_grid.h
+index b6cb651e1..51bb1c961 100644
+--- a/include/quadrature/quadrature_grid.h
++++ b/include/quadrature/quadrature_grid.h
+@@ -44,7 +44,7 @@ namespace libMesh
+  * \date 2005
+  * \brief Implements grid-based quadrature rules suitable for non-smooth functions.
+  */
+-class QGrid final : public QBase
++class QGrid : public QBase
+ {
+ public:
+ 
+diff --git a/include/quadrature/quadrature_jacobi.h b/include/quadrature/quadrature_jacobi.h
+index 678ad3776..ec347bf66 100644
+--- a/include/quadrature/quadrature_jacobi.h
++++ b/include/quadrature/quadrature_jacobi.h
+@@ -46,7 +46,7 @@ namespace libMesh
+  * \date 2003
+  * \brief Implements 1D Gauss-Jacobi quadrature rules of various orders.
+  */
+-class QJacobi final : public QBase
++class QJacobi : public QBase
+ {
+ public:
+ 
+diff --git a/include/quadrature/quadrature_monomial.h b/include/quadrature/quadrature_monomial.h
+index 230aaa850..2ab85115f 100644
+--- a/include/quadrature/quadrature_monomial.h
++++ b/include/quadrature/quadrature_monomial.h
+@@ -55,7 +55,7 @@ namespace libMesh
+  * \date 2008
+  * \brief Implements quadrature rules for non-tensor polynomials.
+  */
+-class QMonomial final : public QBase
++class QMonomial : public QBase
+ {
+ public:
+ 

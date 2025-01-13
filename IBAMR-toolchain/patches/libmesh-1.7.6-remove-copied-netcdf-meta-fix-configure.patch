@@ -1,0 +1,13 @@
+diff --git a/configure b/configure
+index 22ad685c6..ccd16767c 100755
+--- a/configure
++++ b/configure
+@@ -54703,7 +54703,7 @@ fi
+                                   as_fn_error $? ">>> Error: netCDF3 is no longer distributed with libMesh <<<" "$LINENO" 5
+                 ;; #(
+   4) :
+-    NETCDF_INCLUDE="-I\$(top_srcdir)/contrib/netcdf/v4/include"
++    NETCDF_INCLUDE="-I\$(top_builddir)/contrib/netcdf/v4/include -I\$(top_srcdir)/contrib/netcdf/v4/include"
+ 
+ $as_echo "#define HAVE_NETCDF 1" >>confdefs.h
+ 
