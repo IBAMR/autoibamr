@@ -110,7 +110,7 @@ package_specific_patch () {
     quit_if_fail "cd failed"
 
     cecho ${INFO} "Applying patches to deal.II"
-    find "${ORIG_DIR}/IBAMR-toolchain/patches/" -name "${NAME}-*.patch" -exec patch -p1 --input={} \;
+    find "${ORIG_DIR}/IBAMR-toolchain/patches/" -name "${NAME}-*.patch" -exec patch --remove-empty-files -p1 --input={} \;
     quit_if_fail "Failed to apply a deal.II patch."
 }
 

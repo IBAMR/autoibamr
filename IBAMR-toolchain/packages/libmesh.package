@@ -1,5 +1,5 @@
-VERSION=1.6.2
-CHECKSUM=745874f2b19f9345aac1676ea11deba8ac7f18b3
+VERSION=1.7.6
+CHECKSUM=c5cdfcb64f7eeabad5b6752414f0ec34b1b0bb8f699a633979dc695a189c67b9
 
 NAME=libmesh-${VERSION}
 SOURCE=https://github.com/libMesh/libmesh/releases/download/v${VERSION}/
@@ -16,24 +16,34 @@ INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
 CONFOPTS="
   CFLAGS=-I${PETSC_DIR}/${PETSC_ARCH}/include
   --disable-boost
+  --disable-bzip2
   --disable-capnproto
   --disable-cppunit
   --disable-curl
   --disable-eigen
+  --disable-examples
+  --disable-fortran
   --disable-fparser
+  --disable-glibcxx-debugging
+  --disable-gzstreams
   --disable-laspack
+  --disable-libHilbert
   --disable-metaphysicl
+  --disable-nanoflann
   --disable-nlopt
   --disable-openmp
   --disable-perflog
   --disable-pthreads
+  --disable-qhull
   --disable-reference-counting
+  --disable-sfc
   --disable-slepc
   --disable-strict-lgpl
   --disable-tbb
   --disable-tecio
   --disable-trilinos
   --disable-vtk
+  --disable-xz
   --enable-curl=no
   --enable-exodus=yes
   --enable-glpk=no
@@ -78,7 +88,7 @@ package_specific_patch () {
     quit_if_fail "cd failed"
 
     cecho ${INFO} "Applying patches to libMesh"
-    find "${ORIG_DIR}/IBAMR-toolchain/patches/" -name "${NAME}-*.patch" -exec patch -p1 --input={} \;
+    find "${ORIG_DIR}/IBAMR-toolchain/patches/" -name "${NAME}-*.patch" -exec patch --remove-empty-files -p1 --input={} \;
     quit_if_fail "Failed to apply a libMesh patch."
 }
 
