@@ -87,7 +87,7 @@ else
         if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
             CONFOPTS="${CONFOPTS} \
           -DCMAKE_BUILD_TYPE=Release \
-          -DDEAL_II_CXX_FLAGS_RELEASE='-DDEBUG -O3 -march=native'"
+          -DDEAL_II_CXX_FLAGS_RELEASE=\"-DDEBUG -O3 ${NATIVE_OPTIMIZATION_FLAGS}\""
         else
             CONFOPTS="${CONFOPTS} \
           -DCMAKE_BUILD_TYPE=Release \
@@ -97,7 +97,7 @@ else
         if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
             CONFOPTS="${CONFOPTS} \
           -DCMAKE_BUILD_TYPE=Release \
-          -DDEAL_II_CXX_FLAGS_RELEASE='-O3 -march=native'"
+          -DDEAL_II_CXX_FLAGS_RELEASE=\"-O3 ${NATIVE_OPTIMIZATION_FLAGS}\""
         else
             CONFOPTS="${CONFOPTS} \
           -DCMAKE_BUILD_TYPE=Release"

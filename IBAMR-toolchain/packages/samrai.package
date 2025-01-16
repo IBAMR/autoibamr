@@ -54,7 +54,7 @@ else
         samrai_compiler_flags="${samrai_compiler_flags}"
     fi
     if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
-        samrai_compiler_flags="${samrai_compiler_flags} -O3 -march=native"
+        samrai_compiler_flags="${samrai_compiler_flags} -O3 ${NATIVE_OPTIMIZATION_FLAGS}"
     else
         samrai_compiler_flags="${samrai_compiler_flags} -O2"
     fi
