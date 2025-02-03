@@ -35,7 +35,7 @@ elif [ "${IBAMR_VERSION}" = 0.7.1 ]
 then
     CHECKSUM=8793d947819aacc7b91595cd5e67d85141df421b57242e4e3dbf8a084dba481b
 else
-    cecho ${BAD} "Usupported IBAMR version ${IBAMR_VERSION}."
+    cecho ${BAD} "Unsupported IBAMR version ${IBAMR_VERSION}."
     exit 1;
 fi
 
@@ -98,9 +98,9 @@ else
     if [ ${NATIVE_OPTIMIZATIONS} = ON ]; then
         CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_C_FLAGS='-O3 -march=native' \
-      -DCMAKE_CXX_FLAGS='-O3 -march=native' \
-      -DCMAKE_Fortran_FLAGS='-O3 -march=native'"
+      -DCMAKE_C_FLAGS=\"-O3 ${NATIVE_OPTIMIZATION_FLAGS}\" \
+      -DCMAKE_CXX_FLAGS=\"-O3 ${NATIVE_OPTIMIZATION_FLAGS}\" \
+      -DCMAKE_Fortran_FLAGS=\"-O3 ${NATIVE_OPTIMIZATION_FLAGS}\""
     else
         CONFOPTS="${CONFOPTS} \
       -DCMAKE_BUILD_TYPE=Release \

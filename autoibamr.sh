@@ -114,6 +114,7 @@ EXTERNAL_BOOST_DIR=
 IBAMR_VERSION=0.16.0
 JOBS=1
 NATIVE_OPTIMIZATIONS=OFF
+NATIVE_OPTIMIZATION_FLAGS="-march=native"
 PREFIX=~/autoibamr
 USER_PREFIX_SET=OFF
 USER_INTERACTION=ON
@@ -169,6 +170,10 @@ while [ -n "$1" ]; do
             echo "  --external-boost=<path>                Use an external copy of boost instead of the one bundled with IBAMR."
             echo "  --ibamr-version                        Version of IBAMR to install. Presently, versions 0.10.1, 0.11.0, 0.12.0,"
             echo "                                         0.12.1, 0.13.0, 0.14.0, 0.15.0, and 0.16.0 are supported."
+            echo "  --native-optimizations-flags           Use a specific set of flags when compiling with native optimizations."
+            echo "                                         Implies --enable-native-optimizations. This flag is useful when"
+            echo "                                         cross-compiling, e.g., when compiling for a specific processor architecture"
+            echo "                                         which may not match the architecture of the current processor."
             echo "  --python-interpreter                   Absolute path to a python interpreter. Defaults to the first of"
             echo "                                         {python,python3,python2.7} found on the present machine."
             echo "  -p <path>, --prefix=<path>             Set a different prefix path (default $PREFIX)"
@@ -276,6 +281,19 @@ while [ -n "$1" ]; do
 
         --python-interpreter=*)
             PYTHON_INTERPRETER="${param#*=}"
+        ;;
+
+        #####################################
+        # native optimization flags
+        --native-optimizations-flags)
+            shift
+            NATIVE_OPTIMIZATION_FLAGS="${1}"
+            NATIVE_OPTIMIZATIONS=ON
+        ;;
+
+        --native-optimizations-flags=*)
+            NATIVE_OPTIMIZATION_FLAGS="${param#*=}"
+            NATIVE_OPTIMIZATIONS=ON
         ;;
 
         #####################################
@@ -1184,6 +1202,38 @@ ${FC} test.f -o test.f.out
 quit_if_fail "The provided Fortran compiler ${FC} could not compile and link a basic test program. A common cause of this error is forgetting to install a Fortran compiler. One possible problem is that some Linux distributions install the MPI compiler wrappers without installing the actual compilers (e.g., gfortran)."
 
 cecho ${GOOD} "The provided MPI compiler wrappers work"
+
+################################################################################
+# Do a sanity check for the native optimization flag, should it exist
+if [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
+    cecho ${INFO} "Checking the provided native optimization flag(s)"
+    cat > ./test.c <<"EOF"
+    #include <mpi.h>
+
+    int main(int argc, char **argv)
+    {
+      MPI_Init(&argc, &argv);
+        MPI_Finalize();
+    }
+EOF
+
+    ${CC} ${NATIVE_OPTIMIZATION_FLAGS} test.c -o test.c.out
+    quit_if_fail "The native optimization flags '${NATIVE_OPTIMIZATION_FLAGS}' are not compatible with the C compiler ${CC}."
+
+    cp test.c test.cc
+    ${CXX} ${NATIVE_OPTIMIZATION_FLAGS} test.cc -o test.cc.out
+    quit_if_fail "The native optimization flags '${NATIVE_OPTIMIZATION_FLAGS}' are not compatible with the C++ compiler ${CXX}."
+
+    cat > ./test.f <<"EOF"
+       PROGRAM MAIN
+         WRITE (*,*) "HELLO WORLD"
+       END PROGRAM
+EOF
+
+    ${FC} ${NATIVE_OPTIMIZATION_FLAGS} test.f -o test.f.out
+    quit_if_fail "The native optimization flags '${NATIVE_OPTIMIZATION_FLAGS}' are not compatible with the Fortran compiler ${FC}."
+    cecho ${GOOD} "The provided native optimization flag(s) work"
+fi
 
 ################################################################################
 # Do a sanity check for the command line utilities we use at some point
