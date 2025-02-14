@@ -767,7 +767,7 @@ package_build() {
              -DCMAKE_INSTALL_MESSAGE=LAZY -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} \
              ${UNPACK_PATH}/${EXTRACTSTO} >>autoibamr_configure
         for target in "${TARGETS[@]}"; do
-            echo make ${MAKEOPTS} -j ${JOBS} $target >>autoibamr_build
+            echo make VERBOSE=1 ${MAKEOPTS} -j ${JOBS} $target >>autoibamr_build
         done
 
     elif [ ${BUILDCHAIN} = "python" ]; then
