@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index de95010c6..b6736f352 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2269,7 +2269,7 @@ ENDFUNCTION()
+ configure_file("${netCDF_SOURCE_DIR}/config.h.cmake.in"
+   "${netCDF_BINARY_DIR}/config.h")
+ ADD_DEFINITIONS(-DHAVE_CONFIG_H)
+-INCLUDE_DIRECTORIES(${netCDF_BINARY_DIR})
++INCLUDE_DIRECTORIES(BEFORE ${netCDF_BINARY_DIR})
+ # End autotools-style checs for config.h
+ 
+ #####
