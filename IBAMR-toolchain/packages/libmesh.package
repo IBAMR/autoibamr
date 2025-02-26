@@ -1,5 +1,5 @@
-VERSION=1.7.6
-CHECKSUM=c5cdfcb64f7eeabad5b6752414f0ec34b1b0bb8f699a633979dc695a189c67b9
+VERSION=1.7.8
+CHECKSUM=ceb05c868fe1270ede4f91a1f445313ef795ce6df3257e7d82cd6f2502753918
 
 NAME=libmesh-${VERSION}
 SOURCE=https://github.com/libMesh/libmesh/releases/download/v${VERSION}/
