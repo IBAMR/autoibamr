@@ -13,7 +13,14 @@ INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
 #########################################################################
 
 # To pass a header check we need to help libMesh's configure script find PETSc. The test is run only with C so we only need to modify CFLAGS.
+#
+# libMesh doesn't support CC=mpicc etc. It does support setting MPI_ROOT but
+# that is not portable (e.g., in Debian things end up in nested
+# architecture-dependent subdirectories). Fortunately it has another 'bug' where
+# the configuration script does not initialize MPI_USING_WRAPPERS so we can turn
+# that on ourselves even though we might technically fail the preceding checks.
 CONFOPTS="
+  MPI_USING_WRAPPERS=1
   CFLAGS=-I${PETSC_DIR}/${PETSC_ARCH}/include
   --disable-boost
   --disable-bzip2

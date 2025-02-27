@@ -1,7 +1,7 @@
-VERSION=3.21.2
-CHECKSUM=a1ac62b6204bdf2f7f9b637abf45e6cff24d372d4d3d3702c50e157bdb56eb21
+VERSION=3.22.3
+CHECKSUM=88c0d465a3bd688cb17ebf06a17c06d6e9cc457fa6b9643d217389424e6bd795
 
-NAME=petsc-lite-${VERSION}
+NAME=petsc-${VERSION}
 SOURCE=https://web.cels.anl.gov/projects/petsc/download/release-snapshots/
 PACKING=.tar.gz
 
