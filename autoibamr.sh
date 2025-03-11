@@ -60,6 +60,18 @@ INFO="\033[1;34m"
 unset PETSC_DIR
 unset PETSC_ARCH
 
+# Ensure that there are no extra autotools-style flags set which
+# we may accidentally pick up.
+unset CFLAGS
+unset CPPFLAGS
+unset CXXFLAGS
+unset CXXCPP
+unset FCFLAGS
+unset FFLAGS
+unset LIBS
+unset LDFLAGS
+unset METHODS
+
 ################################################################################
 # Define autoibamr helper functions
 
