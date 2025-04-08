@@ -21,11 +21,27 @@ Dependencies
 
 autoibamr requires that your present machine already have a working copy of MPI
 and the standard MPI compiler wrappers installed. If you want to use custom MPI
-compiler wrappers then you should set `CC`, `CXX`, and `FC` to full paths to the
-C, C++, and Fortran compilers, respectively.
+compiler wrappers then you should set the `CC`, `CXX`, and `FC` environment
+variables equal to the full paths to `mpicc`, `mpic++`, and `mpifort`,
+respectively: e.g., when using bash or zsh run
+
+    export CC=$(which mpicc)
+    export CXX=$(which mpic++)
+    export FC=$(which mpifort)
 
 Several IBAMR dependencies require using MPI compiler wrappers, so providing
 `MPI_ROOT` and using a separate compiler toolchain is presently not supported.
+
+*If the environment variables `CC`, `CXX`, and `FC` are set then they must be
+set to the MPI compiler wrappers.* For example: if autoibamr's output is
+something like
+
+    CC  = /opt/homebrew/bin/clang
+    CXX = /opt/homebrew/bin/clang++
+    FC  = /opt/homebrew/bin/gfortran
+
+then autoibamr will fail when it checks for valid MPI compiler wrappers (as
+these are plain C, C++, and Fortran compilers respectively).
 
 In addition to MPI, we require that the following build-time dependencies are
 available:
