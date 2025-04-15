@@ -776,7 +776,7 @@ package_build() {
     elif [ ${BUILDCHAIN} = "cmake" ]; then
         echo rm -f CMakeCache.txt \; cmake ${CONFOPTS} -DCMAKE_C_COMPILER="${CC}" \
              -DCMAKE_CXX_COMPILER="${CXX}" -DCMAKE_Fortran_COMPILER="${FC}" \
-             -DCMAKE_INSTALL_MESSAGE=LAZY -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} \
+             -DCMAKE_INSTALL_MESSAGE=NEVER -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} \
              ${UNPACK_PATH}/${EXTRACTSTO} >>autoibamr_configure
         for target in "${TARGETS[@]}"; do
             echo make ${MAKEOPTS} -j ${JOBS} $target >>autoibamr_build
