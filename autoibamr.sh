@@ -114,7 +114,7 @@ quit_if_fail() {
 BUILD_DEAL_II=OFF
 BUILD_EXODUS_II=OFF
 BUILD_LIBMESH=ON
-BUILD_NUMDIFF=OFF
+BUILD_NUMDIFF=ON
 BUILD_P4EST=OFF
 BUILD_SILO=ON
 CMAKE_LOAD_TARBALL=ON
@@ -157,6 +157,7 @@ while [ -n "$1" ]; do
             echo "  --disable-cmake-binary                 Instead of trying to download a precompiled CMake binary, compile it."
             echo "  --disable-libmesh                      Build IBAMR without libMesh. libMesh is on by default; this flag disables"
             echo "                                         it."
+            echo "  --disable-numdiff                      Build IBAMR without numdiff. Numdiff is only required by the test suite."
             echo "  --disable-silo                         Build IBAMR without SILO. SILO is on by default; this flag disables it."
             echo "  --enable-dealii                        Build deal.II. This library is not directly used by IBAMR but is a required"
             echo "                                         dependency of some IBAMR projects. Disabled by default."
@@ -177,8 +178,7 @@ while [ -n "$1" ]; do
             echo "  --enable-native-optimizations          Build dependencies and IBAMR with platform-specific optimizations."
             echo "                                         This option is compatible with --enable-assertions-with-optimizations."
             echo "  --enable-numdiff                       Build the numdiff tool, which is required for IBAMR's test suite."
-            echo "                                         Numdiff depends on gettext (available through homebrew) on macOS and has"
-            echo "                                         no external dependencies on Linux."
+            echo "                                         This flag is deprecated since numdiff is automatically enabled."
             echo "  --external-boost=<path>                Use an external copy of boost instead of the one bundled with IBAMR."
             echo "  --ibamr-version                        Version of IBAMR to install. Presently, versions 0.10.1, 0.11.0, 0.12.0,"
             echo "                                         0.12.1, 0.13.0, 0.14.0, 0.15.0, and 0.16.0 are supported."
@@ -210,6 +210,12 @@ while [ -n "$1" ]; do
         # libMesh
         --disable-libmesh)
             BUILD_LIBMESH=OFF
+        ;;
+
+        #####################################
+        # numdiff
+        --disable-numdiff)
+            BUILD_NUMDIFF=OFF
         ;;
 
         #####################################
