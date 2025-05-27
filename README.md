@@ -98,6 +98,67 @@ up the correct MPI environment. After that you can run
   ./autoibamr.sh
 ```
 
+### Checking what autoibamr did
+
+autoibamr saves a log file containing all the messages it printed (but not the
+messages printed by compiling dependencies) in the directory it is run in named
+`autoibamr.log`. If autoibamr has been run more than once then the previous log
+file is backed up as `autoibamr.log.previous`.
+
+For example, here are the first 50 lines of a log file:
+```
+This is autoibamr - automatically compile and install IBAMR 0.16.0
+Operating System Type detected as: linux
+Dynamic shared library file extension detected as: *.so
+Setting up without libMesh support
+Setting up with SILO support
+Setting up a build intended for debugging
+Please make sure you've read the instructions above and your system
+is ready for installing IBAMR.
+If not, please abort the installer by pressing <CTRL> + <C> !
+Then copy and paste these instructions into this terminal.
+Once ready, hit enter to continue!
+autoibamr tries now to download, configure, build and install:
+Downloading files to:     ~/autoibamr-debug/tmp/src
+Unpacking files to:       ~/autoibamr-debug/tmp/unpack
+Building packages in:     ~/autoibamr-debug/tmp/build
+Installing packages in:   ~/autoibamr-debug/packages
+Package configuration in: ~/autoibamr-debug/configuration
+Number of (at most) build processes to use: JOBS=16
+Packages:
+cmake
+hdf5
+petsc
+numdiff
+silo
+samrai
+ibamr
+Compiler Variables:
+CC  variable not set, but default mpicc  found.
+CC  = /usr/bin/mpicc
+CXX variable not set, but default mpicxx found.
+CXX = /usr/bin/mpicxx
+FC  variable not set, but default mpif90 found.
+FC  = /usr/bin/mpif90
+Once ready, hit enter to continue!
+autoibamr tries now to download, configure, build and install:
+Checking the provided MPI compiler wrappers
+The provided MPI compiler wrappers work
+Testing that the program awk is available
+Testing that the program grep is available
+Testing that the program m4 is available
+Testing that the program make is available
+Testing that the program patch is available
+The required command-line utilities work
+Testing that the python interpreter /usr/bin/python3 works
+The python interpreter /usr/bin/python3 works and has detected version 3.10
+Fetching cmake 3.30.6
+Trying to download https://cmake.org/files/v3.30/cmake-3.30.6-linux-x86_64.tar.gz
+Verifying cmake-3.30.6-linux-x86_64.tar.gz
+cmake-3.30.6-linux-x86_64.tar.gz: OK(sha256)
+Unpacking cmake-3.30.6-linux-x86_64.tar.gz
+```
+
 ### Fixing Common Problems with macOS
 
 The most common sources of problem with macOS are:
