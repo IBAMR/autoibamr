@@ -144,6 +144,9 @@ elif builtin command -v $(which python3) --version >/dev/null 2>/dev/null; then
   PYTHON_INTERPRETER="$(which python3)"
 fi
 
+# save all flags for printing later
+ALL_FLAGS="$@"
+
 while [ -n "$1" ]; do
     param="$1"
     case $param in
@@ -866,6 +869,7 @@ guess_ostype() {
 
 echo "*******************************************************************************"
 cecho ${GOOD} "This is autoibamr - automatically compile and install IBAMR ${IBAMR_VERSION}"
+cecho ${INFO} "Flags: $ALL_FLAGS"
 echo
 
 # do some very minimal checking of the external boost, should it be provided

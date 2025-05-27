@@ -108,6 +108,7 @@ file is backed up as `autoibamr.log.previous`.
 For example, here are the first 50 lines of a log file:
 ```
 This is autoibamr - automatically compile and install IBAMR 0.16.0
+Flags: --enable-debugging -j16 --disable-libmesh
 Operating System Type detected as: linux
 Dynamic shared library file extension detected as: *.so
 Setting up without libMesh support
