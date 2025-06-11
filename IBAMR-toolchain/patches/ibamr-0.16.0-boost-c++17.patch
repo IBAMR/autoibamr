@@ -1,0 +1,13 @@
+diff --git a/ibtk/contrib/boost/boost/functional.hpp b/ibtk/contrib/boost/boost/functional.hpp
+index 644307847..91d54e2c7 100644
+--- a/ibtk/contrib/boost/boost/functional.hpp
++++ b/ibtk/contrib/boost/boost/functional.hpp
+@@ -21,7 +21,7 @@ namespace boost
+     namespace functional
+     {
+         namespace detail {
+-#if defined(_HAS_AUTO_PTR_ETC) && !_HAS_AUTO_PTR_ETC
++#if 1
+             // std::unary_function and std::binary_function were both removed
+             // in C++17.
+ 
