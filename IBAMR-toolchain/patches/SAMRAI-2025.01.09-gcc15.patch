@@ -1,0 +1,239 @@
+diff --git a/source/toolbox/base/MathUtilitiesSpecial.C b/source/toolbox/base/MathUtilitiesSpecial.C
+index ab846ac..e4e07bd 100644
+--- a/source/toolbox/base/MathUtilitiesSpecial.C
++++ b/source/toolbox/base/MathUtilitiesSpecial.C
+@@ -9,63 +9,16 @@
+ 
+ #include "tbox/MathUtilities.h"
+ 
+-#ifdef HAVE_CMATH_ISNAN
+-#include <cmath>
+-#include <math.h>
+-#else
+-#include <math.h>
+-#endif
+-
+-#include <float.h>
+-#include <limits.h>
+-#include <stdlib.h>
+-
+ #include "tbox/Complex.h"
+ 
+-/*
+- * Floating point exception handling.  
+- * The following lines setup exception handling header files on 
+- * systems other than solaris.
+- */
+-#if defined(HAVE_EXCEPTION_HANDLING) 
+-#include <stdlib.h>
+-#include <stdio.h>
+-#include <fpu_control.h>
+-#include <signal.h>
+-#endif
+-
+-/*
+- * The following lines setup exception handling headers on the Sun.  If we
+- * use Sun's native compiler, just pull in the <sunmath.h> include file.
+- * If we are under solaris but use a different compiler (e.g. g++)
+- * we have to explicitly define the functions that <sunmath.h> defines,
+- * since we don't have access to this file.
+- */
+-#ifdef __SUNPRO_CC
+-#include <sunmath.h>
+-#endif
++#include <cmath>
++#include <limits>
+ 
+ namespace SAMRAI {
+    namespace tbox {
+ 
+-/*
+- *  Settings for the various signaling NaNs on different systems
+- */
+-#if !defined(FLT_SNAN_IS_BROKEN)  
+-#define SAMRAI_FLT_SNAN   FLT_SNAN
+-#elif !defined(FLT_MAX_IS_BROKEN)
+-#define SAMRAI_FLT_SNAN   FLT_MAX
+-#else
+-#define SAMRAI_FLT_SNAN   NAN
+-#endif
+-
+-#if !defined(DBL_SNAN_IS_BROKEN)
+-#define SAMRAI_DBL_SNAN   DBL_SNAN
+-#elif !defined(DBL_MAX_IS_BROKEN)
+-#define SAMRAI_DBL_SNAN   DBL_MAX
+-#else
+-#define SAMRAI_DBL_SNAN   NAN
+-#endif
++#define SAMRAI_FLT_SNAN std::numeric_limits<float>::signaling_NaN()
++#define SAMRAI_DBL_SNAN std::numeric_limits<double>::signaling_NaN()
+ 
+ template<> bool   MathUtilities<bool>::s_zero           = false;
+ template<> bool   MathUtilities<bool>::s_one            = true;
+@@ -76,104 +29,61 @@ template<> bool   MathUtilities<bool>::s_epsilon        = true;
+ 
+ template<> char   MathUtilities<char>::s_zero           = 0;
+ template<> char   MathUtilities<char>::s_one            = 1;
+-template<> char   MathUtilities<char>::s_signaling_nan  = CHAR_MAX;
+-template<> char   MathUtilities<char>::s_max            = CHAR_MAX;
+-template<> char   MathUtilities<char>::s_min            = CHAR_MIN;
++template<> char   MathUtilities<char>::s_signaling_nan  = std::numeric_limits<char>::max();
++template<> char   MathUtilities<char>::s_max            = std::numeric_limits<char>::max();
++template<> char   MathUtilities<char>::s_min            = std::numeric_limits<char>::min();
+ template<> char   MathUtilities<char>::s_epsilon        = 1;
+ 
+ template<> int    MathUtilities<int>::s_zero           = 0;
+ template<> int    MathUtilities<int>::s_one            = 1;
+-template<> int    MathUtilities<int>::s_signaling_nan   = INT_MAX;
+-template<> int    MathUtilities<int>::s_max             = INT_MAX;
+-template<> int    MathUtilities<int>::s_min             = INT_MIN;
++template<> int    MathUtilities<int>::s_signaling_nan   = std::numeric_limits<int>::max();
++template<> int    MathUtilities<int>::s_max             = std::numeric_limits<int>::max();
++template<> int    MathUtilities<int>::s_min             = std::numeric_limits<int>::min();
+ template<> int    MathUtilities<int>::s_epsilon         = 1;
+ 
+ template<> float  MathUtilities<float>::s_zero          = 0.0;
+ template<> float  MathUtilities<float>::s_one           = 1.0;
+ template<> float  MathUtilities<float>::s_signaling_nan = SAMRAI_FLT_SNAN;
+-template<> float  MathUtilities<float>::s_max           = FLT_MAX;
+-template<> float  MathUtilities<float>::s_min           = FLT_MIN;
+-template<> float  MathUtilities<float>::s_epsilon       = FLT_EPSILON;
++template<> float  MathUtilities<float>::s_max           = std::numeric_limits<float>::max();
++template<> float  MathUtilities<float>::s_min           = std::numeric_limits<float>::min();
++template<> float  MathUtilities<float>::s_epsilon       = std::numeric_limits<float>::epsilon();
+ 
+ template<> double MathUtilities<double>::s_zero          = 0.0;
+ template<> double MathUtilities<double>::s_one           = 1.0;
+ template<> double MathUtilities<double>::s_signaling_nan = SAMRAI_DBL_SNAN;
+-template<> double MathUtilities<double>::s_max           = DBL_MAX;
+-template<> double MathUtilities<double>::s_min           = DBL_MIN;
+-template<> double MathUtilities<double>::s_epsilon       = DBL_EPSILON;
++template<> double MathUtilities<double>::s_max           = std::numeric_limits<double>::max();
++template<> double MathUtilities<double>::s_min           = std::numeric_limits<double>::min();
++template<> double MathUtilities<double>::s_epsilon       = std::numeric_limits<double>::epsilon();
+ 
+ template<> dcomplex   MathUtilities<dcomplex>::s_zero             = dcomplex(0.0,0.0);
+ template<> dcomplex   MathUtilities<dcomplex>::s_one              = dcomplex(1.0,0.0);
+ template<> dcomplex   MathUtilities<dcomplex>::s_signaling_nan  = dcomplex(SAMRAI_DBL_SNAN,SAMRAI_DBL_SNAN);
+-template<> dcomplex   MathUtilities<dcomplex>::s_max            = dcomplex(DBL_MAX,DBL_MAX);
+-template<> dcomplex   MathUtilities<dcomplex>::s_min            = dcomplex(DBL_MIN,DBL_MIN);
+-template<> dcomplex   MathUtilities<dcomplex>::s_epsilon        = dcomplex(DBL_MIN,0.0);
++template<> dcomplex   MathUtilities<dcomplex>::s_max            = dcomplex(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
++template<> dcomplex   MathUtilities<dcomplex>::s_min            = dcomplex(std::numeric_limits<double>::min(), std::numeric_limits<double>::min());
++template<> dcomplex   MathUtilities<dcomplex>::s_epsilon        = dcomplex(std::numeric_limits<double>::min(), 0.0);
+ 
+ template<>
+ bool MathUtilities<float>::isNaN(const float& value)
+ {
+-
+-  int i;
+-  /* This mess should be fixed when the next C++ standard comes out */
+-#if defined(HAVE_CMATH_ISNAN)
+-  i = std::isnan(value);
+-#elif defined(HAVE_ISNAN)
+-  i = isnan(value);
+-#elif defined(HAVE_ISNAND)
+-  i = __isnanf(value);
+-#elif defined(HAVE_INLINE_ISNAND)
+-  i = __inline_isnanf(value);
+-#else
+-  i = value != value;
+-#endif
+-
+-  return( (i != 0) ? true : false );
++    return std::isnan(value);
+ }
+ 
+ template<> 
+ bool MathUtilities<double>::isNaN(const double& value)
+ {
+-  int i;
+-  /* This mess should be fixed when the next C++ standard comes out */
+-#if defined(HAVE_CMATH_ISNAN)
+-  i = std::isnan(value);
+-#elif defined(HAVE_ISNAN)
+-  i = isnan(value);
+-#elif defined(HAVE_ISNAND)
+-  i = __isnand(value);
+-#elif defined(HAVE_INLINE_ISNAND)
+-  i = __inline_isnand(value);
+-#else
+-  i = value != value;
+-#endif
++    return std::isnan(value);
+ 
+-  return( (i != 0) ? true : false );
+ }
+ 
+ template<>
+ bool MathUtilities<dcomplex>::isNaN(const dcomplex& value)
+ {
+-
+   int i_re;
+   int i_im;
+-#if defined(HAVE_CMATH_ISNAN)
+-  i_re = std::isnan( real(value) );
+-  i_im = std::isnan( imag(value) );
+-#elif defined(HAVE_ISNAN)
+-  i_re = isnan( real(value) );
+-  i_im = isnan( imag(value) );
+-#elif defined(HAVE_ISNAND)
+-  i_re = __isnand( real(value) );
+-  i_im = __isnand( imag(value) );
+-#elif defined(HAVE_INLINE_ISNAND)
+-   i_re = __inline_isnand( real(value) );
+-   i_im = __inline_isnand( imag(value) );
+-#else
+-   i_re = real(value) != real(value);
+-   i_im = imag(value) != imag(value);
+-#endif
++  i_re = std::isnan( std::real(value) );
++  i_im = std::isnan( std::imag(value) );
+ 
+-   return( ( (i_re != 0) || (i_im !=0) ) ? true : false );
++  return( ( (i_re != 0) || (i_im !=0) ) ? true : false );
+ }
+ 
+ template<>
+@@ -187,7 +97,7 @@ bool MathUtilities<float>::equalEps(const float& a, const float& b)
+       MathUtilities<float>::Max(absmax,
+            MathUtilities<float>::s_epsilon);
+ 
+-   return( numerator/denomenator < sqrt(MathUtilities<float>::s_epsilon) );
++   return( numerator/denomenator < std::sqrt(MathUtilities<float>::s_epsilon) );
+ }
+ 
+ template<>
+@@ -201,16 +111,16 @@ bool MathUtilities<double>::equalEps(const double& a, const double& b)
+       MathUtilities<double>::Max(absmax,
+            MathUtilities<double>::s_epsilon);
+ 
+-   return( numerator/denomenator < sqrt(MathUtilities<double>::s_epsilon) );
++   return( numerator/denomenator < std::sqrt(MathUtilities<double>::s_epsilon) );
+ }
+ 
+ template<>
+ bool MathUtilities<dcomplex>::equalEps(const dcomplex& a, const dcomplex& b)
+ {
+-   double a_re = real(a);
+-   double a_im = imag(a);
+-   double b_re = real(b);
+-   double b_im = imag(b);
++   double a_re = std::real(a);
++   double a_im = std::imag(a);
++   double b_re = std::real(b);
++   double b_im = std::imag(b);
+ 
+    return( MathUtilities<double>::equalEps(a_re,b_re) && 
+            MathUtilities<double>::equalEps(a_im,b_im) );
+@@ -295,8 +205,8 @@ double MathUtilities<double>::Rand(const double& low, const double& width)
+ template<> 
+ dcomplex MathUtilities<dcomplex>::Rand(const dcomplex& low, const dcomplex& width)
+ {
+-   double real_part = real(width) * drand48() + real(low);
+-   double imag_part = imag(width) * drand48() + imag(low);
++   double real_part = std::real(width) * drand48() + std::real(low);
++   double imag_part = std::imag(width) * drand48() + std::imag(low);
+    return dcomplex(real_part, imag_part);
+ }
+ 

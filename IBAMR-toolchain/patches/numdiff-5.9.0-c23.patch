@@ -1,0 +1,47 @@
+diff --git a/configure b/configure
+index d51b4b4..ce92b57 100755
+--- a/configure
++++ b/configure
+@@ -4962,24 +4962,24 @@ cat >>conftest.$ac_ext <<_ACEOF
+ /* end confdefs.h.  */
+ 
+ #include <stdbool.h>
+-#ifndef bool
+- "error: bool is not defined"
+-#endif
+-#ifndef false
+- "error: false is not defined"
+-#endif
+-#if false
+- "error: false is not 0"
+-#endif
+-#ifndef true
+- "error: true is not defined"
+-#endif
+-#if true != 1
+- "error: true is not 1"
+-#endif
+-#ifndef __bool_true_false_are_defined
+- "error: __bool_true_false_are_defined is not defined"
+-#endif
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
+ 
+ 	struct s { _Bool s: 1; _Bool t; } s;
+ 

@@ -1,5 +1,5 @@
-VERSION=3.22.3
-CHECKSUM=88c0d465a3bd688cb17ebf06a17c06d6e9cc457fa6b9643d217389424e6bd795
+VERSION=3.23.3
+CHECKSUM=bb51e8cbaa3782afce38c6f0bdd64d20ed090695992b7d49817518aa7e909139
 
 NAME=petsc-${VERSION}
 SOURCE=https://web.cels.anl.gov/projects/petsc/download/release-snapshots/
