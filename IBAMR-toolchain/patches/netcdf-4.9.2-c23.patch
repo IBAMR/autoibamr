@@ -1,0 +1,30 @@
+diff --git a/ncdump/utils.h b/ncdump/utils.h
+index cd413e39a..b2e3209f0 100644
+--- a/ncdump/utils.h
++++ b/ncdump/utils.h
+@@ -10,6 +10,8 @@
+ 
+ #include "config.h"
+ 
++#include <stdbool.h>
++
+ struct ncatt_t;
+ 
+ #ifndef NCSTREQ
+@@ -20,11 +22,11 @@ struct ncatt_t;
+ #define NC_GRP_DELIM '/'
+ 
+ typedef int bool_t;
+-#ifndef false
+-#define false 0
+-#define true 1
+-//enum {false=0, true=1};
+-#endif
++
++
++
++
++
+ 
+ struct safebuf_t;
+ /* Buffer structure for implementing growable strings, used in

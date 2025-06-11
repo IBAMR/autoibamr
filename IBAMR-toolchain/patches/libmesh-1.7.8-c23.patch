@@ -1,0 +1,35 @@
+diff --git a/contrib/netcdf/v4/ncdump/utils.h b/contrib/netcdf/v4/ncdump/utils.h
+index c88981f38b..c27c66d125 100644
+--- a/contrib/netcdf/v4/ncdump/utils.h
++++ b/contrib/netcdf/v4/ncdump/utils.h
+@@ -10,6 +10,8 @@
+ 
+ #include "config.h"
+ 
++#include <stdbool.h>
++
+ #ifndef NCSTREQ
+ #define	NCSTREQ(a, b)	(*(a) == *(b) && strcmp((a), (b)) == 0)
+ #endif
+@@ -18,7 +20,7 @@
+ #define NC_GRP_DELIM '/'
+ 
+ typedef int bool_t;
+-enum {false=0, true=1};
++// enum {false=0, true=1};
+ 
+ struct safebuf_t;
+ /* Buffer structure for implementing growable strings, used in
+Submodule contrib/timpi contains modified content
+diff --git a/contrib/timpi/src/parallel/include/timpi/communicator.h b/contrib/timpi/src/parallel/include/timpi/communicator.h
+index 125ee59..be32a39 100644
+--- a/contrib/timpi/src/parallel/include/timpi/communicator.h
++++ b/contrib/timpi/src/parallel/include/timpi/communicator.h
+@@ -38,6 +38,7 @@
+ //
+ // These could be forward declarations if only that wasn't illegal
+ #include <complex> // for specializations
++#include <cstdint>
+ #include <set>
+ #include <unordered_map>
+ 
