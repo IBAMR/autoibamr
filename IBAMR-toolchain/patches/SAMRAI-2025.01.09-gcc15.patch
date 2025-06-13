@@ -1,3 +1,24 @@
+diff --git a/source/patchdata/array/ArrayData.C b/source/patchdata/array/ArrayData.C
+index baa7901..233b01f 100644
+--- a/source/patchdata/array/ArrayData.C
++++ b/source/patchdata/array/ArrayData.C
+@@ -21,6 +21,7 @@
+ #include "CopyOperation.h"
+ #include "SumOperation.h"
+ 
++#include <limits>
+ 
+ #define PDAT_ARRAYDATA_VERSION 1
+ 
+@@ -967,7 +968,7 @@ void ArrayData<DIM,TYPE>::getSpecializedFromDatabase(
+ template<int DIM, class TYPE>
+ void ArrayData<DIM,TYPE>::undefineData()
+ {
+-   fillAll(  tbox::MathUtilities<TYPE>::getSignalingNaN() );
++   fillAll(  std::numeric_limits<TYPE>::max() );
+ }
+ 
+ /*
 diff --git a/source/toolbox/base/MathUtilitiesSpecial.C b/source/toolbox/base/MathUtilitiesSpecial.C
 index ab846ac..e4e07bd 100644
 --- a/source/toolbox/base/MathUtilitiesSpecial.C
