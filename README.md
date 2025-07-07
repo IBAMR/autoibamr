@@ -188,7 +188,14 @@ or, alternatively, install and then update the full Xcode system from the App st
 
 ### Using the installed copy of IBAMR
 
-This can be done in two ways:
+The only goal of autoibamr is to install IBAMR and its dependencies so that they
+may be used as a dependency for external projects. Since IBAMR is a library, the
+main way people interact with it is building their own application which uses
+its various classes and functions and linking it with IBAMR. A good way to get
+started with that workflow is to use the [template cmake file](https://ibamr.github.io/linking)
+and copy and paste a relevant example into `main.cpp` in the same directory.
+
+There are two ways to use autoibamr's IBAMR installation in this way:
 1. source the `enable.sh` script installed in `autoibamr/configuration`:
 
 ```bash
