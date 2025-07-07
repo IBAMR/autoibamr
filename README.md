@@ -214,11 +214,11 @@ This can be done in two ways:
    application by running
 
 ```bash
-   $HOME/autoibamr/packages/cmake-3.20.5/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.16.0/" .
+   $HOME/autoibamr/packages/cmake-3.30.6/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.16.0/" .
 ```
    or, with a debug build
 ```bash
-   $HOME/autoibamr-debug/packages/cmake-3.20.5/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.16.0/" .
+   $HOME/autoibamr-debug/packages/cmake-3.30.6/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.16.0/" .
 ```
 
    in the normal way. That command uses the version of CMake installed by
