@@ -221,12 +221,14 @@ There are two ways to use autoibamr's IBAMR installation in this way:
    application by running
 
 ```bash
-   $HOME/autoibamr/packages/cmake-3.30.6/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.16.0/" .
+   $HOME/autoibamr/packages/cmake-3.30.6/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.16.0/" -DCMAKE_CXX_COMPILER="$(which mpic++)" .
 ```
    or, with a debug build
 ```bash
-   $HOME/autoibamr-debug/packages/cmake-3.30.6/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.16.0/" .
+   $HOME/autoibamr-debug/packages/cmake-3.30.6/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.16.0/" -DCMAKE_CXX_COMPILER="$(which mpic++)" .
 ```
+   *In all cases, you should set up your own application with the same MPI
+   compiler wrapper which was used when running autoibamr.*
 
    in the normal way. That command uses the version of CMake installed by
    autoibamr - you can use another installed version if you wish (that is at
