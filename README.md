@@ -19,6 +19,24 @@ then the default installation location is `~/autoibamr-debug/`.
 Dependencies
 ----
 
+# macOS pre-configuration
+
+autoibamr may be very slow to run on macOS due to Spotlight attempting to index
+all of the files autoibamr creates. To avoid this problem we recommend disabling
+Spotlight in the autoibamr installation directory by first creating the output
+directories:
+
+> mkdir -p ~/autoibamr/
+> mkdir -p ~/autoibamr-debug/
+
+Alternatively, if you are using autoibamr with the `--prefix` option, then create
+the relevant directory in the same way. Then set these directories as private via
+
+![The macOS spotlight configuration window](Pictures/spotlight-1.png)
+![The macOS spotlight ignored directory window](Pictures/spotlight-2.png)
+
+# MPI compiler wrappers
+
 autoibamr requires that your present machine already have a working copy of MPI
 and the standard MPI compiler wrappers installed. If you want to use custom MPI
 compiler wrappers then you should set the `CC`, `CXX`, and `FC` environment
@@ -43,6 +61,8 @@ something like
 then autoibamr will fail when it checks for valid MPI compiler wrappers (as
 these are plain C, C++, and Fortran compilers respectively).
 
+# Other dependencies
+
 In addition to MPI, we require that the following build-time dependencies are
 available:
 - python, e.g., python3-distutils on Ubuntu. Any system copy of Python should
@@ -53,7 +73,7 @@ available:
   have a system copy of XDR available. This library is typically installed by
   the command line tools SDK for macOS or by a package named something like
   `libtirpc` (Arch Linux), `libtirpc-dev` (Debian and Ubuntu), or
-  `libtirpc-devel` (Read Hat).
+  `libtirpc-devel` (Red Hat).
 
 If you are running on a mac then you may need to install Xcode's command-line
 tools. If you have not done this before then run
