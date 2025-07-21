@@ -1258,15 +1258,75 @@ EOF
 fi
 
 ################################################################################
-# Do a sanity check for the command line utilities we use at some point
+# Check that the command-line tools we need are present
 for APPLICATION in awk grep m4 make patch
 do
     cecho ${INFO} "Testing that the program ${APPLICATION} is available"
     which ${APPLICATION}
     quit_if_fail "Unable to find ${APPLICATION} in default search directories - make sure this program is installed and run autoibamr again."
 done
+
+# Check that the command-line tools we need work
+cd ${BUILD_PATH}
+mkdir -p check-command-line-tools
+cd check-command-line-tools
+
+_macos_command_line_tools="On macOS, a common source of this problem is an out-of-date or broken installation of the XCode command-line tools. See README.md for more information."
+cecho ${INFO} "Testing that awk works"
+echo "a b c d" | awk '{print $2}' 1>/dev/null
+quit_if_fail "The detected version of awk doesn't work correctly.\n${_macos_command_line_tools}"
+cecho ${GOOD} "awk works"
+
+cecho ${INFO} "Testing that grep works"
+echo "a b c d" | grep 'b' 1>/dev/null
+quit_if_fail "The detected version of grep doesn't work correctly.\n${_macos_command_line_tools}"
+cecho ${GOOD} "grep works"
+
+cecho ${INFO} "Testing that m4 works"
+echo "a b c d" | m4 -Db=c 1>/dev/null
+quit_if_fail "The detected version of m4 doesn't work correctly.\n${_macos_command_line_tools}"
+cecho ${GOOD} "m4 works"
+
+cecho ${INFO} "Testing that make works"
+cat > ./autoibamrmaketest.make <<"EOF"
+test:
+	echo "test"
+EOF
+make -f ./autoibamrmaketest.make test 1>/dev/null
+quit_if_fail "The detected version of make doesn't work correctly.\n${_macos_command_line_tools}"
+cecho ${GOOD} "make works"
+
+cecho ${INFO} "Testing that patch works"
+cat > ./autoibamrpatchtest1.c <<"EOF"
+A
+A
+A
+EOF
+
+cat > ./autoibamrpatchtest2.c <<"EOF"
+A
+B
+A
+EOF
+
+cat > ./autoibamrpatchtest.patch <<"EOF"
+--- ./autoibamrpatchtest1.c	2025-07-16 11:18:38.119504162 -0400
++++ autoibamrpatchtest2.c	2025-07-16 11:18:46.399503814 -0400
+
+@@ -1,3 +1,3 @@
+ A
+-A
++B
+ A
+EOF
+patch --remove-empty-files -p1 --input=autoibamrpatchtest.patch 1>/dev/null
+quit_if_fail "The detected version of patch doesn't work correctly.\n${_macos_command_line_tools}"
+cecho ${GOOD} "patch works"
+
 cecho ${GOOD} "The required command-line utilities work"
 
+################################################################################
+# Check that python is present and is new enough
 cecho ${INFO} "Testing that the python interpreter ${PYTHON_INTERPRETER} works"
 PYTHONVER=$(${PYTHON_INTERPRETER} -c "import sys; print('{}.{}'.format(sys.version_info.major, sys.version_info.minor))")
 quit_if_fail "The provided python interpreter ${PYTHON_INTERPRETER} could not run a basic test program. Try rerunning autoibamr with a different python interpreter (specified by --python-interpreter)"
