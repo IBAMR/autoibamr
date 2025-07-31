@@ -162,6 +162,7 @@ while [ -n "$1" ]; do
             echo "                                         it."
             echo "  --disable-numdiff                      Build IBAMR without numdiff. Numdiff is only required by the test suite."
             echo "  --disable-silo                         Build IBAMR without SILO. SILO is on by default; this flag disables it."
+            echo "  --enable-cardinal-dependencies         Enable all of Cardinal's dependencies (deal.II, ExodusII, and not libMesh)."
             echo "  --enable-dealii                        Build deal.II. This library is not directly used by IBAMR but is a required"
             echo "                                         dependency of some IBAMR projects. Disabled by default."
             echo "  --enable-exodusii                      Build netcdf and ExodusII. These are not used directly by IBAMR but"
@@ -225,6 +226,15 @@ while [ -n "$1" ]; do
         # SILO
         --disable-silo)
             BUILD_SILO=OFF
+        ;;
+
+        #####################################
+        # Cardinal's dependencies
+        --enable-cardinal-dependencies)
+            BUILD_LIBMESH=OFF
+            BUILD_DEAL_II=ON
+            BUILD_EXODUS_II=ON
+            BUILD_NUMDIFF=ON
         ;;
 
         #####################################
