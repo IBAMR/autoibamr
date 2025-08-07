@@ -109,6 +109,19 @@ quit_if_fail() {
     fi
 }
 
+guess_ostype() {
+    # Try to guess the operating system type (ostype)
+    if [ -f /usr/bin/cygwin1.dll ]; then
+        echo cygwin
+
+    elif [ -f /usr/bin/sw_vers ]; then
+        echo macos
+
+    elif [ -f /etc/os-release ]; then
+        echo linux
+    fi
+}
+
 ################################################################################
 # Parse command line input parameters
 BUILD_DEAL_II=OFF
@@ -367,6 +380,45 @@ while [ -n "$1" ]; do
     esac
     shift
 done
+
+################################################################################
+### autoibamr script
+################################################################################
+
+echo "*******************************************************************************"
+cecho ${GOOD} "This is autoibamr - automatically compile and install IBAMR ${IBAMR_VERSION}"
+cecho ${INFO} "Flags: $ALL_FLAGS"
+echo
+
+################################################################################
+# Guess the operating system type -> PLATFORM_OSTYPE
+echo
+PLATFORM_OSTYPE=`guess_ostype`
+if [ -z "${PLATFORM_OSTYPE}" ]; then
+    cecho ${WARN} "WARNING: could not determine your Operating System Type (assuming linux)"
+    PLATFORM_OSTYPE=linux
+fi
+
+cecho ${INFO} "Operating System Type detected as: ${PLATFORM_OSTYPE}"
+
+if [ -z "${PLATFORM_OSTYPE}" ]; then
+    # check if PLATFORM_OSTYPE is set and not empty failed
+    cecho ${BAD} "Error: (internal) could not set PLATFORM_OSTYPE"
+        exit 1
+fi
+
+# Guess dynamic shared library file extension -> LDSUFFIX
+if [ ${PLATFORM_OSTYPE} == "linux" ]; then
+    LDSUFFIX=so
+
+elif [ ${PLATFORM_OSTYPE} == "macos" ]; then
+    LDSUFFIX=dylib
+
+elif [ ${PLATFORM_OSTYPE} == "cygwin" ]; then
+    LDSUFFIX=dll
+fi
+
+cecho ${INFO} "Dynamic shared library file extension detected as: *.${LDSUFFIX}"
 
 ################################################################################
 # Check that python is present and is new enough. We do this early on since we
@@ -890,28 +942,6 @@ package_conf() {
     quit_if_fail "There was a problem creating the configfiles for ${PACKAGE} ${VERSION}."
 }
 
-guess_ostype() {
-    # Try to guess the operating system type (ostype)
-    if [ -f /usr/bin/cygwin1.dll ]; then
-        echo cygwin
-
-    elif [ -f /usr/bin/sw_vers ]; then
-        echo macos
-
-    elif [ -f /etc/os-release ]; then
-        echo linux
-    fi
-}
-
-################################################################################
-### autoibamr script
-################################################################################
-
-echo "*******************************************************************************"
-cecho ${GOOD} "This is autoibamr - automatically compile and install IBAMR ${IBAMR_VERSION}"
-cecho ${INFO} "Flags: $ALL_FLAGS"
-echo
-
 # do some very minimal checking of the external boost, should it be provided
 if [ ${EXTERNAL_BOOST} = "ON" ]; then
     if [ ! -d "${EXTERNAL_BOOST_DIR}" ]; then
@@ -979,36 +1009,6 @@ fi
 if [ ${DEPENDENCIES_ONLY} = "OFF" ]; then
     PACKAGES="${PACKAGES} ibamr"
 fi
-
-################################################################################
-# Guess the operating system type -> PLATFORM_OSTYPE
-echo
-PLATFORM_OSTYPE=`guess_ostype`
-if [ -z "${PLATFORM_OSTYPE}" ]; then
-    cecho ${WARN} "WARNING: could not determine your Operating System Type (assuming linux)"
-    PLATFORM_OSTYPE=linux
-fi
-
-cecho ${INFO} "Operating System Type detected as: ${PLATFORM_OSTYPE}"
-
-if [ -z "${PLATFORM_OSTYPE}" ]; then
-    # check if PLATFORM_OSTYPE is set and not empty failed
-    cecho ${BAD} "Error: (internal) could not set PLATFORM_OSTYPE"
-        exit 1
-fi
-
-# Guess dynamic shared library file extension -> LDSUFFIX
-if [ ${PLATFORM_OSTYPE} == "linux" ]; then
-    LDSUFFIX=so
-
-elif [ ${PLATFORM_OSTYPE} == "macos" ]; then
-    LDSUFFIX=dylib
-
-elif [ ${PLATFORM_OSTYPE} == "cygwin" ]; then
-    LDSUFFIX=dll
-fi
-
-cecho ${INFO} "Dynamic shared library file extension detected as: *.${LDSUFFIX}"
 
 # Print configuration options
 if [ ${BUILD_LIBMESH} = "ON" ]; then
