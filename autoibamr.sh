@@ -759,7 +759,8 @@ package_build() {
 
     # Create build directory if it does not exist
     if [ ! -d ${BUILDDIR} ]; then
-        mkdir -p ${BUILDDIR}
+        mkdir -p "${BUILDDIR}"
+        quit_if_fail "Unable to create build directory ${BUILDDIR}."
     fi
 
     # Move to the build directory
@@ -1167,17 +1168,18 @@ cecho ${GOOD} "autoibamr tries now to download, configure, build and install:"
 echo
 
 # Create necessary directories and set appropriate variables
-mkdir -p ${DOWNLOAD_PATH}
-mkdir -p ${UNPACK_PATH}
-mkdir -p ${BUILD_PATH}
-mkdir -p ${INSTALL_PATH}
-mkdir -p ${CONFIGURATION_PATH}
+for dir in ${DOWNLOAD_PATH} ${UNPACK_PATH} ${BUILD_PATH} ${INSTALL_PATH} ${CONFIGURATION_PATH}
+do
+    mkdir -p "$dir"
+    quit_if_fail "Unable to create directory ${dir}."
+done
 
 ################################################################################
 # Do a sanity check for the compilers
 cecho ${INFO} "Checking the provided MPI compiler wrappers"
 cd ${BUILD_PATH}
 mkdir -p check-compilers
+quit_if_fail "Unable to create directory."
 cd check-compilers
 
 cat > ./test.c <<"EOF"
@@ -1277,8 +1279,11 @@ do
 done
 
 # Check that the command-line tools we need work
-cd ${BUILD_PATH}
+mkdir -p "${BUILD_PATH}"
+quit_if_fail "Unable to create build directory ${BUILD_PATH}."
+cd "${BUILD_PATH}"
 mkdir -p check-command-line-tools
+quit_if_fail "Unable to create test directory."
 cd check-command-line-tools
 
 _macos_command_line_tools="On macOS, a common source of this problem is an out-of-date or broken installation of the XCode command-line tools. See README.md for more information."
