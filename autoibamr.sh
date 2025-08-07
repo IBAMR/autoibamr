@@ -109,6 +109,19 @@ quit_if_fail() {
     fi
 }
 
+guess_ostype() {
+    # Try to guess the operating system type (ostype)
+    if [ -f /usr/bin/cygwin1.dll ]; then
+        echo cygwin
+
+    elif [ -f /usr/bin/sw_vers ]; then
+        echo macos
+
+    elif [ -f /etc/os-release ]; then
+        echo linux
+    fi
+}
+
 ################################################################################
 # Parse command line input parameters
 BUILD_DEAL_II=OFF
@@ -368,6 +381,65 @@ while [ -n "$1" ]; do
     shift
 done
 
+################################################################################
+### autoibamr script
+################################################################################
+
+echo "*******************************************************************************"
+cecho ${GOOD} "This is autoibamr - automatically compile and install IBAMR ${IBAMR_VERSION}"
+cecho ${INFO} "Flags: $ALL_FLAGS"
+echo
+
+################################################################################
+# Guess the operating system type -> PLATFORM_OSTYPE
+echo
+PLATFORM_OSTYPE=`guess_ostype`
+if [ -z "${PLATFORM_OSTYPE}" ]; then
+    cecho ${WARN} "WARNING: could not determine your Operating System Type (assuming linux)"
+    PLATFORM_OSTYPE=linux
+fi
+
+cecho ${INFO} "Operating System Type detected as: ${PLATFORM_OSTYPE}"
+
+if [ -z "${PLATFORM_OSTYPE}" ]; then
+    # check if PLATFORM_OSTYPE is set and not empty failed
+    cecho ${BAD} "Error: (internal) could not set PLATFORM_OSTYPE"
+        exit 1
+fi
+
+# Guess dynamic shared library file extension -> LDSUFFIX
+if [ ${PLATFORM_OSTYPE} == "linux" ]; then
+    LDSUFFIX=so
+
+elif [ ${PLATFORM_OSTYPE} == "macos" ]; then
+    LDSUFFIX=dylib
+
+elif [ ${PLATFORM_OSTYPE} == "cygwin" ]; then
+    LDSUFFIX=dll
+fi
+
+cecho ${INFO} "Dynamic shared library file extension detected as: *.${LDSUFFIX}"
+
+################################################################################
+# Check that python is present and is new enough. We do this early on since we
+# use python to set up a few other things bash cannot easily do
+cecho ${INFO} "Testing that the python interpreter ${PYTHON_INTERPRETER} works"
+PYTHONVER=$(${PYTHON_INTERPRETER} -c "import sys; print('{}.{}'.format(sys.version_info.major, sys.version_info.minor))")
+quit_if_fail "The provided python interpreter ${PYTHON_INTERPRETER} could not run a basic test program. Try rerunning autoibamr with a different python interpreter (specified by --python-interpreter)"
+cecho ${GOOD} "The python interpreter ${PYTHON_INTERPRETER} works and has detected version ${PYTHONVER}"
+
+PYTHON_VERSION_MAJOR=$(${PYTHON_INTERPRETER} -c "import sys; print('{}'.format(sys.version_info.major))")
+PYTHON_VERSION_MINOR=$(${PYTHON_INTERPRETER} -c "import sys; print('{}'.format(sys.version_info.minor))")
+if [ ${PYTHON_VERSION_MAJOR} -lt 3 ]; then
+    cecho ${BAD} "The provided python interpreter ${PYTHON_INTERPRETER} implements Python ${PYTHONVER}, but PETSc (an IBAMR dependency) requires Python 3.4 or newer."
+    exit 1
+fi
+if [ ${PYTHON_VERSION_MINOR} -lt 4 ]; then
+    cecho ${BAD} "The provided python interpreter ${PYTHON_INTERPRETER} implements Python ${PYTHONVER}, but PETSc (an IBAMR dependency) requires Python 3.4 or newer."
+    exit 1
+fi
+
+################################################################################
 # Don't permit things that don't make sense
 if [ ${DEBUGGING} = "ON" ] && [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
   cecho ${BAD} "ERROR: --enable-debugging and --enable-native-optimizations are mutually incompatible features."
@@ -409,8 +481,17 @@ fi
 if [ "${USER_PREFIX_SET}" = "OFF" ] && [ "${DEBUGGING}" = "ON" ]; then
     PREFIX=~/autoibamr-debug
 fi
-PREFIX_PATH=${PREFIX/#~\//$HOME\/}
+RELATIVE_PREFIX_PATH=${PREFIX/#~\//$HOME\/}
+
+# convert to an absolute path. This is excessively difficult to portably do with
+# bash so just use python
+PREFIX_PATH=$($PYTHON_INTERPRETER -c "import os, sys; print(os.path.abspath(\"$RELATIVE_PREFIX_PATH\"))")
+cecho ${INFO} "Set installation prefix to $PREFIX_PATH"
+
 unset PREFIX
+
+mkdir -p "$PREFIX_PATH"
+quit_if_fail "Unable to create installation prefix directory $PREFIX_PATH."
 
 RE='^[0-9]+$'
 if [[ ! "${JOBS}" =~ ${RE} || ${JOBS} -lt 1 ]] ; then
@@ -759,7 +840,8 @@ package_build() {
 
     # Create build directory if it does not exist
     if [ ! -d ${BUILDDIR} ]; then
-        mkdir -p ${BUILDDIR}
+        mkdir -p "${BUILDDIR}"
+        quit_if_fail "Unable to create build directory ${BUILDDIR}."
     fi
 
     # Move to the build directory
@@ -860,28 +942,6 @@ package_conf() {
     quit_if_fail "There was a problem creating the configfiles for ${PACKAGE} ${VERSION}."
 }
 
-guess_ostype() {
-    # Try to guess the operating system type (ostype)
-    if [ -f /usr/bin/cygwin1.dll ]; then
-        echo cygwin
-
-    elif [ -f /usr/bin/sw_vers ]; then
-        echo macos
-
-    elif [ -f /etc/os-release ]; then
-        echo linux
-    fi
-}
-
-################################################################################
-### autoibamr script
-################################################################################
-
-echo "*******************************************************************************"
-cecho ${GOOD} "This is autoibamr - automatically compile and install IBAMR ${IBAMR_VERSION}"
-cecho ${INFO} "Flags: $ALL_FLAGS"
-echo
-
 # do some very minimal checking of the external boost, should it be provided
 if [ ${EXTERNAL_BOOST} = "ON" ]; then
     if [ ! -d "${EXTERNAL_BOOST_DIR}" ]; then
@@ -949,36 +1009,6 @@ fi
 if [ ${DEPENDENCIES_ONLY} = "OFF" ]; then
     PACKAGES="${PACKAGES} ibamr"
 fi
-
-################################################################################
-# Guess the operating system type -> PLATFORM_OSTYPE
-echo
-PLATFORM_OSTYPE=`guess_ostype`
-if [ -z "${PLATFORM_OSTYPE}" ]; then
-    cecho ${WARN} "WARNING: could not determine your Operating System Type (assuming linux)"
-    PLATFORM_OSTYPE=linux
-fi
-
-cecho ${INFO} "Operating System Type detected as: ${PLATFORM_OSTYPE}"
-
-if [ -z "${PLATFORM_OSTYPE}" ]; then
-    # check if PLATFORM_OSTYPE is set and not empty failed
-    cecho ${BAD} "Error: (internal) could not set PLATFORM_OSTYPE"
-        exit 1
-fi
-
-# Guess dynamic shared library file extension -> LDSUFFIX
-if [ ${PLATFORM_OSTYPE} == "linux" ]; then
-    LDSUFFIX=so
-
-elif [ ${PLATFORM_OSTYPE} == "macos" ]; then
-    LDSUFFIX=dylib
-
-elif [ ${PLATFORM_OSTYPE} == "cygwin" ]; then
-    LDSUFFIX=dll
-fi
-
-cecho ${INFO} "Dynamic shared library file extension detected as: *.${LDSUFFIX}"
 
 # Print configuration options
 if [ ${BUILD_LIBMESH} = "ON" ]; then
@@ -1167,17 +1197,18 @@ cecho ${GOOD} "autoibamr tries now to download, configure, build and install:"
 echo
 
 # Create necessary directories and set appropriate variables
-mkdir -p ${DOWNLOAD_PATH}
-mkdir -p ${UNPACK_PATH}
-mkdir -p ${BUILD_PATH}
-mkdir -p ${INSTALL_PATH}
-mkdir -p ${CONFIGURATION_PATH}
+for dir in ${DOWNLOAD_PATH} ${UNPACK_PATH} ${BUILD_PATH} ${INSTALL_PATH} ${CONFIGURATION_PATH}
+do
+    mkdir -p "$dir"
+    quit_if_fail "Unable to create directory ${dir}."
+done
 
 ################################################################################
 # Do a sanity check for the compilers
 cecho ${INFO} "Checking the provided MPI compiler wrappers"
 cd ${BUILD_PATH}
 mkdir -p check-compilers
+quit_if_fail "Unable to create directory."
 cd check-compilers
 
 cat > ./test.c <<"EOF"
@@ -1277,8 +1308,11 @@ do
 done
 
 # Check that the command-line tools we need work
-cd ${BUILD_PATH}
+mkdir -p "${BUILD_PATH}"
+quit_if_fail "Unable to create build directory ${BUILD_PATH}."
+cd "${BUILD_PATH}"
 mkdir -p check-command-line-tools
+quit_if_fail "Unable to create test directory."
 cd check-command-line-tools
 
 _macos_command_line_tools="On macOS, a common source of this problem is an out-of-date or broken installation of the XCode command-line tools. See README.md for more information."
@@ -1334,24 +1368,6 @@ quit_if_fail "The detected version of patch doesn't work correctly.\n${_macos_co
 cecho ${GOOD} "patch works"
 
 cecho ${GOOD} "The required command-line utilities work"
-
-################################################################################
-# Check that python is present and is new enough
-cecho ${INFO} "Testing that the python interpreter ${PYTHON_INTERPRETER} works"
-PYTHONVER=$(${PYTHON_INTERPRETER} -c "import sys; print('{}.{}'.format(sys.version_info.major, sys.version_info.minor))")
-quit_if_fail "The provided python interpreter ${PYTHON_INTERPRETER} could not run a basic test program. Try rerunning autoibamr with a different python interpreter (specified by --python-interpreter)"
-cecho ${GOOD} "The python interpreter ${PYTHON_INTERPRETER} works and has detected version ${PYTHONVER}"
-
-PYTHON_VERSION_MAJOR=$(${PYTHON_INTERPRETER} -c "import sys; print('{}'.format(sys.version_info.major))")
-PYTHON_VERSION_MINOR=$(${PYTHON_INTERPRETER} -c "import sys; print('{}'.format(sys.version_info.minor))")
-if [ ${PYTHON_VERSION_MAJOR} -lt 3 ]; then
-    cecho ${BAD} "The provided python interpreter ${PYTHON_INTERPRETER} implements Python ${PYTHONVER}, but PETSc (an IBAMR dependency) requires Python 3.4 or newer."
-    exit 1
-fi
-if [ ${PYTHON_VERSION_MINOR} -lt 4 ]; then
-    cecho ${BAD} "The provided python interpreter ${PYTHON_INTERPRETER} implements Python ${PYTHONVER}, but PETSc (an IBAMR dependency) requires Python 3.4 or newer."
-    exit 1
-fi
 
 ################################################################################
 # configuration script
