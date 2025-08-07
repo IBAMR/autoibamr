@@ -429,8 +429,17 @@ fi
 if [ "${USER_PREFIX_SET}" = "OFF" ] && [ "${DEBUGGING}" = "ON" ]; then
     PREFIX=~/autoibamr-debug
 fi
-PREFIX_PATH=${PREFIX/#~\//$HOME\/}
+RELATIVE_PREFIX_PATH=${PREFIX/#~\//$HOME\/}
+
+# convert to an absolute path. This is excessively difficult to portably do with
+# bash so just use python
+PREFIX_PATH=$($PYTHON_INTERPRETER -c "import os, sys; print(os.path.abspath(\"$RELATIVE_PREFIX_PATH\"))")
+cecho ${INFO} "Set installation prefix to $PREFIX_PATH"
+
 unset PREFIX
+
+mkdir -p "$PREFIX_PATH"
+quit_if_fail "Unable to create installation prefix directory $PREFIX_PATH."
 
 RE='^[0-9]+$'
 if [[ ! "${JOBS}" =~ ${RE} || ${JOBS} -lt 1 ]] ; then
