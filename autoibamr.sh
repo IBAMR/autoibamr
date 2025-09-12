@@ -124,6 +124,7 @@ guess_ostype() {
 
 ################################################################################
 # Parse command line input parameters
+ASSERTIONS_WITH_OPTIMIZATIONS=OFF
 BUILD_DEAL_II=OFF
 BUILD_EXODUS_II=OFF
 BUILD_LIBMESH=ON
@@ -132,7 +133,6 @@ BUILD_P4EST=OFF
 BUILD_SILO=ON
 CMAKE_LOAD_TARBALL=ON
 DEBUGGING=OFF
-ASSERTIONS_WITH_OPTIMIZATIONS=OFF
 DEPENDENCIES_ONLY=OFF
 EXTERNAL_BOOST=OFF
 EXTERNAL_BOOST_DIR=
@@ -140,6 +140,7 @@ IBAMR_VERSION=0.16.0
 JOBS=1
 NATIVE_OPTIMIZATIONS=OFF
 NATIVE_OPTIMIZATION_FLAGS="-march=native"
+PETSC_LAPACK_LIBRARY=openblas
 PREFIX=~/autoibamr
 USER_PREFIX_SET=OFF
 USER_INTERACTION=ON
@@ -203,6 +204,10 @@ while [ -n "$1" ]; do
             echo "                                         Implies --enable-native-optimizations. This flag is useful when"
             echo "                                         cross-compiling, e.g., when compiling for a specific processor architecture"
             echo "                                         which may not match the architecture of the current processor."
+            echo "  --lapack-library                       Name of the lapack library compiled by PETSc (either fblaslapack or"
+            echo "                                         openblas). Defaults to openblas. Openblas is more performant but, due to"
+            echo "                                         its use of machine-specific optimizations, may not work with callgrind or"
+            echo "                                         other profiling tools."
             echo "  --python-interpreter                   Absolute path to a python interpreter. Defaults to the first of"
             echo "                                         {python,python3,python2.7} found on the present machine."
             echo "  -p <path>, --prefix=<path>             Set a different prefix path (default $PREFIX)"
@@ -284,6 +289,17 @@ while [ -n "$1" ]; do
         # native optimization builds
         --enable-native-optimizations)
             NATIVE_OPTIMIZATIONS=ON
+        ;;
+
+        #####################################
+        # PETSc's BLAS+LAPACK library
+        --lapack-library)
+            shift
+            PETSC_LAPACK_LIBRARY="${1}"
+        ;;
+
+        --lapack-library=*)
+            PETSC_LAPACK_LIBRARY="${param#*=}"
         ;;
 
         #####################################
@@ -445,6 +461,14 @@ if [ ${DEBUGGING} = "ON" ] && [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
   cecho ${BAD} "ERROR: --enable-debugging and --enable-native-optimizations are mutually incompatible features."
   exit 1
 fi
+
+if [ "${PETSC_LAPACK_LIBRARY}" != "fblaslapack" ] && [ "${PETSC_LAPACK_LIBRARY}" != "openblas" ]; then
+  cecho ${BAD} "ERROR: The value set by --lapack-library, '${PETSC_LAPACK_LIBRARY}', is neither fblaslapack nor openblas."
+  exit 1
+fi
+cecho ${INFO} "Setting up PETSc with ${PETSC_LAPACK_LIBRARY}"
+
+
 if [ ${DEBUGGING} = "ON" ] && [ ${ASSERTIONS_WITH_OPTIMIZATIONS} = "ON" ]; then
   cecho ${BAD} "ERROR: --enable-debugging and --enable-assertions-with-optimizations are mutually incompatible features."
   exit 1
