@@ -127,7 +127,7 @@ file is backed up as `autoibamr.log.previous`.
 
 For example, here are the first 50 lines of a log file:
 ```
-This is autoibamr - automatically compile and install IBAMR 0.16.0
+This is autoibamr - automatically compile and install IBAMR 0.17.0
 Flags: --enable-debugging -j16 --disable-libmesh
 Operating System Type detected as: linux
 Dynamic shared library file extension detected as: *.so
@@ -237,15 +237,15 @@ There are two ways to use autoibamr's IBAMR installation in this way:
    include the copy of CMake provided by autoibamr.
 
 2. Use the IBAMR installation directory directly: By default, IBAMR is installed
-   in `$HOME/autoibamr/packages/IBAMR-0.16.0/`. You can configure your own IBAMR
+   in `$HOME/autoibamr/packages/IBAMR-0.17.0/`. You can configure your own IBAMR
    application by running
 
 ```bash
-   $HOME/autoibamr/packages/cmake-3.30.6/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.16.0/" -DCMAKE_CXX_COMPILER="$(which mpic++)" .
+   $HOME/autoibamr/packages/cmake-3.30.6/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.17.0/" -DCMAKE_CXX_COMPILER="$(which mpic++)" .
 ```
    or, with a debug build
 ```bash
-   $HOME/autoibamr-debug/packages/cmake-3.30.6/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.16.0/" -DCMAKE_CXX_COMPILER="$(which mpic++)" .
+   $HOME/autoibamr-debug/packages/cmake-3.30.6/bin/cmake -DIBAMR_ROOT="$HOME/autoibamr/packages/IBAMR-0.17.0/" -DCMAKE_CXX_COMPILER="$(which mpic++)" .
 ```
    *In all cases, you should set up your own application with the same MPI
    compiler wrapper which was used when running autoibamr.*
@@ -259,14 +259,15 @@ Working with IBAMR examples
 autoibamr sets up IBAMR and its dependencies for use in external projects. It
 can be used to develop IBAMR itself in two different ways:
 1. The IBAMR source directory, is, by default,
-   `autoibamr/tmp/unpack/IBAMR-0.16.0/` and the build directory is
-   `autoibamr/tmp/build/v0.16.0/`. As usual, the by default the prefix is
+   `autoibamr/tmp/unpack/IBAMR-0.17.0/` and the build directory is
+   `autoibamr/tmp/build/v0.17.0/`. As usual, the by default the prefix is
    `autoibamr-debug` when compiled in debug mode. While this is not the intended
    way to use autoibamr, you can compile and run examples from the build
    directory after installation.
 2. You can install your own development copy of IBAMR that uses the dependencies
    installed by autoibamr. To do this you should provide the `--dependencies-only`
-   flag when running the script (`./autoibamr.sh --dependencies-only`) and then download and compile IBAMR yourself after autoibamr finishes.
+   flag when running the script (`./autoibamr.sh --dependencies-only`) and then 
+   download and compile IBAMR yourself after autoibamr finishes.
 3. Finally, you could set up the IBAMR examples as external projects configured
    with CMake in the normal way by copying and pasting them.
 
