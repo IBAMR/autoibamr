@@ -136,7 +136,7 @@ DEBUGGING=OFF
 DEPENDENCIES_ONLY=OFF
 EXTERNAL_BOOST=OFF
 EXTERNAL_BOOST_DIR=
-IBAMR_VERSION=0.16.0
+IBAMR_VERSION=0.17.0
 JOBS=1
 NATIVE_OPTIMIZATIONS=OFF
 NATIVE_OPTIMIZATION_FLAGS="-march=native"
@@ -199,7 +199,7 @@ while [ -n "$1" ]; do
             echo "                                         This flag is deprecated since numdiff is automatically enabled."
             echo "  --external-boost=<path>                Use an external copy of boost instead of the one bundled with IBAMR."
             echo "  --ibamr-version                        Version of IBAMR to install. Presently, versions 0.10.1, 0.11.0, 0.12.0,"
-            echo "                                         0.12.1, 0.13.0, 0.14.0, 0.15.0, and 0.16.0 are supported."
+            echo "                                         0.12.1, 0.13.0, 0.14.0, 0.15.0, 0.16.0, and 0.17.0 are supported."
             echo "  --native-optimizations-flags           Use a specific set of flags when compiling with native optimizations."
             echo "                                         Implies --enable-native-optimizations. This flag is useful when"
             echo "                                         cross-compiling, e.g., when compiling for a specific processor architecture"
@@ -474,7 +474,9 @@ if [ ${DEBUGGING} = "ON" ] && [ ${ASSERTIONS_WITH_OPTIMIZATIONS} = "ON" ]; then
   exit 1
 fi
 
-if [ "${IBAMR_VERSION}" = "0.16.0" ]; then
+if [ "${IBAMR_VERSION}" = "0.17.0" ]; then
+    SAMRAI_VERSION=2025.09.12
+elif [ "${IBAMR_VERSION}" = "0.16.0" ]; then
     SAMRAI_VERSION=2025.01.09
 elif [ "${IBAMR_VERSION}" = "0.15.0" ]; then
     SAMRAI_VERSION=2024.06.28
@@ -491,7 +493,7 @@ elif [ "${IBAMR_VERSION}" = "0.11.0" ]; then
 elif [ "${IBAMR_VERSION}" = "0.10.1" ]; then
     SAMRAI_VERSION=2.4.4
 else
-    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR versions 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.12.1, 0.12.0, 0.11.0, and 0.10.1."
+    cecho ${BAD} "ERROR: at the present time autoibamr only supports IBAMR versions 0.17.0, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.12.1, 0.12.0, 0.11.0, and 0.10.1."
     exit 1
 fi
 

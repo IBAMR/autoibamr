@@ -1,9 +1,8 @@
-# https://github.com/dealii/dealii/releases/download/v9.6.0/dealii-9.6.0.tar.gz
-VERSION=9.6.0
+VERSION=9.7.1
 NAME=dealii-${VERSION}
 SOURCE=https://github.com/dealii/dealii/releases/download/v$VERSION/
 PACKING=.tar.gz
-CHECKSUM=675323f0eb8eed2cfc93e2ced07a0ec5727c6a566ff9e7786c01a2ddcde17bed
+CHECKSUM=0f2096ef83db54fdcebe9f3d148fa713f63f1c3f567941b53bcb4a1a8ea7de43
 BUILDCHAIN=cmake
 
 INSTALL_PATH="${INSTALL_PATH}/dealii-${VERSION}"
