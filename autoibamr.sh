@@ -475,7 +475,7 @@ if [ ${DEBUGGING} = "ON" ] && [ ${ASSERTIONS_WITH_OPTIMIZATIONS} = "ON" ]; then
 fi
 
 if [ "${IBAMR_VERSION}" = "0.17.0" ]; then
-    SAMRAI_VERSION=2025.01.09
+    SAMRAI_VERSION=2025.09.12
 elif [ "${IBAMR_VERSION}" = "0.16.0" ]; then
     SAMRAI_VERSION=2025.01.09
 elif [ "${IBAMR_VERSION}" = "0.15.0" ]; then
