@@ -25,6 +25,19 @@ fi
 
 INSTALL_PATH=${INSTALL_PATH}/${NAME}
 
+# ensure configure is executable before the generic autotools step runs
+package_specific_setup () {
+    cecho ${INFO} "hdf5: running package_specific_setup"
+    cd "${UNPACK_PATH}/${NAME}"
+    quit_if_fail "hdf5: cd into source directory failed"
+
+    if [ -f configure ] && [ ! -x configure ]; then
+        cecho ${INFO} "hdf5: adding execute permission to configure"
+        chmod +x configure
+        quit_if_fail "hdf5: chmod +x configure failed"
+    fi
+}
+
 package_specific_register () {
     export HDF5_DIR=${INSTALL_PATH}
 }
