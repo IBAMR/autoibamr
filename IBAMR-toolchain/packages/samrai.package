@@ -50,8 +50,18 @@ elif [ "${SAMRAI_VERSION}" = "2025.09.12" ]; then
     EXTRACTSTO=IBSAMRAI2-$VERSION
     BUILDCHAIN=autotools
     INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
+elif [ "${SAMRAI_VERSION}" = "2025.10.29" ]; then
+    VERSION=2025.10.29
+    CHECKSUM=82e25fa7def52fa5e18a04b31b35a5683960a2c8a65a40e4f7a4584c34e05c63
+
+    NAME=${VERSION}
+    PACKING=.tar.gz
+    SOURCE=https://github.com/IBAMR/IBSAMRAI2/archive/refs/tags/
+    EXTRACTSTO=IBSAMRAI2-$VERSION
+    BUILDCHAIN=autotools
+    INSTALL_PATH=${INSTALL_PATH}/${EXTRACTSTO}
 else
-    cecho ${BAD} "ERROR: at the present time autoibamr only supports SAMRAI/IBSAMRAI2 versions 2.4.4, 2024.01.24, 2024.06.28, 2025.01.09, and 2025.09.12."
+    cecho ${BAD} "ERROR: at the present time autoibamr only supports SAMRAI/IBSAMRAI2 versions 2.4.4, 2024.01.24, 2024.06.28, 2025.01.09, 2025.09.12, and 2025.10.29."
     exit 1
 fi
 
