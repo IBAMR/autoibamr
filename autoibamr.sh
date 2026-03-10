@@ -150,6 +150,10 @@ USER_INTERACTION=ON
 unset EXTRACTSTO
 unset BUILDDIR
 
+# if we can link against zlib, then use it
+DETECT_EXTERNAL_ZLIB=ON
+USE_EXTERNAL_ZLIB=OFF
+
 # Figure out which binary to use for python support. Note that older PETSc ./configure only supports python2. For now, prefer
 # using python2 but use what the user supplies as PYTHON_INTERPRETER.
 if builtin command -v $(which python) --version >/dev/null 2>/dev/null; then
@@ -210,6 +214,13 @@ while [ -n "$1" ]; do
             echo "                                         other profiling tools."
             echo "  --python-interpreter                   Absolute path to a python interpreter. Defaults to the first of"
             echo "                                         {python,python3,python2.7} found on the present machine."
+            echo "  --disable-external-zlib                By default, autoibamr will attempt to detect and use the system installation"
+            echo "                                         of zlib. Since MPI implementations typically link against zlib, it is not"
+            echo "                                         possible to install this dependency via autoibamr. Since zlib enables"
+            echo "                                         compression of visualization output (a key feature), correctly detecting"
+            echo "                                         zlib can significantly reduce disk usage. This flag disables autodetection"
+            echo "                                         (and therefore disables zlib). autoibamr does not support external non-system"
+            echo "                                         installations of zlib since they are relatively rare."
             echo "  -p <path>, --prefix=<path>             Set a different prefix path (default $PREFIX)"
             echo "  -j <N>, -j<N>, --jobs=<N>              Compile with N processes in parallel (default ${JOBS})"
             echo "  -y, --yes, --assume-yes                Automatic yes to prompts."
@@ -341,6 +352,13 @@ while [ -n "$1" ]; do
 
         --python-interpreter=*)
             PYTHON_INTERPRETER="${param#*=}"
+        ;;
+
+        #####################################
+        # zlib detection
+        --disable-external-zlib)
+            shift
+            DETECT_EXTERNAL_ZLIB=OFF
         ;;
 
         #####################################
@@ -1324,6 +1342,33 @@ EOF
     ${FC} ${NATIVE_OPTIMIZATION_FLAGS} test.f -o test.f.out
     quit_if_fail "The native optimization flags '${NATIVE_OPTIMIZATION_FLAGS}' are not compatible with the Fortran compiler ${FC}."
     cecho ${GOOD} "The provided native optimization flag(s) work"
+fi
+
+################################################################################
+# If the MPI compiler wrappers can compile and link a zlib app, then
+# use zlib.
+if [ "${DETECT_EXTERNAL_ZLIB}" = "ON" ]; then
+    cat > ./testzlib.c <<"EOF"
+    #include <mpi.h>
+    #include <zlib.h>
+
+    int main(int argc, char **argv)
+    {
+    z_stream strm;
+    deflate(&strm, 0);
+    }
+EOF
+
+    cecho ${INFO} "Testing for external zlib support"
+    ${CC} testzlib.c -lz -o zlibapp
+    STATUS=$?
+    if [ ${STATUS} -eq 0 ]; then
+        cecho ${GOOD} "Using the external zlib library"
+        USE_EXTERNAL_ZLIB=ON
+    else
+        cecho ${INFO} "Unable to link with the version of zlib used by MPI - skipping zlib support"
+        USE_EXTERNAL_ZLIB=OFF
+    fi
 fi
 
 ################################################################################

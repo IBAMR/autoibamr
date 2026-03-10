@@ -44,9 +44,8 @@ CONFOPTS="
 -DDEAL_II_WITH_UMFPACK=ON
 -DDEAL_II_FORCE_BUNDLED_UMFPACK=ON
 -DDEAL_II_WITH_VTK=OFF
+-DDEAL_II_WITH_ZLIB=${USE_EXTERNAL_ZLIB}
 "
-# except zlib - like HDF5, just let deal.II detect it if it can
-
 # Set other configuration flags.
 #
 # TODO: unity builds take up too much memory in this release - switch this back
