@@ -1230,6 +1230,13 @@ if [ -z "${CC}" ] || [ -z "${CXX}" ] || [ -z "${FC}" ]; then
     exit 1
 fi
 
+if [ -z "${LD_LIBRARY_PATH}" ]; then
+    cecho ${INFO} "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}"
+fi
+if [ -z "${LD_PRELOAD}" ]; then
+    cecho ${INFO} "LD_PRELOAD=${LD_PRELOAD}"
+fi
+
 ################################################################################
 # If interaction is enabled, force the user to accept the current output
 if [ ${USER_INTERACTION} = ON ]; then
