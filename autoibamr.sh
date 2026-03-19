@@ -72,10 +72,6 @@ unset LIBS
 unset LDFLAGS
 unset METHODS
 
-# also prevent hijacking of the link path
-unset LD_LIBRARY_PATH
-unset LD_PRELOAD
-
 ################################################################################
 # Define autoibamr helper functions
 
