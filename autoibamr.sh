@@ -72,10 +72,6 @@ unset LIBS
 unset LDFLAGS
 unset METHODS
 
-# also prevent hijacking of the link path
-unset LD_LIBRARY_PATH
-unset LD_PRELOAD
-
 ################################################################################
 # Define autoibamr helper functions
 
@@ -1232,6 +1228,16 @@ if [ -z "${CC}" ] || [ -z "${CXX}" ] || [ -z "${FC}" ]; then
     cecho ${BAD} "autoibamr."
     echo
     exit 1
+fi
+
+if [ -n "${LD_PRELOAD}" ]; then
+    cecho ${INFO} "LD_PRELOAD=${LD_PRELOAD}. This flag may be set by a module"
+    cecho ${INFO} "but should not be set otherwise."
+fi
+
+if [ -n "${LD_LIBRARY_PATH}" ]; then
+    cecho ${INFO} "LD_LIBRARY_PATH=${LD_LIBRARY_PATH} This flag may be set by a"
+    cecho ${INFO} "module but should not be set otherwise."
 fi
 
 ################################################################################
