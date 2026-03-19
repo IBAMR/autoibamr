@@ -1230,6 +1230,16 @@ if [ -z "${CC}" ] || [ -z "${CXX}" ] || [ -z "${FC}" ]; then
     exit 1
 fi
 
+if [ -n "${LD_PRELOAD}" ]; then
+    cecho ${INFO} "LD_PRELOAD=${LD_PRELOAD}. This flag may be set by a module"
+    cecho ${INFO} "but should not be set otherwise."
+fi
+
+if [ -n "${LD_LIBRARY_PATH}" ]; then
+    cecho ${INFO} "LD_LIBRARY_PATH=${LD_LIBRARY_PATH} This flag may be set by a"
+    cecho ${INFO} "module but should not be set otherwise."
+fi
+
 ################################################################################
 # If interaction is enabled, force the user to accept the current output
 if [ ${USER_INTERACTION} = ON ]; then
