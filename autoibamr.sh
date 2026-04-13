@@ -141,6 +141,7 @@ JOBS=1
 NATIVE_OPTIMIZATIONS=OFF
 NATIVE_OPTIMIZATION_FLAGS="-march=native"
 PETSC_LAPACK_LIBRARY=openblas
+PETSC_KOKKOS=OFF
 PREFIX=~/autoibamr
 USER_PREFIX_SET=OFF
 USER_INTERACTION=ON
@@ -212,6 +213,8 @@ while [ -n "$1" ]; do
             echo "                                         openblas). Defaults to openblas. Openblas is more performant but, due to"
             echo "                                         its use of machine-specific optimizations, may not work with callgrind or"
             echo "                                         other profiling tools."
+            echo "  --enable-petsc-kokkos                 Build PETSc with Kokkos and Kokkos Kernels support."
+            echo "                                         This increases PETSc's C++ requirements (typically C++17)."
             echo "  --python-interpreter                   Absolute path to a python interpreter. Defaults to the first of"
             echo "                                         {python,python3,python2.7} found on the present machine."
             echo "  --disable-external-zlib                By default, autoibamr will attempt to detect and use the system installation"
@@ -311,6 +314,12 @@ while [ -n "$1" ]; do
 
         --lapack-library=*)
             PETSC_LAPACK_LIBRARY="${param#*=}"
+        ;;
+
+        #####################################
+        # PETSc Kokkos support
+        --enable-petsc-kokkos)
+            PETSC_KOKKOS=ON
         ;;
 
         #####################################
@@ -485,6 +494,11 @@ if [ "${PETSC_LAPACK_LIBRARY}" != "fblaslapack" ] && [ "${PETSC_LAPACK_LIBRARY}"
   exit 1
 fi
 cecho ${INFO} "Setting up PETSc with ${PETSC_LAPACK_LIBRARY}"
+if [ "${PETSC_KOKKOS}" = "ON" ]; then
+  cecho ${INFO} "Setting up PETSc with Kokkos and Kokkos Kernels"
+else
+  cecho ${INFO} "Setting up PETSc without Kokkos and Kokkos Kernels"
+fi
 
 
 if [ ${DEBUGGING} = "ON" ] && [ ${ASSERTIONS_WITH_OPTIMIZATIONS} = "ON" ]; then

@@ -37,6 +37,10 @@ for external_pkg in ${PETSC_LAPACK_LIBRARY} hypre metis parmetis; do
     CONFOPTS="${CONFOPTS} --download-${external_pkg}=1"
 done
 
+if [ "${PETSC_KOKKOS}" = "ON" ]; then
+    CONFOPTS="${CONFOPTS} --download-kokkos=1 --download-kokkos-kernels=1"
+fi
+
 #########################################################################
 
 package_specific_setup () {

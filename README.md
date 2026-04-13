@@ -316,6 +316,14 @@ optimizations, and debug symbols. In this case autoibamr is installed into
 ```
 Turns on processor-specific optimizations. Incompatible with debug mode.
 
+#### PETSc Kokkos support: `--enable-petsc-kokkos`
+```bash
+  ./autoibamr.sh --enable-petsc-kokkos
+```
+Builds PETSc with Kokkos and Kokkos Kernels via `--download-kokkos` and
+`--download-kokkos-kernels`. This may require a newer C++ toolchain
+(typically C++17-capable compiler wrappers).
+
 #### User interaction: ``[-y]``, ``[--yes]``, ``[--assume-yes]``
 ```bash
   ./autoibamr.sh -y
