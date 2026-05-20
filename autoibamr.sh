@@ -1008,6 +1008,10 @@ if [ ${EXTERNAL_BOOST} = "ON" ]; then
         cecho ${BAD} "The provided external boost does not have the roots.hpp header required by IBAMR."
         exit 1
     fi
+    if [ ! -e "${EXTERNAL_BOOST_DIR}/include/boost/geometry/index/rtree.hpp" ]; then
+        cecho ${BAD} "The provided external boost does not have the rtree.hpp header required by IBAMR."
+        exit 1
+    fi
     cecho ${INFO} "External boost in ${EXTERNAL_BOOST_DIR} passed basic checks."
 fi
 
@@ -1025,6 +1029,9 @@ PACKAGES_OFF=""
 # all packages are mandatory except Silo and libMesh. PETSc, SAMRAI, and SILO
 # all depend on HDF5. libMesh depends on PETSc.
 PACKAGES="cmake hdf5 petsc"
+if [ ${EXTERNAL_BOOST} = "OFF" ]; then
+    PACKAGES="${PACKAGES} boost"
+fi
 if [ ${BUILD_NUMDIFF} = "ON" ]; then
     PACKAGES="${PACKAGES} numdiff"
 fi
