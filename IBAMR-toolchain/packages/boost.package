@@ -1,0 +1,32 @@
+VERSION=1.91.0-1
+NAME=boost-$VERSION-cmake
+SOURCE=https://github.com/boostorg/boost/releases/download/boost-$VERSION/
+PACKING=.tar.gz
+CHECKSUM=8a82bd11a720c70923806c36ee5c26dbd2d630c1eaa1d8fad9a7bd5529908a26
+EXTRACTSTO=boost-${VERSION}
+BUILDCHAIN=cmake
+
+INSTALL_PATH="${INSTALL_PATH}/boost-${VERSION}"
+
+# This list covers both deal.II and IBAMR.
+CONFOPTS="
+-DCMAKE_BUILD_TYPE=Release
+-DCMAKE_CXX_STANDARD=17
+-DBUILD_SHARED_LIBS=ON
+-DBOOST_ENABLE_MPI=OFF
+-DBOOST_ENABLE_PYTHON=OFF
+-DBOOST_INCLUDE_LIBRARIES=\"algorithm;any;archive;container;core;geometry;graph;hana;io;iostreams;multi_array;math;property_tree;random;range;serialization;signals2;smart_ptr;type_traits\"
+"
+
+package_specific_register () {
+    export BOOST_DIR=${INSTALL_PATH}
+}
+
+package_specific_conf () {
+    # Generate configuration file
+    CONFIG_FILE=${CONFIGURATION_PATH}/boost-$VERSION
+    rm -f $CONFIG_FILE
+    echo "
+export BOOST_DIR=${INSTALL_PATH}
+" >> $CONFIG_FILE
+}
