@@ -140,7 +140,11 @@ IBAMR_VERSION=0.19.0
 JOBS=1
 NATIVE_OPTIMIZATIONS=OFF
 NATIVE_OPTIMIZATION_FLAGS="-march=native"
-PETSC_LAPACK_LIBRARY=openblas
+if [ "$(guess_ostype)" = "macos" ]; then
+    PETSC_LAPACK_LIBRARY=veclib
+else
+    PETSC_LAPACK_LIBRARY=openblas
+fi
 PREFIX=~/autoibamr
 USER_PREFIX_SET=OFF
 USER_INTERACTION=ON
@@ -208,10 +212,10 @@ while [ -n "$1" ]; do
             echo "                                         Implies --enable-native-optimizations. This flag is useful when"
             echo "                                         cross-compiling, e.g., when compiling for a specific processor architecture"
             echo "                                         which may not match the architecture of the current processor."
-            echo "  --lapack-library                       Name of the lapack library compiled by PETSc (either fblaslapack or"
-            echo "                                         openblas). Defaults to openblas. Openblas is more performant but, due to"
-            echo "                                         its use of machine-specific optimizations, may not work with callgrind or"
-            echo "                                         other profiling tools."
+            echo "  --lapack-library                       PETSc BLAS/LAPACK backend (fblaslapack, openblas, or veclib)."
+            echo "                                         Defaults to veclib on macOS and openblas on other platforms."
+            echo "                                         OpenBLAS is more performant but, due to its use of machine-specific"
+            echo "                                         optimizations, may not work with callgrind or other profiling tools."
             echo "  --python-interpreter                   Absolute path to a python interpreter. Defaults to the first of"
             echo "                                         {python,python3,python2.7} found on the present machine."
             echo "  --disable-external-zlib                By default, autoibamr will attempt to detect and use the system installation"
@@ -480,8 +484,13 @@ if [ ${DEBUGGING} = "ON" ] && [ ${NATIVE_OPTIMIZATIONS} = "ON" ]; then
   exit 1
 fi
 
-if [ "${PETSC_LAPACK_LIBRARY}" != "fblaslapack" ] && [ "${PETSC_LAPACK_LIBRARY}" != "openblas" ]; then
-  cecho ${BAD} "ERROR: The value set by --lapack-library, '${PETSC_LAPACK_LIBRARY}', is neither fblaslapack nor openblas."
+if [ "${PETSC_LAPACK_LIBRARY}" != "fblaslapack" ] && [ "${PETSC_LAPACK_LIBRARY}" != "openblas" ] && [ "${PETSC_LAPACK_LIBRARY}" != "veclib" ]; then
+  cecho ${BAD} "ERROR: The value set by --lapack-library, '${PETSC_LAPACK_LIBRARY}', is not one of: fblaslapack, openblas, veclib."
+  exit 1
+fi
+
+if [ "${PETSC_LAPACK_LIBRARY}" = "veclib" ] && [ "${PLATFORM_OSTYPE}" != "macos" ]; then
+  cecho ${BAD} "ERROR: --lapack-library=veclib is only supported on macOS."
   exit 1
 fi
 cecho ${INFO} "Setting up PETSc with ${PETSC_LAPACK_LIBRARY}"

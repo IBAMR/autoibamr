@@ -33,7 +33,14 @@ else
     CONFOPTS="${CONFOPTS} --with-debugging=0"
 fi
 
-for external_pkg in ${PETSC_LAPACK_LIBRARY} hypre metis parmetis; do
+if [ "${PETSC_LAPACK_LIBRARY}" = "veclib" ]; then
+    # Use Apple's Accelerate/vecLib BLAS+LAPACK on macOS.
+    CONFOPTS="${CONFOPTS} --with-blaslapack-lib=-Wl,-framework,Accelerate"
+else
+    CONFOPTS="${CONFOPTS} --download-${PETSC_LAPACK_LIBRARY}=1"
+fi
+
+for external_pkg in hypre metis parmetis; do
     CONFOPTS="${CONFOPTS} --download-${external_pkg}=1"
 done
 
